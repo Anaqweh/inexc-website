@@ -990,7 +990,7 @@
         <a href="index.html">الرئيسية</a>
         <a href="index.html#courses">الدورات</a>
         <a href="register.html" class="active">التسجيل</a>
-        <a href="login.html">حسابي</a>
+        <a href="account.html">حسابي</a>
       </nav>
       <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
         <span></span>
@@ -1108,6 +1108,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="js/registration-email-template.js"></script>
+  <script src="js/registration-email.js"></script>
   <script>
     const EMAILJS_PUBLIC_KEY = 'yMzG_9c-aPOcDzeXF';
     const EMAILJS_SERVICE_ID = 'service_6saogmp';
@@ -1713,7 +1715,24 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     async function sendConfirmationEmail(params) {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+      const emailParams = InexcRegistrationEmail.getEmailParams(params);
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify(emailParams)
+        });
+        if (res.ok) return;
+        console.warn('send-registration-email:', await res.text());
+      } catch (err) {
+        console.warn('send-registration-email error:', err);
+      }
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {

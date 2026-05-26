@@ -5468,8 +5468,9 @@
           <td>${escapeHtml(t.course)}</td>
           <td><span class="status-badge ${t.regType === 'paid' ? 'type-paid' : 'type-free'}">${regTypeLabel(t.regType)}</span></td>
           <td><span class="status-badge ${statusClass(t.status)}">${statusLabel(t.status)}</span></td>
-          <td>
+          <td class="actions-cell">
             <button type="button" class="btn btn-navy btn-sm" onclick="viewTrainee('${t.id}')">عرض التفاصيل</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteTraineePermanently('${t.id}')">حذف نهائي</button>
           </td>
         </tr>
       `).join('');
@@ -5499,6 +5500,7 @@
           <button type="button" class="btn btn-navy btn-sm" onclick="updateTraineeStatus('${trainee.id}', 'active')">تفعيل</button>
           <button type="button" class="btn btn-sm" style="background: rgba(200,148,58,0.15); color: var(--warning);" onclick="updateTraineeStatus('${trainee.id}', 'pending')">قيد المراجعة</button>
           <button type="button" class="btn btn-danger btn-sm" onclick="updateTraineeStatus('${trainee.id}', 'inactive')">تعطيل</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteTraineePermanently('${trainee.id}')">🗑 حذف نهائي</button>
         </div>
         <div class="trainee-message-box">
           <h4>إرسال رسالة للمتدرب</h4>
@@ -5533,6 +5535,59 @@
         closeModal('traineeModal');
       } catch (err) {
         showSupabaseError(err, 'reload after update');
+      }
+    };
+
+    async function deleteRelatedByRegistrationId(registrationId) {
+      const relatedTables = [
+        { table: 'payments', column: 'registration_id' },
+        { table: 'trainee_enrollments', column: 'registration_id' },
+        { table: 'coupon_redemptions', column: 'registration_id' },
+        { table: 'trainee_messages', column: 'registration_id' }
+      ];
+
+      for (const { table, column } of relatedTables) {
+        const { error } = await supabaseClient
+          .from(table)
+          .delete()
+          .eq(column, registrationId);
+
+        if (error && !isMissingTableError(error)) {
+          throw new Error('تعذّر حذف البيانات المرتبطة (' + table + '): ' + error.message);
+        }
+      }
+    }
+
+    window.deleteTraineePermanently = async function(id) {
+      const trainee = traineesCache.find(t => String(t.id) === String(id));
+      if (!trainee) return;
+
+      const confirmMsg =
+        'هل تريد حذف المتدرب «' + trainee.name + '» نهائياً؟\n\n' +
+        'سيتم حذف سجل التسجيل والمدفوعات والرسائل المرتبطة به.\n' +
+        'لا يمكن التراجع عن هذا الإجراء.';
+
+      if (!confirm(confirmMsg)) return;
+
+      hideActionError();
+
+      try {
+        await deleteRelatedByRegistrationId(id);
+
+        const { error } = await supabaseClient
+          .from('registrations')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          showSupabaseError(error, 'delete trainee');
+          return;
+        }
+
+        closeModal('traineeModal');
+        await reloadFromSupabase();
+      } catch (err) {
+        showSupabaseError(err, 'delete trainee permanently');
       }
     };
 
@@ -6441,15 +6496,14 @@
     }
 
     window.deleteMessage = async function(id) {
-      if (!confirm('هل تريد حذف هذه الرسالة؟')) return;
+      if (!confirm('هل تريد حذف هذه الرسالة نهائياً؟\n\nلا يمكن التراجع عن هذا الإجراء.')) return;
 
       hideActionError();
       const table = messagesFromDb ? 'messages' : 'registrations';
-      const payload = messagesFromDb ? { hidden: true } : { admin_hidden: true };
 
       const { error } = await supabaseClient
         .from(table)
-        .update(payload)
+        .delete()
         .eq('id', id);
 
       if (error) {

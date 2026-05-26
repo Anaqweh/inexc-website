@@ -180,7 +180,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="js/registration-email-template.js"></script>
+  <script src="js/registration-email.js"></script>
   <script>
+    const EMAILJS_PUBLIC_KEY = 'yMzG_9c-aPOcDzeXF';
+    const EMAILJS_SERVICE_ID = 'service_6saogmp';
+    const EMAILJS_TEMPLATE_ID = 'template_dfjikev';
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+
     const PAID_STATUSES = new Set(['completed', 'paid', 'active', 'succeeded']);
 
     function isPaidStatus(status) {
@@ -226,6 +234,60 @@
         .maybeSingle();
       if (error) throw error;
       return data;
+    }
+
+    async function loadRegistration(registrationId) {
+      if (!registrationId) return null;
+      const { data, error } = await supabaseClient
+        .from('registrations')
+        .select('full_name, email, phone, course_name, registration_type')
+        .eq('id', registrationId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+
+    async function sendRegistrationConfirmationEmail(registration) {
+      if (!registration?.email) return;
+      const emailParams = InexcRegistrationEmail.getEmailParams({
+        to_name: registration.full_name,
+        email: registration.email,
+        phone: registration.phone,
+        course_name: registration.course_name,
+        registration_type: registration.registration_type
+      });
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify(emailParams)
+        });
+        if (res.ok) return;
+        console.warn('send-registration-email:', await res.text());
+      } catch (err) {
+        console.warn('send-registration-email error:', err);
+      }
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+    }
+
+    async function maybeSendConfirmationEmail(payment) {
+      if (!payment?.registration_id) return;
+      const storageKey = 'inexc_reg_email_' + payment.registration_id;
+      if (sessionStorage.getItem(storageKey)) return;
+
+      try {
+        const registration = await loadRegistration(payment.registration_id);
+        if (!registration) return;
+        await sendRegistrationConfirmationEmail(registration);
+        sessionStorage.setItem(storageKey, '1');
+      } catch (err) {
+        console.warn('confirmation email:', err.message);
+      }
     }
 
     async function loadAccessToken(registrationId) {
@@ -283,7 +345,7 @@
 
       if (accessToken) {
         const accountBtn = document.createElement('a');
-        accountBtn.href = 'account.html?token=' + encodeURIComponent(accessToken);
+        accountBtn.href = 'account.html';
         accountBtn.className = 'btn btn-navy';
         accountBtn.textContent = 'الذهاب إلى حسابي';
         actions.appendChild(accountBtn);
@@ -359,6 +421,7 @@
         text: 'شكراً لك. تم تأكيد عملية الدفع بنجاح.'
       });
       renderDetails(payment);
+      await maybeSendConfirmationEmail(payment);
 
       if (payment.receipt_url) {
         hideReceiptNote();
@@ -370,7 +433,7 @@
 
       if (accessToken) {
         setTimeout(() => {
-          window.location.href = 'account.html?token=' + encodeURIComponent(accessToken);
+          window.location.href = 'account.html';
         }, 5000);
         document.getElementById('resultText').textContent +=
           ' سيتم تحويلك تلقائياً إلى حسابك خلال لحظات.';
