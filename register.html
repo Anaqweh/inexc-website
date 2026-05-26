@@ -1714,8 +1714,26 @@ NOTIFY pgrst, 'reload schema';`;
       return { text: parts.join(' — ') || 'تعذّر حفظ بيانات التسجيل. يرجى المحاولة مرة أخرى.', showSql: false };
     }
 
-    async function sendConfirmationEmail(params) {
-      const emailParams = InexcRegistrationEmail.getEmailParams(params);
+    async function sendConfirmationEmail({ to_name, email, course_name, registration_type, phone }) {
+      const recipientEmail = String(email || '').trim();
+      if (!recipientEmail) return;
+
+      const emailParams = InexcRegistrationEmail.getEmailParams({
+        to_name,
+        email: recipientEmail,
+        course_name,
+        registration_type,
+        phone
+      });
+
+      const payload = {
+        ...emailParams,
+        to_email: recipientEmail,
+        reply_to: recipientEmail,
+        full_name: to_name,
+        course_name,
+        phone
+      };
 
       try {
         const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
@@ -1724,7 +1742,7 @@ NOTIFY pgrst, 'reload schema';`;
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
           },
-          body: JSON.stringify(emailParams)
+          body: JSON.stringify(payload)
         });
         if (res.ok) return;
         console.warn('send-registration-email:', await res.text());
@@ -1732,7 +1750,7 @@ NOTIFY pgrst, 'reload schema';`;
         console.warn('send-registration-email error:', err);
       }
 
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {
@@ -1839,6 +1857,9 @@ NOTIFY pgrst, 'reload schema';`;
       const templateParams = {
         to_name: fullName,
         email,
+        to_email: email,
+        reply_to: email,
+        full_name: fullName,
         course_name: courseName,
         registration_type: registrationType,
         phone
