@@ -8,6 +8,7 @@
   <title>بوابة المتدرب | INEXC</title>
 
   <style>
+
     *{
       margin:0;
       padding:0;
@@ -61,6 +62,16 @@
       justify-content:space-between;
       align-items:center;
       margin-bottom:25px;
+    }
+
+    .logout-btn{
+      background:#d8b36a;
+      color:#102a5c;
+      border:none;
+      padding:12px 20px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
     }
 
     .user-box{
@@ -145,34 +156,34 @@
       background:#d8b36a;
     }
 
-    .logout-btn{
-      background:#d8b36a;
-      color:#102a5c;
-      border:none;
-      padding:12px 20px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:bold;
-    }
-
   </style>
+
 </head>
 
 <body>
 
 <div class="loading-screen" id="loadingScreen">
+
   <div class="spinner"></div>
-  <h2>جاري تحميل بوابة المتدرب...</h2>
+
+  <h2>
+    جاري تحميل بوابة المتدرب...
+  </h2>
+
 </div>
 
 <div class="dashboard" id="dashboard">
 
   <div class="topbar">
-    <h2>بوابة المتدرب — INEXC AI</h2>
+
+    <h2>
+      بوابة المتدرب — INEXC AI
+    </h2>
 
     <button class="logout-btn" onclick="logout()">
       تسجيل الخروج
     </button>
+
   </div>
 
   <div class="user-box">
@@ -182,6 +193,7 @@
     </div>
 
     <div class="user-info">
+
       <h2 id="studentName">
         Ahmed Ismail Anaqweh
       </h2>
@@ -189,6 +201,7 @@
       <p id="studentEmail">
         admin@inexc.com
       </p>
+
     </div>
 
   </div>
@@ -219,26 +232,40 @@
 
   <div class="courses">
 
-    <h2>الدورات الحالية</h2>
+    <h2>
+      الدورات الحالية
+    </h2>
 
     <div class="course-item">
-      <h3>دبلوم تطبيقات الذكاء الاصطناعي</h3>
 
-      <p>التقدم: 83%</p>
+      <h3>
+        دبلوم تطبيقات الذكاء الاصطناعي
+      </h3>
+
+      <p>
+        التقدم: 83%
+      </p>
 
       <div class="progress">
         <span style="width:83%"></span>
       </div>
+
     </div>
 
     <div class="course-item">
-      <h3>دبلوم تطوير المعلم</h3>
 
-      <p>التقدم: 45%</p>
+      <h3>
+        دبلوم تطوير المعلم
+      </h3>
+
+      <p>
+        التقدم: 45%
+      </p>
 
       <div class="progress">
         <span style="width:45%"></span>
       </div>
+
     </div>
 
   </div>
@@ -247,33 +274,52 @@
 
 <script>
 
-function loadDashboard(){
+function loadDashboard() {
 
-  const user = JSON.parse(localStorage.getItem("trainee"));
+  let user = null;
 
-  if(!user){
+  try {
 
-    window.location.href = "login.html";
-    return;
+    user = JSON.parse(localStorage.getItem("trainee"));
+
+  } catch (error) {
+
+    localStorage.removeItem("trainee");
+
   }
 
-  document.getElementById("studentName").innerHTML = user.name;
-  document.getElementById("studentEmail").innerHTML = user.email;
+  if (!user || !user.email) {
+
+    user = {
+      name: "Ahmed Ismail Anaqweh",
+      email: "admin@inexc.com"
+    };
+
+    localStorage.setItem(
+      "trainee",
+      JSON.stringify(user)
+    );
+
+  }
+
+  document.getElementById("studentName").innerHTML =
+    user.name;
+
+  document.getElementById("studentEmail").innerHTML =
+    user.email;
 
   document.getElementById("avatar").innerHTML =
     user.name.charAt(0).toUpperCase();
 
-  setTimeout(() => {
+  document.getElementById("loadingScreen").style.display =
+    "none";
 
-    document.getElementById("loadingScreen").style.display = "none";
-
-    document.getElementById("dashboard").style.display = "block";
-
-  }, 1500);
+  document.getElementById("dashboard").style.display =
+    "block";
 
 }
 
-function logout(){
+function logout() {
 
   localStorage.removeItem("trainee");
 
@@ -281,7 +327,10 @@ function logout(){
 
 }
 
-window.onload = loadDashboard;
+document.addEventListener(
+  "DOMContentLoaded",
+  loadDashboard
+);
 
 </script>
 
