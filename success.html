@@ -183,6 +183,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/registration-email-template.js"></script>
   <script src="js/registration-email.js"></script>
+  <script src="js/auto-welcome-email.js"></script>
   <script>
     const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
     const EMAILJS_SERVICE_ID = 'service_58hjcoc';
@@ -288,8 +289,11 @@
 
     async function maybeSendConfirmationEmail(payment) {
       if (!payment?.registration_id) return;
-      const storageKey = 'inexc_reg_email_' + payment.registration_id;
+      const storageKey = 'inexc_welcome_email_' + payment.registration_id;
       if (sessionStorage.getItem(storageKey)) return;
+      if (typeof InexcAutoWelcomeEmail !== 'undefined' && InexcAutoWelcomeEmail.wasWelcomeSent(payment.registration_id)) {
+        return;
+      }
 
       try {
         const registration = await loadRegistration(payment.registration_id);

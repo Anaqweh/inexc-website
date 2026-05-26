@@ -1111,15 +1111,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/registration-email-template.js"></script>
   <script src="js/registration-email.js"></script>
+  <script src="js/auto-welcome-email.js"></script>
   <script>
     /*
      * EmailJS — قالب Contact Us: template_fq8l9x8
      * https://dashboard.emailjs.com/admin/templates/fq8l9x8
      * Service: service_58hjcoc | Public Key: gc0MqAK4Mwebs_GOg
      */
-    const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
-    const EMAILJS_SERVICE_ID = 'service_58hjcoc';
-    const EMAILJS_TEMPLATE_ID = 'template_fq8l9x8';
+    const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || 'gc0MqAK4Mwebs_GOg';
+    const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || 'service_58hjcoc';
+    const EMAILJS_TEMPLATE_IDS = [
+      window.EMAILJS_TEMPLATE_ID || 'template_fq8l9x8',
+      window.EMAILJS_TEMPLATE_ID_FALLBACK || 'template_o9jfkzn'
+    ].filter((id, index, list) => id && list.indexOf(id) === index);
+    const EMAILJS_TEMPLATE_ID = EMAILJS_TEMPLATE_IDS[0];
 
     const SUPABASE_FIX_SQL = `ALTER TABLE public.registrations DISABLE ROW LEVEL SECURITY;
 GRANT USAGE ON SCHEMA public TO anon;
@@ -1131,7 +1136,6 @@ NOTIFY pgrst, 'reload schema';`;
 
     let coursesById = {};
     let certificateTypesCache = [];
-    let globalCertPriceMap = {};
 
     const CERTIFICATE_TYPE_FALLBACKS = [
       { key: 'attendance', name: 'شهادة حضور', subtitle: 'شهادة تثبت حضور البرنامج التدريبي' },
@@ -1173,6 +1177,19 @@ NOTIFY pgrst, 'reload schema';`;
       return type.name || type.label || type.title || key;
     }
 
+    function getCertificateTypeCatalog() {
+      const fromDb = (certificateTypesCache || [])
+        .map(t => ({
+          key: resolveCertTypeKey(t),
+          name: resolveCertTypeName(t),
+          subtitle: t.short_description || t.subtitle || t.description || ''
+        }))
+        .filter(t => t.key);
+
+      if (fromDb.length) return fromDb;
+      return CERTIFICATE_TYPE_FALLBACKS;
+    }
+
     function getActiveCertificateTypes() {
       const fromDb = (certificateTypesCache || [])
         .filter(t => !t.status || t.status === 'active')
@@ -1187,33 +1204,49 @@ NOTIFY pgrst, 'reload schema';`;
       return CERTIFICATE_TYPE_FALLBACKS;
     }
 
-    function getEffectiveCertPriceMap(courseCertificates) {
-      const certMap = buildCourseCertPriceMap(courseCertificates);
-
-      getActiveCertificateTypes().forEach(type => {
-        if ((certMap[type.key] || 0) > 0) return;
-        if (globalCertPriceMap[type.key] > 0) {
-          certMap[type.key] = globalCertPriceMap[type.key];
-        } else if (!Object.keys(globalCertPriceMap).length) {
-          certMap[type.key] = 50;
-        }
-      });
-
-      return certMap;
-    }
-
     function buildCourseCertPriceMap(certificates) {
       const certMap = {};
       (certificates || []).forEach(c => {
-        certMap[c.certificate_type] = Number(c.certificate_price) || 0;
+        const price = Number(c.certificate_price) || 0;
+        if (price > 0) {
+          certMap[c.certificate_type] = price;
+        }
       });
       return certMap;
     }
 
-    function renderCertificateOptionsForCourse(courseCertificates, isFreeCourse, preserveSelection) {
+    function getConfiguredCourseCertificates(courseCertificates) {
+      const typeByKey = {};
+      getCertificateTypeCatalog().forEach(type => {
+        typeByKey[type.key] = type;
+      });
+
+      return (courseCertificates || [])
+        .map(c => {
+          const price = Number(c.certificate_price) || 0;
+          if (price <= 0) return null;
+          const type = typeByKey[c.certificate_type] || {};
+          return {
+            key: c.certificate_type,
+            name: type.name || c.certificate_type,
+            subtitle: type.subtitle || '',
+            price
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function renderCertificateOptionsForCourse(courseCertificates, preserveSelection, isPaidCourseSelected) {
       const container = document.getElementById('certificateOptions');
       const group = document.getElementById('certificateGroup');
       if (!container || !group) return;
+
+      const typesToShow = getConfiguredCourseCertificates(courseCertificates);
+      if (!typesToShow.length) {
+        container.innerHTML = '';
+        group.classList.add('hidden');
+        return;
+      }
 
       const prevSelectedKeys = preserveSelection
         ? Array.from(document.querySelectorAll('input.cert-type-checkbox:checked'))
@@ -1221,30 +1254,25 @@ NOTIFY pgrst, 'reload schema';`;
             .filter(Boolean)
         : [];
 
-      const certMap = getEffectiveCertPriceMap(courseCertificates);
+      const noneSubtitle = isPaidCourseSelected
+        ? 'تسجيل في الدورة بدون شهادات إضافية'
+        : 'تسجيل مجاني بدون إصدار شهادة';
 
       const noneOption = `
         <label class="certificate-option active-option" id="certNoneOption">
           <input type="checkbox" class="cert-none-checkbox" id="certNoneInput" checked>
           <div class="certificate-content">
             <div class="certificate-title">بدون شهادة</div>
-            <div class="certificate-subtitle">تسجيل مجاني بدون إصدار شهادة</div>
+            <div class="certificate-subtitle">${noneSubtitle}</div>
           </div>
-          <div class="certificate-price free-price">مجاني</div>
+          <div class="certificate-price free-price">—</div>
         </label>
       `;
-
-      let typesToShow = getActiveCertificateTypes();
-      if (isFreeCourse) {
-        typesToShow = typesToShow.filter(t => certMap[t.key] > 0);
-      }
 
       const typeOptions = typesToShow.map(type => {
         const key = escapeHtml(type.key);
         const name = escapeHtml(type.name);
         const subtitle = escapeHtml(type.subtitle);
-        const price = certMap[type.key] || 0;
-        const priceText = price > 0 ? price + ' د.إ' : 'حسب التسعير';
         return `
           <label class="certificate-option" data-cert-key="${key}">
             <input type="checkbox" class="cert-type-checkbox" value="${name}">
@@ -1252,7 +1280,7 @@ NOTIFY pgrst, 'reload schema';`;
               <div class="certificate-title">${name}</div>
               <div class="certificate-subtitle">${subtitle}</div>
             </div>
-            <div class="certificate-price">${priceText}</div>
+            <div class="certificate-price">${type.price} د.إ</div>
           </label>
         `;
       }).join('');
@@ -1314,10 +1342,9 @@ NOTIFY pgrst, 'reload schema';`;
         const certKey = input.closest('.certificate-option')?.dataset.certKey;
         if (!certKey) return;
 
-        const certMap = getEffectiveCertPriceMap(info.certificates || []);
+        const certMap = buildCourseCertPriceMap(info.certificates || []);
         const price = certMap[certKey] || 0;
-
-        if (!isPaidCourse(info) && price <= 0) return;
+        if (price <= 0) return;
 
         selected.push({
           certificate_type: certKey,
@@ -1340,11 +1367,6 @@ NOTIFY pgrst, 'reload schema';`;
       if (!box || !amountEl) return;
 
       const info = getSelectedCourseInfo();
-      if (isPaidCourse(info)) {
-        box.classList.remove('visible');
-        return;
-      }
-
       const certs = getSelectedCertificates();
       const total = getCertificatesTotalPrice(certs);
 
@@ -1356,9 +1378,10 @@ NOTIFY pgrst, 'reload schema';`;
       box.classList.add('visible');
       amountEl.textContent = total + ' د.إ';
       if (labelEl) {
+        const prefix = isPaidCourse(info) ? 'مجموع الشهادات الإضافية' : 'مجموع الشهادات المختارة';
         labelEl.textContent = certs.length > 1
-          ? `مجموع ${certs.length} شهادات مختارة`
-          : 'سعر الشهادة المختارة';
+          ? `${prefix} (${certs.length})`
+          : prefix;
       }
     }
 
@@ -1478,7 +1501,6 @@ NOTIFY pgrst, 'reload schema';`;
           : data;
 
         let certsByCourse = {};
-        globalCertPriceMap = {};
         const { data: certs, error: certError } = await supabaseClient
           .from('course_certificates')
           .select('course_id, certificate_type, certificate_price')
@@ -1487,17 +1509,12 @@ NOTIFY pgrst, 'reload schema';`;
         if (!certError && certs) {
           certs.forEach(c => {
             const price = Number(c.certificate_price) || 0;
+            if (price <= 0) return;
             if (!certsByCourse[c.course_id]) certsByCourse[c.course_id] = [];
             certsByCourse[c.course_id].push({
               certificate_type: c.certificate_type,
               certificate_price: price
             });
-            if (price > 0) {
-              globalCertPriceMap[c.certificate_type] = Math.max(
-                globalCertPriceMap[c.certificate_type] || 0,
-                price
-              );
-            }
           });
         }
 
@@ -1563,9 +1580,9 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function getCheckoutAmount(info) {
-      if (isPaidCourse(info)) return Number(info.price) || 0;
-      const certs = getSelectedCertificates();
-      return getCertificatesTotalPrice(certs);
+      const certTotal = getCertificatesTotalPrice(getSelectedCertificates());
+      if (isPaidCourse(info)) return (Number(info.price) || 0) + certTotal;
+      return certTotal;
     }
 
     function requiresPayment(info) {
@@ -1600,15 +1617,24 @@ NOTIFY pgrst, 'reload schema';`;
       renderCourseInfoBox(info);
 
       if (isPaidCourse(info)) {
-        renderCertificateOptionsForCourse(info.certificates || [], false, !!fromCertChange);
+        renderCertificateOptionsForCourse(info.certificates || [], !!fromCertChange, true);
+        const certs = getSelectedCertificates();
+        const certTotal = getCertificatesTotalPrice(certs);
+        const coursePrice = Number(info.price) || 0;
+        const total = coursePrice + certTotal;
         box.classList.add('visible');
         box.classList.remove('free');
-        box.textContent = info.price + ' د.إ';
-        note.textContent = 'دورة مدفوعة — سيتم تحويلك إلى Stripe Checkout بعد التسجيل';
+        if (certTotal > 0) {
+          box.textContent = total + ' د.إ (الدورة ' + coursePrice + ' + شهادات ' + certTotal + ')';
+          note.textContent = 'دورة مدفوعة — سيتم تحويلك إلى Stripe لدفع الدورة والشهادات المختارة';
+        } else {
+          box.textContent = coursePrice + ' د.إ';
+          note.textContent = 'دورة مدفوعة — سيتم تحويلك إلى Stripe Checkout بعد التسجيل';
+        }
         if (paidRadio) paidRadio.checked = true;
         submitBtnDefaultText = 'إرسال التسجيل والدفع';
       } else {
-        renderCertificateOptionsForCourse(info.certificates || [], true, !!fromCertChange);
+        renderCertificateOptionsForCourse(info.certificates || [], !!fromCertChange, false);
         const certs = getSelectedCertificates();
         const certTotal = getCertificatesTotalPrice(certs);
         box.classList.add('visible');
@@ -1724,55 +1750,11 @@ NOTIFY pgrst, 'reload schema';`;
       return { text: parts.join(' — ') || 'تعذّر حفظ بيانات التسجيل. يرجى المحاولة مرة أخرى.', showSql: false };
     }
 
-    async function sendConfirmationEmail({ to_name, email, course_name, registration_type, phone }) {
-      const recipientEmail = String(email || '').trim();
-      if (!recipientEmail) {
-        throw new Error('البريد الإلكتروني مطلوب لإرسال رسالة التأكيد');
+    async function sendAutoWelcomeEmail(params) {
+      if (typeof InexcAutoWelcomeEmail === 'undefined') {
+        throw new Error('ملف js/auto-welcome-email.js غير محمّل');
       }
-
-      if (typeof InexcRegistrationEmail === 'undefined') {
-        throw new Error('ملف js/registration-email.js غير محمّل');
-      }
-
-      const baseParams = { to_name, email: recipientEmail, course_name, registration_type, phone };
-      const emailPayload = InexcRegistrationEmail.getContactUsTemplateParams(baseParams);
-
-      try {
-        const res = await fetch(SUPABASE_URL + '/functions/v1/swift-action', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({
-            action: 'send_registration_email',
-            email: recipientEmail,
-            to_name,
-            full_name: to_name,
-            course_name,
-            registration_type,
-            phone
-          })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.ok) return;
-        console.warn('swift-action email:', data.error || res.status);
-      } catch (err) {
-        console.warn('swift-action email error:', err);
-      }
-
-      if (typeof emailjs === 'undefined') {
-        throw new Error('مكتبة EmailJS غير محمّلة');
-      }
-
-      try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailPayload);
-        return;
-      } catch (err) {
-        const detail = err?.text || err?.message || String(err);
-        console.error('EmailJS confirmation error:', detail);
-        throw new Error(detail || 'تعذّر إرسال رسالة التأكيد عبر EmailJS');
-      }
+      return InexcAutoWelcomeEmail.sendWelcomeEmail(params);
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {
@@ -1866,25 +1848,18 @@ NOTIFY pgrst, 'reload schema';`;
         payment_method: needsPayment ? 'Stripe' : null,
         status: 'pending',
         notes: needsPayment
-          ? (isPaid ? 'في انتظار الدفع عبر Stripe' : 'في انتظار دفع الشهادات عبر Stripe')
+          ? [
+              isPaid ? ('سعر الدورة: ' + (Number(courseInfo.price) || 0) + ' د.إ') : null,
+              hasCerts ? ('الشهادات: ' + certLabels + ' — ' + certTotal + ' د.إ') : null,
+              isPaid ? 'في انتظار الدفع عبر Stripe' : 'في انتظار دفع الشهادات عبر Stripe'
+            ].filter(Boolean).join(' | ')
           : null,
         access_token: accessToken,
         wants_certificate: hasCerts,
         certificate_type: hasCerts ? certLabels : null,
         certificate_types: hasCerts ? certificateTypesPayload : null,
-        certificate_price: !isPaid && certTotal > 0 ? certTotal : (hasCerts ? certTotal : 0),
+        certificate_price: certTotal > 0 ? certTotal : 0,
         certificate_payment_status: !isPaid && hasCerts && checkoutAmount > 0 ? 'pending' : 'not_required'
-      };
-
-      const templateParams = {
-        to_name: fullName,
-        email,
-        to_email: email,
-        reply_to: email,
-        full_name: fullName,
-        course_name: courseName,
-        registration_type: registrationType,
-        phone
       };
 
       setSubmitting(true);
@@ -1894,20 +1869,29 @@ NOTIFY pgrst, 'reload schema';`;
         const savedRegistration = await saveToSupabase(supabaseRecord);
         savedToSupabase = true;
 
-        if (!needsPayment) {
-          let emailSent = true;
-          try {
-            await sendConfirmationEmail(templateParams);
-          } catch (emailErr) {
-            emailSent = false;
-            console.error('Confirmation email failed:', emailErr);
-          }
+        const welcomeParams = {
+          registration_id: savedRegistration?.id,
+          to_name: fullName,
+          email,
+          course_name: courseName,
+          registration_type: registrationType,
+          phone
+        };
 
+        let emailSent = true;
+        try {
+          await sendAutoWelcomeEmail(welcomeParams);
+        } catch (emailErr) {
+          emailSent = false;
+          console.error('Welcome email failed:', emailErr);
+        }
+
+        if (!needsPayment) {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
             text: emailSent
-              ? 'تم تسجيلك في الدورة المجانية بنجاح. تحقّق من بريدك الإلكتروني للاطلاع على تفاصيل التسجيل.'
-              : 'تم تسجيلك في الدورة المجانية بنجاح. لم نتمكن من إرسال رسالة التأكيد إلى بريدك — تحقّق من صحة البريد أو راجع مجلد Spam، أو تواصل مع الدعم.',
+              ? 'تم تسجيلك في الدورة المجانية بنجاح. تحقّق من بريدك الإلكتروني — ستجد رسالة ترحيب بتفاصيل تسجيلك.'
+              : 'تم تسجيلك في الدورة المجانية بنجاح. لم نتمكن من إرسال رسالة الترحيب إلى بريدك — تحقّق من صحة البريد أو راجع مجلد Spam، أو تواصل مع الدعم.',
             accountToken: accessToken
           });
           return;
@@ -1962,7 +1946,7 @@ NOTIFY pgrst, 'reload schema';`;
         } else {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: 'تم حفظ تسجيلك، لكن تعذّر إرسال رسالة التأكيد إلى بريدك. يرجى التحقق من صحة البريد أو التواصل مع الدعم.',
+            text: 'تم حفظ تسجيلك، لكن تعذّر إرسال رسالة الترحيب إلى بريدك. يرجى التحقق من صحة البريد أو التواصل مع الدعم.',
             accountToken: accessToken
           });
         }

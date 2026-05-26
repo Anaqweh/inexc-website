@@ -16,4 +16,11 @@
   window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
   window.TRACK_EMAIL_OPEN_URL = SUPABASE_URL + '/functions/v1/track-email-open';
   window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // EmailJS — مصدر واحد لكل الصفحات
+  window.EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
+  window.EMAILJS_SERVICE_ID = 'service_58hjcoc';
+  window.EMAILJS_TEMPLATE_ID = 'template_fq8l9x8';
+  window.EMAILJS_TEMPLATE_ID_FALLBACK = 'template_o9jfkzn';
+
 })();

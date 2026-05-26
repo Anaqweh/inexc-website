@@ -234,7 +234,7 @@
       text-align: right;
     }
 
-    .cert-price-row input {
+    .cert-price-row input[type="number"] {
       width: 110px;
       flex-shrink: 0;
       padding: 10px 12px;
@@ -245,7 +245,7 @@
       text-align: center;
     }
 
-    .cert-price-row input:disabled {
+    .cert-price-row input[type="number"]:disabled {
       background: var(--bg);
       color: var(--text-muted);
       cursor: not-allowed;
@@ -257,6 +257,17 @@
 
     .cert-price-row.cert-row-inactive .cert-type-label {
       color: var(--text-muted);
+    }
+
+    .cert-course-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .cert-price-row:not(.cert-row-inactive) .cert-course-status {
+      color: #15803d;
     }
 
     .cert-row-actions {
@@ -1403,6 +1414,194 @@
     .type-paid {
       background: rgba(27, 42, 74, 0.08);
       color: var(--navy);
+    }
+
+    /* جدول المتدربين — مضغوط */
+    #page-trainees .page-header h2 {
+      font-size: 1.35rem;
+    }
+
+    #page-trainees .page-header p,
+    #page-trainees .table-toolbar-title {
+      font-size: 0.82rem;
+    }
+
+    #page-trainees table {
+      font-size: 0.78rem;
+    }
+
+    #page-trainees th {
+      padding: 9px 10px;
+      font-size: 0.65rem;
+      letter-spacing: 0.3px;
+    }
+
+    #page-trainees td {
+      padding: 9px 10px;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    #page-trainees td.cell-course {
+      max-width: 140px;
+      word-break: break-word;
+    }
+
+    #page-trainees td.cell-email {
+      max-width: 150px;
+      word-break: break-all;
+      font-size: 0.72rem;
+    }
+
+    #page-trainees td.cell-certs {
+      max-width: 190px;
+      min-width: 110px;
+    }
+
+    #page-trainees td.cell-amount {
+      white-space: nowrap;
+      font-weight: 600;
+      font-size: 0.72rem;
+    }
+
+    #page-trainees .status-badge {
+      font-size: 0.66rem;
+      padding: 3px 8px;
+    }
+
+    #page-trainees .actions-cell {
+      min-width: 128px;
+      white-space: nowrap;
+    }
+
+    #page-trainees .actions-cell .btn-sm {
+      font-size: 0.68rem;
+      padding: 5px 8px;
+    }
+
+    .cert-type-chip {
+      display: inline-block;
+      margin: 2px 0 2px 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(27, 42, 74, 0.08);
+      color: var(--navy);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.35;
+      white-space: normal;
+      text-align: right;
+    }
+
+    .cert-type-chip small {
+      display: block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #9a7d4a;
+      margin-top: 1px;
+    }
+
+    .cert-types-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cert-types-list .cert-type-chip {
+      margin: 0;
+      display: block;
+    }
+
+    #traineeModal .detail-label {
+      min-width: 118px;
+      font-size: 0.82rem;
+    }
+
+    #traineeModal .detail-value {
+      font-size: 0.82rem;
+    }
+
+    #traineeModal .detail-row {
+      padding: 9px 0;
+    }
+
+    .trainees-export-section {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .trainees-export-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .trainees-export-head h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--navy);
+    }
+
+    .trainees-export-head p {
+      margin: 4px 0 0;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .course-export-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .course-export-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fafbfd;
+    }
+
+    .course-export-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .course-export-info strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--navy);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .course-export-info span {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .course-export-card .btn-sm {
+      font-size: 0.68rem;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+
+    .trainees-export-empty {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
     }
 
     .actions-cell {
@@ -2922,6 +3121,17 @@
               <span class="meta-chip" id="traineesCountChip">0 متدرب</span>
             </div>
           </div>
+          <div class="trainees-export-section">
+            <div class="trainees-export-head">
+              <div>
+                <h3>تحميل Excel لكل دورة</h3>
+                <p>ملف Excel مستقل لكل دورة مسجّلة في النظام — حتى بدون متدربين</p>
+              </div>
+            </div>
+            <div class="course-export-grid" id="traineesExportByCourse">
+              <p class="trainees-export-empty">جاري التحميل...</p>
+            </div>
+          </div>
           <div class="table-card">
             <div class="table-toolbar">
               <span class="table-toolbar-title">سجل المتدربين</span>
@@ -2934,6 +3144,10 @@
                     <th>رقم الجوال</th>
                     <th>البريد</th>
                     <th>الدورة المختارة</th>
+                    <th>سعر الدورة</th>
+                    <th>نوع الشهادة</th>
+                    <th>سعر الشهادة</th>
+                    <th>الإجمالي</th>
                     <th>نوع التسجيل</th>
                     <th>الحالة</th>
                     <th>إجراءات</th>
@@ -3619,7 +3833,7 @@
           <div class="form-group" id="certificatesGroup" style="display:none;">
             <label>خيارات الشهادات</label>
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.7;">
-              حدّد سعر كل نوع شهادة لهذه الدورة. يمكنك إضافة نوع جديد أو تعطيله مؤقتًا أو حذفه.
+              فعّل الشهادة لهذه الدورة فقط ثم أدخل سعراً أكبر من صفر. التعطيل هنا لا يؤثر على دورات أخرى. الشهادات غير المفعّلة أو بدون سعر لن تظهر في صفحة التسجيل.
             </p>
             <div class="cert-types-toolbar">
               <button type="button" class="btn btn-navy btn-sm" id="addCertificateTypeBtn">+ إضافة شهادة</button>
@@ -3664,11 +3878,15 @@
   <script src="supabase-config.js"></script>
   <script src="js/course-career-map.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="js/registration-email.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
-    const EMAILJS_SERVICE_ID = 'service_58hjcoc';
-    const EMAILJS_ADMIN_MESSAGE_TEMPLATE_ID = 'template_fq8l9x8';
+    const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || 'gc0MqAK4Mwebs_GOg';
+    const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || 'service_58hjcoc';
+    const EMAILJS_TEMPLATE_IDS = [
+      window.EMAILJS_TEMPLATE_ID || 'template_fq8l9x8',
+      window.EMAILJS_TEMPLATE_ID_FALLBACK || 'template_o9jfkzn'
+    ].filter((id, index, list) => id && list.indexOf(id) === index);
 
     emailjs.init(EMAILJS_PUBLIC_KEY);
     const STORAGE_KEYS = {
@@ -3824,6 +4042,67 @@
       return [];
     }
 
+    function parseRegistrationCertificates(row) {
+      if (!row) return [];
+      if (row.certificate_types) {
+        let types = row.certificate_types;
+        if (typeof types === 'string') {
+          try { types = JSON.parse(types); } catch { types = null; }
+        }
+        if (Array.isArray(types) && types.length) {
+          return types.map(t => ({
+            key: t.key || '',
+            label: t.label || t.key || 'شهادة',
+            price: Number(t.price) || 0
+          })).filter(t => t.label);
+        }
+      }
+      if (row.wants_certificate && row.certificate_type) {
+        const total = Number(row.certificate_price) || 0;
+        return [{ key: '', label: row.certificate_type, price: total }];
+      }
+      return [];
+    }
+
+    function formatRegistrationCertificates(row) {
+      const items = parseRegistrationCertificates(row);
+      if (!items.length) return '—';
+      return items.map(t => t.label).join('، ');
+    }
+
+    function renderCertificateTypesHtml(items) {
+      if (!items?.length) return '<span style="color:var(--text-muted);font-size:0.72rem;">—</span>';
+      return `<div class="cert-types-list">${items.map(item => {
+        const label = escapeHtml(item.label);
+        const priceText = item.price > 0
+          ? item.price.toLocaleString('ar-SA') + ' د.إ'
+          : '';
+        return `<span class="cert-type-chip">${label}${priceText ? `<small>${priceText}</small>` : ''}</span>`;
+      }).join('')}</div>`;
+    }
+
+    function renderCertificateTypesText(items) {
+      if (!items?.length) return '—';
+      return items.map(item => {
+        const priceText = item.price > 0 ? ` (${item.price.toLocaleString('ar-SA')} د.إ)` : '';
+        return item.label + priceText;
+      }).join('، ');
+    }
+
+    function getRegistrationCoursePrice(row) {
+      if (!row?.course_name) return 0;
+      const course = coursesCache.find(c => c.name === row.course_name);
+      if (course?.type === 'paid') return Number(course.price) || 0;
+      return 0;
+    }
+
+    function getRegistrationTotalAmount(row) {
+      const coursePrice = getRegistrationCoursePrice(row);
+      const certPrice = Number(row?.certificate_price) || 0;
+      if (coursePrice > 0) return coursePrice + (row.wants_certificate ? certPrice : 0);
+      return certPrice > 0 ? certPrice : 0;
+    }
+
     function mapRegistrationToTrainee(row) {
       const regTypeRaw = (row.registration_type || '').toLowerCase();
       const isPaid = regTypeRaw.includes('مدفوع') || regTypeRaw === 'paid';
@@ -3837,6 +4116,14 @@
       if (row.status === 'active') status = 'active';
       else if (row.status === 'inactive') status = 'inactive';
 
+      const coursePrice = getRegistrationCoursePrice(row);
+      const certificateItems = parseRegistrationCertificates(row);
+      const certificateSummary = formatRegistrationCertificates(row);
+      const certificatePrice = certificateItems.length
+        ? certificateItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
+        : (Number(row.certificate_price) || 0);
+      const totalAmount = getRegistrationTotalAmount(row);
+
       return {
         id: String(row.id),
         name: row.full_name || '',
@@ -3846,7 +4133,14 @@
         regType: isPaid ? 'paid' : 'free',
         status,
         paymentMethod,
-        registeredAt: row.created_at
+        registeredAt: row.created_at,
+        certificateItems,
+        certificateSummary,
+        certificatePrice,
+        coursePrice,
+        totalAmount,
+        registrationType: row.registration_type || '',
+        wantsCertificate: row.wants_certificate === true
       };
     }
 
@@ -4184,6 +4478,7 @@
       if (sidebarOverlay) sidebarOverlay.classList.remove('visible');
       if (page === 'payments') renderPayments();
       if (page === 'coupons') renderCoupons();
+      if (page === 'trainees') renderTraineesCourseExports();
     }
 
     sidebarLinks.forEach(link => {
@@ -4577,18 +4872,49 @@
     };
 
     async function sendTraineeEmail(recipient, subject, messageBody, tracking = {}) {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ADMIN_MESSAGE_TEMPLATE_ID, {
-        to_name: recipient.name,
-        email: recipient.email,
+      const baseParams = window.InexcRegistrationEmail
+        ? InexcRegistrationEmail.buildContactUsParams({
+            to_name: recipient.name,
+            email: recipient.email,
+            course_name: recipient.course || '—',
+            registration_type: subject,
+            phone: recipient.phone || ''
+          })
+        : {
+            to_email: recipient.email,
+            email: recipient.email,
+            name: recipient.name,
+            to_name: recipient.name,
+            course_name: recipient.course || '—',
+            phone: recipient.phone || '',
+            registration_type: subject
+          };
+
+      const emailPayload = {
+        ...baseParams,
+        title: subject,
         subject,
         message_body: messageBody,
-        course_name: recipient.course || '—',
-        phone: recipient.phone || '',
-        registration_type: subject,
+        message: messageBody,
         tracking_pixel_url: tracking.pixelUrl || '',
         tracking_view_url: tracking.viewUrl || '',
         message_id: tracking.messageId || ''
-      });
+      };
+
+      let lastError = null;
+      for (const templateId of EMAILJS_TEMPLATE_IDS) {
+        try {
+          await emailjs.send(EMAILJS_SERVICE_ID, templateId, emailPayload);
+          return templateId;
+        } catch (err) {
+          lastError = err;
+          const msg = String(err?.text || err?.message || '').toLowerCase();
+          const retryable = msg.includes('template') || msg.includes('not found') || msg.includes('404');
+          if (!retryable) throw err;
+          console.warn('EmailJS template failed:', templateId, err?.text || err?.message);
+        }
+      }
+      throw lastError || new Error('تعذّر إرسال البريد — تحقق من قالب EmailJS');
     }
 
     function buildMessageTrackingUrls(messageId) {
@@ -5477,6 +5803,173 @@
     }
 
     /* ========== Trainees ========== */
+    function safeExcelFileName(courseName) {
+      const base = String(courseName || 'course')
+        .replace(/[\\/:*?"<>|]/g, '-')
+        .trim();
+      return (base || 'course') + '.xlsx';
+    }
+
+    function buildCourseExcelRows(rows, courseName) {
+      if (!rows.length) {
+        return [{
+          'الرقم': '',
+          'الاسم الكامل': '',
+          'رقم الهاتف': '',
+          'البريد الإلكتروني': '',
+          'اسم الدورة': courseName,
+          'نوع التسجيل': '',
+          'طريقة الدفع': '',
+          'الحالة': '',
+          'تاريخ التسجيل': ''
+        }];
+      }
+
+      return rows.map((student, index) => ({
+        'الرقم': index + 1,
+        'الاسم الكامل': student.full_name || '',
+        'رقم الهاتف': student.phone || '',
+        'البريد الإلكتروني': student.email || '',
+        'اسم الدورة': student.course_name || courseName,
+        'نوع التسجيل': student.registration_type || '',
+        'طريقة الدفع': student.payment_method || '',
+        'الحالة': student.status || '',
+        'تاريخ التسجيل': student.created_at || ''
+      }));
+    }
+
+    async function fetchRegistrationsForCourse(courseName) {
+      const name = String(courseName || '').trim();
+      if (!name) return [];
+
+      const { data, error } = await supabaseClient
+        .from('registrations')
+        .select('*')
+        .eq('course_name', name);
+
+      if (!error && data?.length) {
+        return data.filter(r => r.admin_hidden !== true);
+      }
+
+      if (error) console.warn('course export query:', error.message);
+
+      return visibleRegistrations.filter(r => (r.course_name || '').trim() === name);
+    }
+
+    window.downloadCourseExcel = async function(courseName, triggerBtn) {
+      const name = String(courseName || '').trim();
+      if (!name) return;
+
+      if (typeof XLSX === 'undefined') {
+        alert('مكتبة Excel غير محمّلة. حدّث الصفحة وحاول مرة أخرى.');
+        return;
+      }
+
+      const btn = triggerBtn || null;
+      const oldText = btn?.textContent;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'جاري التحميل...';
+      }
+
+      try {
+        const rows = await fetchRegistrationsForCourse(name);
+        const excelData = buildCourseExcelRows(rows, name);
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Trainees');
+        XLSX.writeFile(workbook, safeExcelFileName(name));
+      } catch (err) {
+        console.error('downloadCourseExcel:', err);
+        alert('تعذّر تحميل الملف: ' + (err.message || err));
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = oldText || '⬇ Excel';
+        }
+      }
+    };
+
+    window.downloadCourseTraineesExcel = window.downloadCourseExcel;
+
+    function bindCourseExportButtons() {
+      const container = document.getElementById('traineesExportByCourse');
+      if (!container || container.dataset.exportBound === '1') return;
+      container.dataset.exportBound = '1';
+      container.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-course-export]');
+        if (!btn || btn.disabled) return;
+        event.preventDefault();
+        downloadCourseExcel(btn.getAttribute('data-course-export') || '', btn);
+      });
+    }
+
+    function getTraineeCountsByCourse() {
+      const counts = new Map();
+      visibleRegistrations.forEach(row => {
+        const name = (row.course_name || '').trim();
+        if (!name) return;
+        counts.set(name, (counts.get(name) || 0) + 1);
+      });
+      return counts;
+    }
+
+    function getAllCoursesForExport() {
+      const counts = getTraineeCountsByCourse();
+      const byName = new Map();
+
+      coursesCache.forEach(course => {
+        const name = (course.name || '').trim();
+        if (!name) return;
+        const existing = byName.get(name);
+        const entry = {
+          name,
+          count: counts.get(name) || 0,
+          status: course.status || 'active',
+          type: course.type || 'paid'
+        };
+        if (!existing || (existing.status !== 'active' && entry.status === 'active')) {
+          byName.set(name, entry);
+        }
+      });
+
+      counts.forEach((count, name) => {
+        if (!byName.has(name)) {
+          byName.set(name, { name, count, status: 'unlisted', type: '' });
+        }
+      });
+
+      return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+    }
+
+    function renderTraineesCourseExports() {
+      const container = document.getElementById('traineesExportByCourse');
+      if (!container) return;
+
+      const courses = getAllCoursesForExport();
+      if (!courses.length) {
+        container.innerHTML = '<p class="trainees-export-empty">لا توجد دورات في النظام. أضف دورة من قسم الدورات أولاً.</p>';
+        return;
+      }
+
+      container.innerHTML = courses.map(course => {
+        const statusNote = course.status === 'inactive'
+          ? ' · معطّلة'
+          : (course.status === 'unlisted' ? ' · غير مدرجة' : '');
+        const countLabel = course.count === 1 ? 'متدرب واحد' : (course.count + ' متدرب');
+        return `
+        <div class="course-export-card">
+          <div class="course-export-info">
+            <strong>${escapeHtml(course.name)}</strong>
+            <span>${course.count ? countLabel : 'لا يوجد متدربون'}${statusNote}</span>
+          </div>
+          <button type="button" class="btn btn-gold btn-sm" data-course-export="${escapeHtml(course.name)}">⬇ Excel</button>
+        </div>`;
+      }).join('');
+
+      bindCourseExportButtons();
+    }
+
     function renderTrainees() {
       const trainees = traineesCache;
       const tbody = document.getElementById('traineesTableBody');
@@ -5485,29 +5978,36 @@
 
       if (!trainees.length) {
         tbody.innerHTML = `
-          <tr><td colspan="7">
+          <tr><td colspan="11">
             <div class="table-empty">
               <div class="empty-icon">👥</div>
               <p>لا يوجد متدربون مسجّلون حالياً</p>
             </div>
           </td></tr>`;
+        renderTraineesCourseExports();
         return;
       }
 
       tbody.innerHTML = trainees.map(t => `
         <tr>
           <td>${escapeHtml(t.name)}</td>
-          <td dir="ltr" style="text-align: right;">${escapeHtml(t.phone)}</td>
-          <td dir="ltr" style="text-align: right;">${escapeHtml(t.email)}</td>
-          <td>${escapeHtml(t.course)}</td>
-          <td><span class="status-badge ${t.regType === 'paid' ? 'type-paid' : 'type-free'}">${regTypeLabel(t.regType)}</span></td>
+          <td dir="ltr" style="text-align: right; font-size:0.72rem;">${escapeHtml(t.phone)}</td>
+          <td class="cell-email" dir="ltr" style="text-align: right;">${escapeHtml(t.email)}</td>
+          <td class="cell-course">${escapeHtml(t.course)}</td>
+          <td class="cell-amount">${t.coursePrice > 0 ? t.coursePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
+          <td class="cell-certs">${renderCertificateTypesHtml(t.certificateItems)}</td>
+          <td class="cell-amount">${t.certificatePrice > 0 ? t.certificatePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
+          <td class="cell-amount">${t.totalAmount > 0 ? t.totalAmount.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
+          <td><span class="status-badge ${t.regType === 'paid' ? 'type-paid' : 'type-free'}">${escapeHtml(t.registrationType || regTypeLabel(t.regType))}</span></td>
           <td><span class="status-badge ${statusClass(t.status)}">${statusLabel(t.status)}</span></td>
           <td class="actions-cell">
-            <button type="button" class="btn btn-navy btn-sm" onclick="viewTrainee('${t.id}')">عرض التفاصيل</button>
-            <button type="button" class="btn btn-danger btn-sm" onclick="deleteTraineePermanently('${t.id}')">حذف نهائي</button>
+            <button type="button" class="btn btn-navy btn-sm" onclick="viewTrainee('${t.id}')">عرض</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteTraineePermanently('${t.id}')">حذف</button>
           </td>
         </tr>
       `).join('');
+
+      renderTraineesCourseExports();
     }
 
     window.viewTrainee = function(id) {
@@ -5520,7 +6020,12 @@
         <div class="detail-row"><span class="detail-label">رقم الجوال</span><span class="detail-value" dir="ltr">${escapeHtml(trainee.phone)}</span></div>
         <div class="detail-row"><span class="detail-label">البريد الإلكتروني</span><span class="detail-value" dir="ltr">${escapeHtml(trainee.email)}</span></div>
         <div class="detail-row"><span class="detail-label">الدورة المختارة</span><span class="detail-value">${escapeHtml(trainee.course)}</span></div>
-        <div class="detail-row"><span class="detail-label">نوع التسجيل</span><span class="detail-value">${regTypeLabel(trainee.regType)}</span></div>
+        <div class="detail-row"><span class="detail-label">سعر الدورة</span><span class="detail-value">${trainee.coursePrice > 0 ? trainee.coursePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">نوع الشهادة</span><span class="detail-value">${renderCertificateTypesHtml(trainee.certificateItems)}</span></div>
+        <div class="detail-row"><span class="detail-label">تفاصيل الشهادات</span><span class="detail-value">${escapeHtml(renderCertificateTypesText(trainee.certificateItems))}</span></div>
+        <div class="detail-row"><span class="detail-label">سعر الشهادات</span><span class="detail-value">${trainee.certificatePrice > 0 ? trainee.certificatePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">المبلغ الإجمالي</span><span class="detail-value"><strong>${trainee.totalAmount > 0 ? trainee.totalAmount.toLocaleString('ar-SA') + ' د.إ' : '—'}</strong></span></div>
+        <div class="detail-row"><span class="detail-label">نوع التسجيل</span><span class="detail-value">${escapeHtml(trainee.registrationType || regTypeLabel(trainee.regType))}</span></div>
         <div class="detail-row"><span class="detail-label">طريقة الدفع</span><span class="detail-value">${paymentLabel(trainee.paymentMethod)}</span></div>
         ${(() => {
           const payment = paymentsCache.find(p => p.registrationId === trainee.id);
@@ -5682,6 +6187,7 @@
               <p>لا توجد دورات — أضف دورة جديدة</p>
             </div>
           </td></tr>`;
+        renderTraineesCourseExports();
         return;
       }
 
@@ -5702,6 +6208,8 @@
           </td>
         </tr>
       `).join('');
+
+      renderTraineesCourseExports();
     }
 
     const courseModal = document.getElementById('courseModal');
@@ -5763,25 +6271,39 @@
     }
 
     let currentCourseCertPrices = {};
+    let currentCourseCertEnabled = {};
 
     function readCurrentCertificatePricesFromForm() {
       const prices = { ...currentCourseCertPrices };
       if (!certificatesList) return prices;
-      certificatesList.querySelectorAll('input[data-cert-type]').forEach(input => {
-        const key = input.dataset.certType;
+      certificatesList.querySelectorAll('input[type="number"][data-cert-price]').forEach(input => {
+        const key = input.dataset.certPrice;
         if (!key) return;
         prices[key] = input.value;
       });
       return prices;
     }
 
+    function readCurrentCertificateEnabledFromForm() {
+      const enabled = { ...currentCourseCertEnabled };
+      if (!certificatesList) return enabled;
+      certificatesList.querySelectorAll('input[data-cert-enabled]').forEach(input => {
+        const key = input.dataset.certEnabled;
+        if (!key) return;
+        enabled[key] = input.checked;
+      });
+      return enabled;
+    }
+
     function readCertificatePricesFromForm() {
       const certificates = [];
       if (!certificatesList) return certificates;
-      certificatesList.querySelectorAll('input[data-cert-type]').forEach(input => {
-        const key = input.dataset.certType;
-        if (!key || input.disabled) return;
-        const price = Number(input.value);
+      certificatesList.querySelectorAll('.cert-price-row').forEach(row => {
+        const enableInput = row.querySelector('input[data-cert-enabled]');
+        const priceInput = row.querySelector('input[type="number"][data-cert-price]');
+        const key = priceInput?.dataset.certPrice;
+        if (!key || !enableInput?.checked) return;
+        const price = Number(priceInput.value);
         if (!Number.isFinite(price) || price <= 0) return;
         certificates.push({
           certificate_type: key,
@@ -5791,14 +6313,46 @@
       return certificates;
     }
 
-    function renderCertificatePriceRows(pricesByType = {}) {
+    function setCourseCertificateRowState(row, enabled) {
+      const enableInput = row.querySelector('input[data-cert-enabled]');
+      const priceInput = row.querySelector('input[type="number"][data-cert-price]');
+      const toggleBtn = row.querySelector('[data-cert-toggle]');
+      const statusEl = row.querySelector('.cert-course-status');
+      if (enableInput) enableInput.checked = enabled;
+      if (priceInput) {
+        priceInput.disabled = !enabled;
+        if (enabled) priceInput.focus();
+      }
+      row.classList.toggle('cert-row-inactive', !enabled);
+      if (toggleBtn) {
+        toggleBtn.textContent = enabled ? 'تعطيل للدورة' : 'تفعيل للدورة';
+        toggleBtn.className = 'btn-cert-action ' + (enabled ? 'btn-cert-disable' : 'btn-cert-enable');
+      }
+      if (statusEl) {
+        statusEl.textContent = enabled ? 'مفعّلة لهذه الدورة' : 'غير مفعّلة لهذه الدورة';
+      }
+    }
+
+    function renderCertificatePriceRows(pricesByType = {}, enabledByType = {}) {
       if (!certificatesList) return;
 
       const mergedPrices = {
         ...currentCourseCertPrices,
         ...pricesByType
       };
+      const mergedEnabled = {
+        ...currentCourseCertEnabled,
+        ...enabledByType
+      };
+
+      Object.keys(pricesByType).forEach(key => {
+        if (pricesByType[key] != null && pricesByType[key] !== '') {
+          mergedEnabled[key] = true;
+        }
+      });
+
       currentCourseCertPrices = mergedPrices;
+      currentCourseCertEnabled = mergedEnabled;
 
       certificatesList.innerHTML = '';
       const types = getAllCertificateTypesForAdmin();
@@ -5809,46 +6363,61 @@
       }
 
       types.forEach(type => {
-        const isActive = type.status === 'active';
+        const isEnabledForCourse = !!mergedEnabled[type.key];
         const row = document.createElement('div');
-        row.className = 'cert-price-row' + (isActive ? '' : ' cert-row-inactive');
+        row.className = 'cert-price-row' + (isEnabledForCourse ? '' : ' cert-row-inactive');
+
+        const labelWrap = document.createElement('div');
+        labelWrap.style.flex = '1';
 
         const label = document.createElement('span');
         label.className = 'cert-type-label';
-        label.textContent = type.name + (isActive ? '' : ' (معطّلة)');
+        label.textContent = type.name;
+
+        const statusEl = document.createElement('span');
+        statusEl.className = 'cert-course-status';
+        statusEl.textContent = isEnabledForCourse ? 'مفعّلة لهذه الدورة' : 'غير مفعّلة لهذه الدورة';
+
+        labelWrap.append(label, document.createElement('br'), statusEl);
+
+        const enableInput = document.createElement('input');
+        enableInput.type = 'checkbox';
+        enableInput.hidden = true;
+        enableInput.dataset.certEnabled = type.key;
+        enableInput.checked = isEnabledForCourse;
 
         const input = document.createElement('input');
         input.type = 'number';
         input.min = '0';
         input.step = '1';
-        input.dataset.certType = type.key;
-        input.placeholder = '0';
-        input.disabled = !isActive;
+        input.dataset.certPrice = type.key;
+        input.placeholder = 'السعر';
+        input.disabled = !isEnabledForCourse;
         input.setAttribute('aria-label', 'سعر ' + type.name);
         if (mergedPrices[type.key] != null && mergedPrices[type.key] !== '') {
           input.value = mergedPrices[type.key];
         }
 
+        input.addEventListener('input', () => {
+          currentCourseCertPrices[type.key] = input.value;
+        });
+
         const actions = document.createElement('div');
         actions.className = 'cert-row-actions';
 
-        if (type.id) {
-          const toggleBtn = document.createElement('button');
-          toggleBtn.type = 'button';
-          toggleBtn.className = 'btn-cert-action ' + (isActive ? 'btn-cert-disable' : 'btn-cert-enable');
-          toggleBtn.textContent = isActive ? 'تعطيل' : 'تفعيل';
-          toggleBtn.addEventListener('click', () => toggleCertificateTypeStatus(type.id, type.status));
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.dataset.certToggle = '1';
+        toggleBtn.className = 'btn-cert-action ' + (isEnabledForCourse ? 'btn-cert-disable' : 'btn-cert-enable');
+        toggleBtn.textContent = isEnabledForCourse ? 'تعطيل للدورة' : 'تفعيل للدورة';
+        toggleBtn.addEventListener('click', () => {
+          const nextEnabled = !enableInput.checked;
+          currentCourseCertEnabled[type.key] = nextEnabled;
+          setCourseCertificateRowState(row, nextEnabled);
+        });
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.type = 'button';
-          deleteBtn.className = 'btn-cert-action btn-cert-delete';
-          deleteBtn.textContent = 'حذف';
-          deleteBtn.addEventListener('click', () => deleteCertificateType(type.id, type.name));
-
-          actions.append(toggleBtn, deleteBtn);
-        }
-
-        row.append(label, input, actions);
+        actions.append(toggleBtn);
+        row.append(labelWrap, enableInput, input, actions);
         certificatesList.appendChild(row);
       });
     }
@@ -5863,96 +6432,18 @@
       return (base || 'cert') + '_' + Date.now().toString(36).slice(-4);
     }
 
-    async function refreshCertificateTypesUI(preservePrices = true) {
-      const prices = preservePrices ? readCurrentCertificatePricesFromForm() : currentCourseCertPrices;
+    async function refreshCertificateTypesUI(preserveState = true) {
+      const prices = preserveState ? readCurrentCertificatePricesFromForm() : {};
+      const enabled = preserveState ? readCurrentCertificateEnabledFromForm() : {};
       await loadCertificateTypes();
-      renderCertificatePriceRows(prices);
-    }
-
-    async function toggleCertificateTypeStatus(id, currentStatus) {
-      if (!id) return;
-      hideActionError();
-      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      const { error } = await supabaseClient
-        .from('certificate_types')
-        .update({ status: newStatus })
-        .eq('id', id);
-
-      if (error) {
-        showSupabaseError(error, 'toggle certificate type');
-        return;
-      }
-
-      try {
-        await refreshCertificateTypesUI(true);
-      } catch (err) {
-        showSupabaseError(err, 'reload certificate types');
-      }
-    }
-
-    async function deleteCertificateType(id, name) {
-      if (!id) return;
-      if (!confirm('هل تريد حذف «' + name + '» نهائيًا؟')) return;
-
-      hideActionError();
-      const { error } = await supabaseClient
-        .from('certificate_types')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        showSupabaseError(error, 'delete certificate type');
-        return;
-      }
-
-      try {
-        await refreshCertificateTypesUI(true);
-      } catch (err) {
-        showSupabaseError(err, 'reload after delete certificate type');
-      }
-    }
-
-    async function fetchDefaultCertificatePrices() {
-      const { data, error } = await supabaseClient
-        .from('course_certificates')
-        .select('certificate_type, certificate_price')
-        .eq('status', 'active');
-
-      const pricesByType = {};
-      if (!error && data?.length) {
-        data.forEach(r => {
-          const price = Number(r.certificate_price) || 0;
-          if (price > 0) {
-            pricesByType[r.certificate_type] = Math.max(
-              pricesByType[r.certificate_type] || 0,
-              price
-            );
-          }
-        });
-      }
-
-      if (Object.keys(pricesByType).length) return pricesByType;
-
-      const fallback = {};
-      getActiveCertificateTypes().forEach(type => {
-        fallback[type.key] = 50;
-      });
-      return fallback;
-    }
-
-    function buildCertificatesFromPrices(pricesByType) {
-      return getActiveCertificateTypes()
-        .map(type => ({
-          certificate_type: type.key,
-          certificate_price: Number(pricesByType[type.key]) || 0
-        }))
-        .filter(c => c.certificate_price > 0);
+      renderCertificatePriceRows(prices, enabled);
     }
 
     async function loadCourseCertificates(courseId) {
       if (!courseId) {
-        const defaults = await fetchDefaultCertificatePrices();
-        renderCertificatePriceRows(defaults);
+        currentCourseCertPrices = {};
+        currentCourseCertEnabled = {};
+        renderCertificatePriceRows({}, {});
         return;
       }
       const { data, error } = await supabaseClient
@@ -5963,15 +6454,17 @@
 
       if (error) {
         console.warn('load certificates:', error.message);
-        renderCertificatePriceRows({});
+        renderCertificatePriceRows({}, {});
         return;
       }
 
       const pricesByType = {};
+      const enabledByType = {};
       (data || []).forEach(r => {
         pricesByType[r.certificate_type] = r.certificate_price;
+        enabledByType[r.certificate_type] = true;
       });
-      renderCertificatePriceRows(pricesByType);
+      renderCertificatePriceRows(pricesByType, enabledByType);
     }
 
     async function saveCourseCertificates(courseId, courseName, certificates) {
@@ -5998,7 +6491,7 @@
     function togglePriceField() {
       const isPaid = courseType.value === 'paid';
       priceGroup.style.display = isPaid ? 'block' : 'none';
-      certificatesGroup.style.display = isPaid ? 'none' : 'block';
+      certificatesGroup.style.display = 'block';
       if (!isPaid) document.getElementById('coursePrice').value = 0;
     }
 
@@ -6044,6 +6537,7 @@
       courseType.value = 'free';
       togglePriceField();
       currentCourseCertPrices = {};
+      currentCourseCertEnabled = {};
       await loadCourseCertificates('');
       openModal('courseModal');
     });
@@ -6131,12 +6625,7 @@
         career_paths: readCareerPathsFromForm()
       });
       const payload = id ? basePayload : { ...basePayload, status: 'active' };
-      let certificates = type === 'free' ? readCertificatePricesFromForm() : [];
-
-      if (type === 'free' && !certificates.length) {
-        const defaults = await fetchDefaultCertificatePrices();
-        certificates = buildCertificatesFromPrices(defaults);
-      }
+      const certificates = readCertificatePricesFromForm();
 
       let courseId = id;
       let error;
@@ -6156,18 +6645,12 @@
         return;
       }
 
-      if (type === 'free' && courseId) {
+      if (courseId) {
         try {
           await saveCourseCertificates(courseId, courseName, certificates);
         } catch (certErr) {
           showSupabaseError(certErr, 'save certificates');
           return;
-        }
-      } else if (courseId) {
-        try {
-          await saveCourseCertificates(courseId, courseName, []);
-        } catch (certErr) {
-          console.warn('clear certificates:', certErr);
         }
       }
 
@@ -6785,6 +7268,7 @@
     toggleBulkCustomBatchSize();
     initInboxMobileLayout();
     renderCourseCareerPathOptions();
+    bindCourseExportButtons();
     checkSession();
   </script>
 
