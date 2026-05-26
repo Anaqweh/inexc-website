@@ -6,7 +6,13 @@
   <title>تسجيل الدخول | INEXC</title>
   <link rel="icon" type="image/png" href="assets/inexc-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/trainee-portal.css">
+  <link rel="stylesheet" href="css/login.css">
+  <style>
+    /* احتياطي إذا تعذّر تحميل الملف الخارجي */
+    .auth-form:not(.active) { display: none !important; }
+    .auth-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 960px) { .auth-wrap { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body class="auth-body">
 
@@ -45,7 +51,7 @@
         <button type="submit" class="btn btn-primary" id="loginSubmit">دخول</button>
       </form>
 
-      <form class="auth-form" id="formSignup">
+      <form class="auth-form" id="formSignup" hidden>
         <div class="form-group">
           <label for="signupName">الاسم الكامل</label>
           <input type="text" id="signupName" required placeholder="الاسم كما في الشهادة">
@@ -69,7 +75,7 @@
         <button type="submit" class="btn btn-primary">إنشاء حساب</button>
       </form>
 
-      <form class="auth-form" id="formForgot">
+      <form class="auth-form" id="formForgot" hidden>
         <p style="font-size:0.88rem;color:var(--muted);margin-bottom:16px">سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك.</p>
         <div class="form-group">
           <label for="forgotEmail">البريد الإلكتروني</label>
@@ -78,7 +84,7 @@
         <button type="submit" class="btn btn-primary">إرسال الرابط</button>
       </form>
 
-      <form class="auth-form" id="formReset">
+      <form class="auth-form" id="formReset" hidden>
         <p style="font-size:0.88rem;color:var(--muted);margin-bottom:16px">أدخل كلمة المرور الجديدة.</p>
         <div class="form-group">
           <label for="newPassword">كلمة المرور الجديدة</label>
@@ -88,8 +94,8 @@
       </form>
 
       <div class="auth-msg" id="authMsg"></div>
-      <p style="text-align:center;margin-top:20px;font-size:0.85rem">
-        <a href="index.html" style="color:var(--brand)">← العودة للرئيسية</a>
+      <p class="auth-back-link">
+        <a href="index.html">← العودة للرئيسية</a>
       </p>
     </div>
   </div>
@@ -97,6 +103,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="js/course-career-map.js"></script>
 <script src="js/trainee-auth.js"></script>
 <script>
   const tabs = document.querySelectorAll('.auth-tab');
@@ -105,9 +112,18 @@
 
   function showTab(name) {
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-    forms.forEach(f => f.classList.remove('active'));
+    forms.forEach(f => {
+      f.classList.remove('active');
+      f.hidden = true;
+    });
     const map = { login: 'formLogin', signup: 'formSignup', forgot: 'formForgot', reset: 'formReset' };
-    document.getElementById(map[name])?.classList.add('active');
+    const active = document.getElementById(map[name]);
+    if (active) {
+      active.classList.add('active');
+      active.hidden = false;
+    }
+    const tabsEl = document.getElementById('authTabs');
+    if (tabsEl) tabsEl.hidden = name === 'reset';
     hideMsg();
   }
 
@@ -127,6 +143,7 @@
   if (new URLSearchParams(location.search).get('mode') === 'reset') {
     showTab('reset');
   } else {
+    showTab('login');
     checkSession();
   }
 

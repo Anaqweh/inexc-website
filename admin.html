@@ -84,12 +84,14 @@
     }
 
     .login-brand .logo-img {
-      height: 64px;
+      height: auto;
+      max-height: 64px;
       width: auto;
-      max-width: 240px;
+      max-width: min(100%, 280px);
       object-fit: contain;
       display: block;
       margin-bottom: 32px;
+      border-radius: 6px;
     }
 
     .login-brand h1 {
@@ -415,11 +417,13 @@
     }
 
     .sidebar-brand .logo-img {
-      height: 44px;
+      height: auto;
+      max-height: 44px;
       width: auto;
       max-width: 200px;
       object-fit: contain;
       display: block;
+      border-radius: 4px;
     }
 
     .sidebar-brand .company-ar {
