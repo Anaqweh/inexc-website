@@ -1716,41 +1716,48 @@ NOTIFY pgrst, 'reload schema';`;
 
     async function sendConfirmationEmail({ to_name, email, course_name, registration_type, phone }) {
       const recipientEmail = String(email || '').trim();
-      if (!recipientEmail) return;
-
-      const emailParams = InexcRegistrationEmail.getEmailParams({
-        to_name,
-        email: recipientEmail,
-        course_name,
-        registration_type,
-        phone
-      });
-
-      const payload = {
-        ...emailParams,
-        to_email: recipientEmail,
-        reply_to: recipientEmail,
-        full_name: to_name,
-        course_name,
-        phone
-      };
-
-      try {
-        const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) return;
-        console.warn('send-registration-email:', await res.text());
-      } catch (err) {
-        console.warn('send-registration-email error:', err);
+      if (!recipientEmail) {
+        throw new Error('البريد الإلكتروني مطلوب لإرسال رسالة التأكيد');
       }
 
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
+      if (typeof emailjs === 'undefined') {
+        throw new Error('مكتبة EmailJS غير محمّلة');
+      }
+      if (typeof InexcRegistrationEmail === 'undefined') {
+        throw new Error('ملف js/registration-email.js غير محمّل');
+      }
+
+      const baseParams = { to_name, email: recipientEmail, course_name, registration_type, phone };
+      const attempts = [
+        InexcRegistrationEmail.getEmailParams(baseParams),
+        InexcRegistrationEmail.getCompactEmailParams(baseParams)
+      ];
+
+      for (const payload of attempts) {
+        try {
+          const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) return;
+          console.warn('send-registration-email:', await res.text());
+        } catch (err) {
+          console.warn('send-registration-email error:', err);
+        }
+
+        try {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
+          return;
+        } catch (err) {
+          console.warn('EmailJS attempt failed:', err?.text || err?.message || err);
+        }
+      }
+
+      throw new Error('تعذّر إرسال رسالة التأكيد عبر EmailJS');
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {
@@ -1873,10 +1880,19 @@ NOTIFY pgrst, 'reload schema';`;
         savedToSupabase = true;
 
         if (!needsPayment) {
-          await sendConfirmationEmail(templateParams);
+          let emailSent = true;
+          try {
+            await sendConfirmationEmail(templateParams);
+          } catch (emailErr) {
+            emailSent = false;
+            console.error('Confirmation email failed:', emailErr);
+          }
+
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: 'تم تسجيلك في الدورة المجانية بنجاح. يمكنك متابعة حالة تسجيلك من حسابك.',
+            text: emailSent
+              ? 'تم تسجيلك في الدورة المجانية بنجاح. تحقّق من بريدك الإلكتروني للاطلاع على تفاصيل التسجيل.'
+              : 'تم تسجيلك في الدورة المجانية بنجاح. لم نتمكن من إرسال رسالة التأكيد إلى بريدك — تحقّق من صحة البريد أو راجع مجلد Spam، أو تواصل مع الدعم.',
             accountToken: accessToken
           });
           return;
@@ -1929,9 +1945,11 @@ NOTIFY pgrst, 'reload schema';`;
         } else if (needsPayment) {
           showFormError(error?.message || 'تعذر فتح صفحة الدفع، يرجى المحاولة مرة أخرى.');
         } else {
-          showFormError(
-            'تم حفظ تسجيلك بنجاح، لكن تعذّر إرسال رسالة التأكيد إلى بريدك الإلكتروني. يرجى التحقق من صحة البريد أو التواصل مع الدعم.'
-          );
+          showSuccessScreen({
+            title: 'تم تسجيلك بنجاح!',
+            text: 'تم حفظ تسجيلك، لكن تعذّر إرسال رسالة التأكيد إلى بريدك. يرجى التحقق من صحة البريد أو التواصل مع الدعم.',
+            accountToken: accessToken
+          });
         }
       } finally {
         setSubmitting(false);

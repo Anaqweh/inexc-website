@@ -249,13 +249,27 @@
 
     async function sendRegistrationConfirmationEmail(registration) {
       if (!registration?.email) return;
+      const recipientEmail = String(registration.email).trim();
       const emailParams = InexcRegistrationEmail.getEmailParams({
         to_name: registration.full_name,
-        email: registration.email,
+        email: recipientEmail,
         phone: registration.phone,
         course_name: registration.course_name,
         registration_type: registration.registration_type
       });
+
+      const payload = {
+        to_name: emailParams.to_name,
+        email: recipientEmail,
+        to_email: recipientEmail,
+        reply_to: recipientEmail,
+        full_name: registration.full_name,
+        course_name: emailParams.course_name,
+        registration_type: emailParams.registration_type,
+        phone: emailParams.phone,
+        subject: emailParams.subject,
+        message_html: emailParams.message_html
+      };
 
       try {
         const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
@@ -264,7 +278,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
           },
-          body: JSON.stringify(emailParams)
+          body: JSON.stringify(payload)
         });
         if (res.ok) return;
         console.warn('send-registration-email:', await res.text());
@@ -272,7 +286,7 @@
         console.warn('send-registration-email error:', err);
       }
 
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
     }
 
     async function maybeSendConfirmationEmail(payment) {
