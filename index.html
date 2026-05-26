@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>INEXC — شركة التميز الابتكاري</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/inexc-icon.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -21,9 +21,7 @@ body{font-family:'Cairo',sans-serif;background:var(--white);color:var(--text);}
 /* HEADER */
 header{background:var(--navy);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
-.logo-box{width:42px;height:42px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:var(--navy);}
-.logo-name{color:var(--white);font-weight:700;font-size:17px;}
-.logo-sub{color:var(--gold);font-size:11px;}
+.logo-img{height:48px;width:auto;max-width:240px;object-fit:contain;display:block;}
 nav{display:flex;gap:8px;}
 nav a{color:rgba(255,255,255,0.8);text-decoration:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;transition:all 0.2s;}
 nav a:hover{background:rgba(255,255,255,0.1);color:var(--white);}
@@ -57,6 +55,36 @@ nav a.active{background:var(--gold);color:var(--navy);}
 }
 .courses-load-msg,.courses-error-msg{text-align:center;color:var(--muted);grid-column:1/-1;padding:48px 20px;font-size:15px;}
 .courses-error-msg{color:#c45c5c;background:rgba(196,92,92,0.08);border:1px solid rgba(196,92,92,0.2);border-radius:12px;}
+
+.career-paths-banner{
+  max-width:1200px;margin:0 auto 20px;
+  background:linear-gradient(135deg,rgba(0,70,170,0.08),rgba(200,169,110,0.1));
+  border:1px solid rgba(0,70,170,0.12);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:8px;
+}
+.career-paths-banner h3{font-size:1.05rem;color:var(--navy);margin-bottom:6px;}
+.career-paths-banner p{font-size:0.88rem;color:var(--muted);margin-bottom:14px;}
+.career-paths-legend{display:flex;flex-wrap:wrap;gap:8px;}
+.career-paths-legend span{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid rgba(27,42,74,0.08);
+  border-radius:999px;padding:6px 12px;font-size:0.78rem;font-weight:700;color:var(--navy);
+}
+.course-career-paths{
+  padding:12px 20px 0;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  background:var(--white);
+}
+.course-career-label{font-size:0.72rem;color:var(--muted);font-weight:700;}
+.course-career-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:0.72rem;font-weight:700;color:var(--navy);
+  background:rgba(0,70,170,0.07);
+  border:1px solid rgba(0,70,170,0.12);
+  border-radius:999px;padding:5px 10px;
+}
 
 /* ═══════════════════════════
    COURSE CARD
@@ -425,17 +453,14 @@ footer span{color:var(--gold);}
 
 <header>
   <a href="index.html" class="logo">
-    <div class="logo-box">IX</div>
-    <div>
-      <div class="logo-name">التميز الابتكاري</div>
-      <div class="logo-sub">INEXC</div>
-    </div>
+    <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence — التميز الابتكاري" class="logo-img">
   </a>
   <nav>
     <a href="index.html" class="active">الرئيسية</a>
     <a href="#courses">الدورات</a>
     <a href="#partnership">التعاون والشراكة</a>
     <a href="register.html">التسجيل</a>
+    <a href="login.html">حسابي</a>
   </nav>
 </header>
 
@@ -455,6 +480,7 @@ footer span{color:var(--gold);}
     <h2>دوراتنا التدريبية</h2>
     <p>برامج متخصصة في الذكاء الاصطناعي والتحول الرقمي للمؤسسات التعليمية</p>
   </div>
+  <div class="career-paths-banner" id="careerPathsIntro" hidden></div>
   <div class="courses-grid" id="coursesGrid">
     <p class="courses-load-msg" id="coursesLoadMsg">جاري تحميل الدورات...</p>
   </div>
@@ -507,6 +533,7 @@ footer span{color:var(--gold);}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="js/course-career-map.js"></script>
 <script>
 function escapeHtml(str) {
   if (!str) return '';
@@ -606,6 +633,7 @@ function mapDbCourseToHome(c, i) {
     paid,
     price: paid ? (Number(c.price) || 0) : 0,
     days: c.days || (10 + i),
+    career_paths: c.career_paths || null,
     objectives: c.objectives || '',
     outcomes: c.outcomes || '',
     what_you_learn: c.what_you_learn || c.learn_content || '',
@@ -613,6 +641,33 @@ function mapDbCourseToHome(c, i) {
     target_audience: c.target_audience || '',
     requirements: c.requirements || ''
   };
+}
+
+function buildCourseCareerPathsHtml(course) {
+  if (!window.InexcCareerMap) return '';
+  const roles = InexcCareerMap.getCareerLabelsForCourse(course.title, {
+    description: course.desc,
+    career_paths: course.career_paths,
+    hours: course.hours
+  });
+  if (!roles.length) return '';
+  return `<div class="course-career-paths">
+    <span class="course-career-label">مسارات التقدم:</span>
+    ${roles.map(r => `<span class="course-career-chip">${r.icon} ${escapeHtml(r.title)}</span>`).join('')}
+  </div>`;
+}
+
+function renderCareerPathsIntro() {
+  const el = document.getElementById('careerPathsIntro');
+  if (!el || !window.InexcCareerMap) return;
+  const roles = InexcCareerMap.CAREER_ROLES.slice(0, 4);
+  el.innerHTML = `
+    <h3>مسارات التقدم المهني</h3>
+    <p>كل دورة في الصفحة الرئيسية مربوطة بمسار مهني — عند إكمالها يرتفع مؤشر جاهزيتك في حسابك</p>
+    <div class="career-paths-legend">
+      ${roles.map(r => `<span>${r.icon} ${escapeHtml(r.title)}</span>`).join('')}
+    </div>`;
+  el.hidden = false;
 }
 
 async function loadCoursesForHome() {
@@ -662,6 +717,7 @@ function renderCourses(){
         </div>
       </div>
       ${buildCourseInfoHtml(c)}
+      ${buildCourseCareerPathsHtml(c)}
       <div class="course-price ${c.paid ? '' : 'free-price'}">${c.paid ? c.price + ' د.إ' : 'مجانية'}</div>
       <div class="card-bottom">
         <div class="meta-pill"><span class="ico">⏱</span><span class="val">${c.hours}</span></div>
@@ -703,6 +759,7 @@ async function initHome(){
     return;
   }
   buildDeadlines();
+  renderCareerPathsIntro();
   renderCourses();
   tick();
   setInterval(tick, 1000);

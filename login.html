@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول | INEXC</title>
+  <link rel="icon" type="image/png" href="assets/inexc-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/trainee-portal.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-wrap">
+  <div class="auth-brand">
+    <div class="auth-brand-inner">
+      <img src="assets/inexc-logo-white.png" alt="INEXC" class="logo-img">
+      <h1>بوابة المتدربين الذكية</h1>
+      <p>منصة INEXC Innovative Excellence — تعلّم، تقدّم، واحصل على شهادات معتمدة مع نظام مكافآت ذكي يشجّعك على الاستمرار.</p>
+      <ul class="auth-features">
+        <li><span class="ico">🎓</span> متابعة دوراتك وشهاداتك</li>
+        <li><span class="ico">⭐</span> نقاط ولاء ومستويات عضوية</li>
+        <li><span class="ico">🤖</span> توصيات ذكية للدورات التالية</li>
+        <li><span class="ico">🎁</span> كوبونات وعروض محدودة</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="auth-tabs" id="authTabs">
+        <button type="button" class="auth-tab active" data-tab="login">تسجيل الدخول</button>
+        <button type="button" class="auth-tab" data-tab="signup">حساب جديد</button>
+        <button type="button" class="auth-tab" data-tab="forgot">استعادة</button>
+      </div>
+
+      <form class="auth-form active" id="formLogin">
+        <div class="form-group">
+          <label for="loginEmail">البريد الإلكتروني</label>
+          <input type="email" id="loginEmail" required autocomplete="email" placeholder="your@email.com" dir="ltr">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">كلمة المرور</label>
+          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginSubmit">دخول</button>
+      </form>
+
+      <form class="auth-form" id="formSignup">
+        <div class="form-group">
+          <label for="signupName">الاسم الكامل</label>
+          <input type="text" id="signupName" required placeholder="الاسم كما في الشهادة">
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">البريد الإلكتروني</label>
+          <input type="email" id="signupEmail" required dir="ltr" placeholder="name@example.com">
+        </div>
+        <div class="form-group">
+          <label for="signupPhone">رقم الهاتف</label>
+          <input type="tel" id="signupPhone" placeholder="05xxxxxxxx" dir="ltr">
+        </div>
+        <div class="form-group">
+          <label for="signupCountry">الدولة</label>
+          <input type="text" id="signupCountry" placeholder="الإمارات العربية المتحدة">
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">كلمة المرور</label>
+          <input type="password" id="signupPassword" required minlength="6" placeholder="6 أحرف على الأقل">
+        </div>
+        <button type="submit" class="btn btn-primary">إنشاء حساب</button>
+      </form>
+
+      <form class="auth-form" id="formForgot">
+        <p style="font-size:0.88rem;color:var(--muted);margin-bottom:16px">سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك.</p>
+        <div class="form-group">
+          <label for="forgotEmail">البريد الإلكتروني</label>
+          <input type="email" id="forgotEmail" required dir="ltr">
+        </div>
+        <button type="submit" class="btn btn-primary">إرسال الرابط</button>
+      </form>
+
+      <form class="auth-form" id="formReset">
+        <p style="font-size:0.88rem;color:var(--muted);margin-bottom:16px">أدخل كلمة المرور الجديدة.</p>
+        <div class="form-group">
+          <label for="newPassword">كلمة المرور الجديدة</label>
+          <input type="password" id="newPassword" required minlength="6">
+        </div>
+        <button type="submit" class="btn btn-primary">تحديث كلمة المرور</button>
+      </form>
+
+      <div class="auth-msg" id="authMsg"></div>
+      <p style="text-align:center;margin-top:20px;font-size:0.85rem">
+        <a href="index.html" style="color:var(--brand)">← العودة للرئيسية</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="js/trainee-auth.js"></script>
+<script>
+  const tabs = document.querySelectorAll('.auth-tab');
+  const forms = document.querySelectorAll('.auth-form');
+  const msg = document.getElementById('authMsg');
+
+  function showTab(name) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    forms.forEach(f => f.classList.remove('active'));
+    const map = { login: 'formLogin', signup: 'formSignup', forgot: 'formForgot', reset: 'formReset' };
+    document.getElementById(map[name])?.classList.add('active');
+    hideMsg();
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+  function showMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'auth-msg visible ' + type;
+  }
+  function hideMsg() { msg.className = 'auth-msg'; }
+
+  async function checkSession() {
+    const session = await TraineeAuth.getSession();
+    if (session?.user) location.href = 'account.html';
+  }
+
+  if (new URLSearchParams(location.search).get('mode') === 'reset') {
+    showTab('reset');
+  } else {
+    checkSession();
+  }
+
+  document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginSubmit');
+    btn.disabled = true;
+    hideMsg();
+    try {
+      await TraineeAuth.signIn(
+        document.getElementById('loginEmail').value.trim(),
+        document.getElementById('loginPassword').value
+      );
+      location.href = 'account.html';
+    } catch (err) {
+      const msg = err.message || 'تعذّر تسجيل الدخول';
+      if (msg.includes('auth_user_id')) {
+        showMsg('يجب تنفيذ trainee-portal-fix.sql في Supabase SQL Editor ثم إعادة المحاولة.', 'error');
+      } else if (msg.includes('Invalid login credentials')) {
+        showMsg('البريد أو كلمة المرور غير صحيحة. استخدم بريداً إلكترونياً (ليس admin).', 'error');
+      } else {
+        showMsg(msg, 'error');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('formSignup').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    try {
+      const res = await TraineeAuth.signUp({
+        email: document.getElementById('signupEmail').value.trim(),
+        password: document.getElementById('signupPassword').value,
+        fullName: document.getElementById('signupName').value.trim(),
+        phone: document.getElementById('signupPhone').value.trim(),
+        country: document.getElementById('signupCountry').value.trim()
+      });
+      if (res.session) {
+        location.href = 'account.html';
+      } else {
+        showMsg('تم إنشاء حسابك! تحقّق من بريدك للتفعيل ثم سجّل الدخول.', 'success');
+        showTab('login');
+      }
+    } catch (err) {
+      showMsg(err.message || 'تعذّر إنشاء الحساب', 'error');
+    }
+  });
+
+  document.getElementById('formForgot').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    try {
+      await TraineeAuth.resetPassword(document.getElementById('forgotEmail').value.trim());
+      showMsg('تم إرسال رابط استعادة كلمة المرور إلى بريدك.', 'success');
+    } catch (err) {
+      showMsg(err.message || 'تعذّر الإرسال', 'error');
+    }
+  });
+
+  document.getElementById('formReset').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    try {
+      await TraineeAuth.updatePassword(document.getElementById('newPassword').value);
+      showMsg('تم تحديث كلمة المرور — جاري تحويلك...', 'success');
+      setTimeout(() => { location.href = 'account.html'; }, 1500);
+    } catch (err) {
+      showMsg(err.message || 'تعذّر التحديث', 'error');
+    }
+  });
+</script>
+</body>
+</html>

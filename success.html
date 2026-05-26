@@ -49,16 +49,13 @@
       height: 72px;
     }
     .logo-wrap { display: flex; align-items: center; gap: 12px; }
-    .logo-mark {
-      width: 46px; height: 46px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: 0.9rem;
+    .logo-img {
+      height: 48px;
+      width: auto;
+      max-width: 220px;
+      object-fit: contain;
+      display: block;
     }
-    .logo-text .company-ar { display: block; font-size: 1.05rem; font-weight: 700; color: #fff; }
-    .logo-text .company-en { display: block; font-size: 0.72rem; color: var(--gold); letter-spacing: 2px; }
     .page-hero {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
       padding: 48px 20px 40px;
@@ -154,11 +151,7 @@
   <header>
     <div class="container header-inner">
       <a href="index.html" class="logo-wrap">
-        <div class="logo-mark">IX</div>
-        <div class="logo-text">
-          <span class="company-ar">التميز الابتكاري</span>
-          <span class="company-en">INEXC</span>
-        </div>
+        <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence — التميز الابتكاري" class="logo-img">
       </a>
     </div>
   </header>

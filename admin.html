@@ -83,19 +83,12 @@
       z-index: 1;
     }
 
-    .login-brand .logo-mark {
-      width: 64px;
+    .login-brand .logo-img {
       height: 64px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(200, 169, 110, 0.4);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gold);
-      font-weight: 800;
-      font-size: 1.1rem;
-      letter-spacing: 2px;
+      width: auto;
+      max-width: 240px;
+      object-fit: contain;
+      display: block;
       margin-bottom: 32px;
     }
 
@@ -421,19 +414,12 @@
       gap: 12px;
     }
 
-    .sidebar-brand .logo-mark {
-      width: 44px;
+    .sidebar-brand .logo-img {
       height: 44px;
-      background: rgba(200, 169, 110, 0.15);
-      border: 1px solid rgba(200, 169, 110, 0.35);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gold);
-      font-weight: 800;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
+      width: auto;
+      max-width: 200px;
+      object-fit: contain;
+      display: block;
     }
 
     .sidebar-brand .company-ar {
@@ -2642,7 +2628,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-brand">
       <div class="login-brand-inner">
-        <div class="logo-mark">IX</div>
+        <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="logo-img">
         <h1>INEXC Command Center</h1>
         <p class="tagline">نظام إدارة متكامل لمنصة التميز الابتكاري — راقب التسجيلات، الدورات، المدفوعات، والتحليلات من مركز قيادة واحد مدعوم بالذكاء الاصطناعي.</p>
         <div class="login-features">
@@ -2691,11 +2677,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="logo-wrap">
-          <div class="logo-mark">IX</div>
-          <div class="logo-text">
-            <span class="company-ar">التميز الابتكاري</span>
-            <span class="company-en">INEXC</span>
-          </div>
+          <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="logo-img">
         </div>
         <div class="sidebar-platform-tag">
           <span class="status-dot"></span>
@@ -2749,6 +2731,12 @@
               <span class="icon">💳</span>
               المدفوعات
               <span class="badge-count hidden" id="paymentsBadge">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-link" data-page="coupons" data-title="الكوبونات">
+              <span class="icon">🎟️</span>
+              الكوبونات
             </button>
           </li>
           <li>
@@ -3184,6 +3172,66 @@
           </div>
         </section>
 
+        <!-- صفحة الكوبونات -->
+        <section class="page-section" id="page-coupons">
+          <div class="page-header">
+            <div>
+              <h2>إدارة الكوبونات</h2>
+              <p>خصومات جزئية ذكية — محدودة الاستخدام ومرتبطة بالإنجاز</p>
+            </div>
+            <button type="button" class="btn btn-gold btn-sm" id="addCouponBtn">+ كوبون جديد</button>
+          </div>
+          <div class="panel-card">
+            <div class="table-toolbar">
+              <span class="table-toolbar-meta" id="couponsCountChip">0 كوبون</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الكود</th>
+                    <th>العنوان</th>
+                    <th>الخصم</th>
+                    <th>الاستخدام</th>
+                    <th>الحد الأدنى</th>
+                    <th>المستوى</th>
+                    <th>الانتهاء</th>
+                    <th>الحالة</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="couponsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel-card" id="couponFormCard" style="display:none;margin-top:20px">
+            <h3 style="margin-bottom:16px">كوبون جديد / تعديل</h3>
+            <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+              <div class="form-group"><label>الكود</label><input type="text" id="couponCode" placeholder="INEXC10"></div>
+              <div class="form-group"><label>العنوان</label><input type="text" id="couponTitle" placeholder="عرض المتدربين"></div>
+              <div class="form-group"><label>نسبة الخصم %</label><input type="number" id="couponDiscount" min="1" max="25" value="5"></div>
+              <div class="form-group"><label>عدد الاستخدامات</label><input type="number" id="couponMaxUses" min="1" value="100"></div>
+              <div class="form-group"><label>حد أدنى للشراء (د.إ)</label><input type="number" id="couponMinPurchase" min="0" value="300"></div>
+              <div class="form-group"><label>الحد الأدنى للمستوى</label>
+                <select id="couponMinTier">
+                  <option value="bronze">Bronze</option>
+                  <option value="silver">Silver</option>
+                  <option value="gold">Gold</option>
+                  <option value="vip">VIP</option>
+                </select>
+              </div>
+              <div class="form-group"><label>تاريخ الانتهاء</label><input type="date" id="couponExpires"></div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;margin:16px 0;font-size:0.9rem">
+              <input type="checkbox" id="couponMembersOnly"> للمتدربين النشطين فقط
+            </label>
+            <div style="display:flex;gap:10px">
+              <button type="button" class="btn btn-gold btn-sm" id="saveCouponBtn">حفظ الكوبون</button>
+              <button type="button" class="btn btn-sm" id="cancelCouponBtn">إلغاء</button>
+            </div>
+          </div>
+        </section>
+
         <!-- صفحة الرسائل -->
         <section class="page-section" id="page-messages">
           <div class="page-header">
@@ -3557,6 +3605,13 @@
             <label for="courseRequirements">المتطلبات</label>
             <textarea id="courseRequirements" placeholder="متطلبات قبل التسجيل..."></textarea>
           </div>
+          <div class="form-group">
+            <label>مسارات التقدم المهني</label>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin:0 0 10px;line-height:1.7;">
+              حدّد المسارات التي تساهم فيها هذه الدورة في حساب المتدرب. إن تُركت فارغة يُستنتج الربط تلقائياً من اسم الدورة.
+            </p>
+            <div id="courseCareerPaths" class="career-path-checkboxes"></div>
+          </div>
           <div class="form-group" id="certificatesGroup" style="display:none;">
             <label>خيارات الشهادات</label>
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.7;">
@@ -3603,6 +3658,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="js/course-career-map.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
@@ -3669,7 +3725,8 @@
         what_you_learn: row.what_you_learn || row.learn_content || '',
         course_method: row.course_method || row.delivery_method || '',
         target_audience: row.target_audience || '',
-        requirements: row.requirements || ''
+        requirements: row.requirements || '',
+        career_paths: row.career_paths || null
       };
     }
 
@@ -3685,8 +3742,48 @@
         what_you_learn: course.what_you_learn || '',
         course_method: course.course_method || '',
         target_audience: course.target_audience || '',
-        requirements: course.requirements || ''
+        requirements: course.requirements || '',
+        career_paths: course.career_paths && course.career_paths.length ? course.career_paths : null
       };
+    }
+
+    function renderCourseCareerPathOptions() {
+      const box = document.getElementById('courseCareerPaths');
+      if (!box || !window.InexcCareerMap) return;
+      box.innerHTML = InexcCareerMap.CAREER_ROLES.map(role => `
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.88rem;">
+          <input type="checkbox" value="${role.key}" data-weight="25">
+          <span>${role.icon} ${role.title}</span>
+        </label>
+      `).join('');
+    }
+
+    function readCareerPathsFromForm() {
+      return [...document.querySelectorAll('#courseCareerPaths input:checked')].map(el => ({
+        key: el.value,
+        weight: Number(el.dataset.weight) || 25
+      }));
+    }
+
+    function setCareerPathsOnForm(paths) {
+      const selected = new Set((paths || []).map(p => p.key || p.roleKey));
+      document.querySelectorAll('#courseCareerPaths input').forEach(inp => {
+        inp.checked = selected.has(inp.value);
+      });
+    }
+
+    function parseStoredCareerPaths(value) {
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+      if (typeof value === 'string') {
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      return [];
     }
 
     function mapRegistrationToTrainee(row) {
@@ -3895,6 +3992,7 @@
       await loadPaymentsFromSupabase();
       await loadMessagesFromSupabase();
       await loadSentMessagesFromSupabase();
+      await loadCouponsFromSupabase();
       await loadCertificateTypes();
       updateDataLoadBanner();
     }
@@ -4047,6 +4145,7 @@
       sidebar.classList.remove('open');
       if (sidebarOverlay) sidebarOverlay.classList.remove('visible');
       if (page === 'payments') renderPayments();
+      if (page === 'coupons') renderCoupons();
     }
 
     sidebarLinks.forEach(link => {
@@ -5804,6 +5903,7 @@
       document.getElementById('courseModalTitle').textContent = 'إضافة دورة جديدة';
       document.getElementById('courseId').value = '';
       courseForm.reset();
+      setCareerPathsOnForm([]);
       courseType.value = 'free';
       togglePriceField();
       currentCourseCertPrices = {};
@@ -5828,6 +5928,7 @@
       document.getElementById('courseMethod').value = course.course_method || '';
       document.getElementById('courseAudience').value = course.target_audience || '';
       document.getElementById('courseRequirements').value = course.requirements || '';
+      setCareerPathsOnForm(parseStoredCareerPaths(course.career_paths));
       togglePriceField();
       await loadCourseCertificates(course.id);
       openModal('courseModal');
@@ -5889,7 +5990,8 @@
         what_you_learn: document.getElementById('courseLearn').value.trim(),
         course_method: document.getElementById('courseMethod').value.trim(),
         target_audience: document.getElementById('courseAudience').value.trim(),
-        requirements: document.getElementById('courseRequirements').value.trim()
+        requirements: document.getElementById('courseRequirements').value.trim(),
+        career_paths: readCareerPathsFromForm()
       });
       const payload = id ? basePayload : { ...basePayload, status: 'active' };
       let certificates = type === 'free' ? readCertificatePricesFromForm() : [];
@@ -6389,6 +6491,78 @@
       return div.innerHTML;
     }
 
+    let couponsCache = [];
+
+    async function loadCouponsFromSupabase() {
+      const { data, error } = await supabaseClient.from('coupons').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.warn('coupons:', error.message);
+        couponsCache = [];
+        return;
+      }
+      couponsCache = data || [];
+    }
+
+    function renderCoupons() {
+      const tbody = document.getElementById('couponsTableBody');
+      const chip = document.getElementById('couponsCountChip');
+      if (chip) chip.textContent = couponsCache.length + ' كوبون';
+      if (!tbody) return;
+      if (!couponsCache.length) {
+        tbody.innerHTML = '<tr><td colspan="9"><div class="table-empty"><p>لا توجد كوبونات — أنشئ كوبوناً جديداً</p></div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = couponsCache.map(c => `
+        <tr>
+          <td dir="ltr"><strong>${escapeHtml(c.code)}</strong></td>
+          <td>${escapeHtml(c.title || '—')}</td>
+          <td>${c.discount_percent}%</td>
+          <td>${c.used_count || 0} / ${c.max_uses}</td>
+          <td>${c.min_purchase || 0} د.إ</td>
+          <td>${escapeHtml(c.min_tier || 'bronze')}</td>
+          <td>${c.expires_at ? formatDate(c.expires_at) : '—'}</td>
+          <td><span class="status-badge ${c.status === 'active' ? 'status-active' : 'status-pending'}">${c.status === 'active' ? 'نشط' : 'معطّل'}</span></td>
+          <td><button type="button" class="btn btn-sm" onclick="toggleCouponStatus('${c.id}')">${c.status === 'active' ? 'تعطيل' : 'تفعيل'}</button></td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('addCouponBtn')?.addEventListener('click', () => {
+      document.getElementById('couponFormCard').style.display = 'block';
+    });
+    document.getElementById('cancelCouponBtn')?.addEventListener('click', () => {
+      document.getElementById('couponFormCard').style.display = 'none';
+    });
+    document.getElementById('saveCouponBtn')?.addEventListener('click', async () => {
+      const code = document.getElementById('couponCode').value.trim().toUpperCase();
+      if (!code) { alert('أدخل كود الكوبون'); return; }
+      const row = {
+        code,
+        title: document.getElementById('couponTitle').value.trim(),
+        discount_percent: Number(document.getElementById('couponDiscount').value) || 5,
+        max_uses: Number(document.getElementById('couponMaxUses').value) || 100,
+        min_purchase: Number(document.getElementById('couponMinPurchase').value) || 0,
+        min_tier: document.getElementById('couponMinTier').value,
+        active_members_only: document.getElementById('couponMembersOnly').checked,
+        expires_at: document.getElementById('couponExpires').value ? new Date(document.getElementById('couponExpires').value).toISOString() : null,
+        status: 'active'
+      };
+      const { error } = await supabaseClient.from('coupons').insert([row]);
+      if (error) { alert(error.message); return; }
+      document.getElementById('couponFormCard').style.display = 'none';
+      await loadCouponsFromSupabase();
+      renderCoupons();
+    });
+
+    window.toggleCouponStatus = async function(id) {
+      const c = couponsCache.find(x => x.id === id);
+      if (!c) return;
+      const next = c.status === 'active' ? 'inactive' : 'active';
+      await supabaseClient.from('coupons').update({ status: next }).eq('id', id);
+      await loadCouponsFromSupabase();
+      renderCoupons();
+    };
+
     function renderAll() {
       renderStats();
       renderTrainees();
@@ -6400,6 +6574,7 @@
       renderPayments();
       renderCertificates();
       renderAnalytics();
+      renderCoupons();
     }
 
     document.querySelectorAll('input[name="recipientMode"]').forEach(radio => {
@@ -6475,6 +6650,7 @@
     toggleBulkBatchSettings();
     toggleBulkCustomBatchSize();
     initInboxMobileLayout();
+    renderCourseCareerPathOptions();
     checkSession();
   </script>
 
