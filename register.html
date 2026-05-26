@@ -1107,20 +1107,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="js/course-load-utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/registration-email-template.js"></script>
   <script src="js/registration-email.js"></script>
   <script>
     /*
-     * EmailJS — قالب "Contact Us"
-     * انسخ Template ID من: https://dashboard.emailjs.com/admin/templates
+     * EmailJS — قالب Contact Us: template_fq8l9x8
+     * https://dashboard.emailjs.com/admin/templates/fq8l9x8
      * Service: service_58hjcoc | Public Key: gc0MqAK4Mwebs_GOg
-     *
-     * To Email: {{to_email}} | Reply To: {{email}} | From Name: {{name}} | Subject: {{title}}
      */
     const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
     const EMAILJS_SERVICE_ID = 'service_58hjcoc';
-    const EMAILJS_TEMPLATE_ID = 'template_dfjikev'; // ← ضع Template ID من لوحة EmailJS
+    const EMAILJS_TEMPLATE_ID = 'template_fq8l9x8';
 
     const SUPABASE_FIX_SQL = `ALTER TABLE public.registrations DISABLE ROW LEVEL SECURITY;
 GRANT USAGE ON SCHEMA public TO anon;
@@ -1130,7 +1129,7 @@ NOTIFY pgrst, 'reload schema';`;
 
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
-    let coursesByName = {};
+    let coursesById = {};
     let certificateTypesCache = [];
     let globalCertPriceMap = {};
 
@@ -1459,7 +1458,7 @@ NOTIFY pgrst, 'reload schema';`;
           .order('created_at', { ascending: true });
 
         courseSelect.innerHTML = '<option value="" disabled selected>— اختر الدورة —</option>';
-        coursesByName = {};
+        coursesById = {};
 
         if (error) {
           console.error('Courses load error:', error);
@@ -1473,6 +1472,10 @@ NOTIFY pgrst, 'reload schema';`;
           if (note) note.textContent = 'لا توجد دورات متاحة للتسجيل حالياً.';
           return;
         }
+
+        const uniqueCourses = window.InexcCourseLoad
+          ? InexcCourseLoad.dedupeCoursesByName(data)
+          : data;
 
         let certsByCourse = {};
         globalCertPriceMap = {};
@@ -1500,10 +1503,10 @@ NOTIFY pgrst, 'reload schema';`;
 
         if (note) note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
 
-        data.forEach(row => {
+        uniqueCourses.forEach(row => {
           const paid = row.type === 'paid';
           const price = paid ? (Number(row.price) || 0) : 0;
-          coursesByName[row.name] = {
+          coursesById[row.id] = {
             id: row.id,
             name: row.name,
             description: row.description || '',
@@ -1522,14 +1525,14 @@ NOTIFY pgrst, 'reload schema';`;
           };
 
           const opt = document.createElement('option');
-          opt.value = row.name;
+          opt.value = row.id;
           opt.textContent = row.name;
           opt.dataset.price = price;
           courseSelect.appendChild(opt);
         });
       } catch (e) {
         console.error('Courses load error:', e);
-        coursesByName = {};
+        coursesById = {};
         courseSelect.innerHTML = '<option value="" disabled selected>— تعذّر تحميل الدورات —</option>';
         if (note) note.textContent = 'تعذّر تحميل قائمة الدورات. يرجى تحديث الصفحة أو المحاولة لاحقاً.';
       }
@@ -1548,9 +1551,9 @@ NOTIFY pgrst, 'reload schema';`;
 
     function getSelectedCourseInfo() {
       const courseSelect = document.getElementById('course');
-      const name = courseSelect.value;
-      if (name && coursesByName[name]) {
-        return { name, ...coursesByName[name] };
+      const courseId = courseSelect.value;
+      if (courseId && coursesById[courseId]) {
+        return { ...coursesById[courseId] };
       }
       return { name: '', price: 0, paid: false };
     }
@@ -1973,14 +1976,14 @@ NOTIFY pgrst, 'reload schema';`;
       await loadCoursesIntoSelect();
 
       const params = new URLSearchParams(window.location.search);
+      const courseIdParam = params.get('courseId');
       const courseParam = params.get('course');
-      if (courseParam) {
-        for (const option of courseSelect.options) {
-          if (option.value === courseParam) {
-            courseSelect.value = courseParam;
-            break;
-          }
-        }
+
+      if (courseIdParam && coursesById[courseIdParam]) {
+        courseSelect.value = courseIdParam;
+      } else if (courseParam) {
+        const match = Object.values(coursesById).find(c => c.name === courseParam);
+        if (match) courseSelect.value = match.id;
       }
       updateCourseSelectionUI();
       highlightCertificateOption();

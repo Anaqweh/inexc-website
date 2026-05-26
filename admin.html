@@ -3668,7 +3668,7 @@
   <script>
     const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
     const EMAILJS_SERVICE_ID = 'service_58hjcoc';
-    const EMAILJS_ADMIN_MESSAGE_TEMPLATE_ID = 'template_dfjikev';
+    const EMAILJS_ADMIN_MESSAGE_TEMPLATE_ID = 'template_fq8l9x8';
 
     emailjs.init(EMAILJS_PUBLIC_KEY);
     const STORAGE_KEYS = {
@@ -3710,6 +3710,40 @@
       const msg = (error?.message || '').toLowerCase();
       const code = error?.code || '';
       return code === '42P01' || code === 'PGRST205' || msg.includes('does not exist') || msg.includes('could not find');
+    }
+
+    function isMissingColumnError(error, columnName) {
+      const msg = (error?.message || '').toLowerCase();
+      const code = error?.code || '';
+      const col = String(columnName || '').toLowerCase();
+      return code === 'PGRST204'
+        || (col && msg.includes(col) && (msg.includes('schema cache') || msg.includes('column')));
+    }
+
+    async function saveCoursePayload(id, payload) {
+      if (id) {
+        const { error } = await supabaseClient.from('courses').update(payload).eq('id', id);
+        if (error && isMissingColumnError(error, 'career_paths') && 'career_paths' in payload) {
+          const { career_paths, ...rest } = payload;
+          console.warn('career_paths column missing — saved course without career paths');
+          return supabaseClient.from('courses').update(rest).eq('id', id);
+        }
+        return { error };
+      }
+
+      const { data, error } = await supabaseClient
+        .from('courses')
+        .insert([payload])
+        .select('id')
+        .single();
+
+      if (error && isMissingColumnError(error, 'career_paths') && 'career_paths' in payload) {
+        const { career_paths, ...rest } = payload;
+        console.warn('career_paths column missing — saved course without career paths');
+        return supabaseClient.from('courses').insert([rest]).select('id').single();
+      }
+
+      return { data, error };
     }
 
     function mapCourseFromDb(row) {
@@ -6107,20 +6141,18 @@
       let courseId = id;
       let error;
 
-      if (id) {
-        ({ error } = await supabaseClient.from('courses').update(payload).eq('id', id));
-      } else {
-        const { data: inserted, error: insertError } = await supabaseClient
-          .from('courses')
-          .insert([payload])
-          .select('id')
-          .single();
-        error = insertError;
-        courseId = inserted?.id;
+      const saveResult = await saveCoursePayload(id, payload);
+      error = saveResult.error;
+      if (!id && saveResult.data?.id) {
+        courseId = saveResult.data.id;
       }
 
       if (error) {
-        showSupabaseError(error, 'save course');
+        if (isMissingColumnError(error, 'career_paths')) {
+          showActionError('عمود career_paths غير موجود في Supabase. نفّذ courses-career-paths-fix.sql ثم أعد المحاولة.');
+        } else {
+          showSupabaseError(error, 'save course');
+        }
         return;
       }
 

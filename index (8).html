@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INEXC — شركة التميز الابتكاري</title>
+<link rel="icon" type="image/png" href="assets/inexc-icon.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#1B2A4A;
+  --gold:#C8A96E;
+  --gold2:#E8D4A8;
+  --white:#ffffff;
+  --gray:#f5f6f8;
+  --text:#2d3748;
+  --muted:#718096;
+}
+body{font-family:'Cairo',sans-serif;background:var(--white);color:var(--text);}
+html{scroll-behavior:smooth;}
+
+/* HEADER */
+header{background:var(--navy);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-img{
+  height:auto;
+  max-height:52px;
+  width:auto;
+  max-width:min(100%,280px);
+  object-fit:contain;
+  display:block;
+  border-radius:4px;
+}
+nav{display:flex;gap:8px;align-items:center;}
+nav a{color:rgba(255,255,255,0.8);text-decoration:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;transition:all 0.2s;}
+nav a:hover{background:rgba(255,255,255,0.1);color:var(--white);}
+nav a.active{background:var(--gold);color:var(--navy);}
+.menu-toggle{
+  display:none;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:8px;
+  margin-right:-4px;
+}
+.menu-toggle span{
+  display:block;
+  width:24px;
+  height:2px;
+  background:#fff;
+  margin:5px 0;
+  border-radius:2px;
+  transition:0.3s;
+}
+
+/* HERO */
+.hero{background:var(--navy);padding:90px 5% 80px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{
+  content:'';
+  position:absolute;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(200,169,110,0.08) 0%,transparent 70%);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:0;
+}
+.hero-badge,.hero h1,.hero p,.hero-btns{position:relative;z-index:1;}
+.hero-badge{display:inline-block;background:rgba(200,169,110,0.15);border:1px solid rgba(200,169,110,0.4);color:var(--gold);padding:6px 20px;border-radius:30px;font-size:13px;font-weight:600;margin-bottom:24px;}
+.hero h1{font-size:clamp(28px,5vw,52px);font-weight:900;color:var(--white);line-height:1.3;margin-bottom:20px;}
+.hero h1 span{color:var(--gold);}
+.hero p{font-size:17px;color:rgba(255,255,255,0.75);max-width:600px;margin:0 auto 40px;line-height:1.8;}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-gold,.btn-outline{
+  position:relative;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-gold{background:var(--gold);color:var(--navy);padding:14px 36px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:all 0.2s;}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-2px);}
+.btn-outline{background:transparent;color:var(--white);padding:14px 36px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+/* COURSES SECTION */
+.courses-section{padding:80px 5%;background:var(--gray);scroll-margin-top:80px;}
+.sec-header{text-align:center;margin-bottom:52px;}
+.sec-tag{display:inline-block;background:rgba(27,42,74,0.08);color:var(--navy);padding:5px 18px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:14px;letter-spacing:1px;}
+.sec-header h2{font-size:clamp(24px,4vw,38px);font-weight:900;color:var(--navy);margin-bottom:12px;}
+.sec-header p{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto;}
+
+/* GRID */
+.courses-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+}
+.courses-load-msg,.courses-error-msg{text-align:center;color:var(--muted);grid-column:1/-1;padding:48px 20px;font-size:15px;}
+.courses-error-msg{color:#c45c5c;background:rgba(196,92,92,0.08);border:1px solid rgba(196,92,92,0.2);border-radius:12px;}
+
+.career-paths-banner{
+  max-width:1200px;margin:0 auto 20px;
+  background:linear-gradient(135deg,rgba(0,70,170,0.08),rgba(200,169,110,0.1));
+  border:1px solid rgba(0,70,170,0.12);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:8px;
+}
+.career-paths-banner h3{font-size:1.05rem;color:var(--navy);margin-bottom:6px;}
+.career-paths-banner p{font-size:0.88rem;color:var(--muted);margin-bottom:14px;}
+.career-paths-legend{display:flex;flex-wrap:wrap;gap:8px;}
+.career-paths-legend span{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid rgba(27,42,74,0.08);
+  border-radius:999px;padding:6px 12px;font-size:0.78rem;font-weight:700;color:var(--navy);
+}
+.course-career-paths{
+  padding:12px 20px 0;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  background:var(--white);
+}
+.course-career-label{font-size:0.72rem;color:var(--muted);font-weight:700;}
+.course-career-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:0.72rem;font-weight:700;color:var(--navy);
+  background:rgba(0,70,170,0.07);
+  border:1px solid rgba(0,70,170,0.12);
+  border-radius:999px;padding:5px 10px;
+}
+
+/* ═══════════════════════════
+   COURSE CARD
+═══════════════════════════ */
+.course-card{
+  background:var(--white);
+  border-radius:18px;
+  border:1px solid rgba(27,42,74,0.08);
+  box-shadow:0 4px 16px rgba(27,42,74,0.07);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition:transform 0.3s, box-shadow 0.3s;
+}
+.course-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 50px rgba(27,42,74,0.13);
+}
+
+/* TOP - dark area */
+.card-top{
+  background:linear-gradient(145deg, #1B2A4A 0%, #1e3a6e 100%);
+  padding:22px 20px;
+  position:relative;
+}
+.card-top::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,169,110,0.35),transparent);
+}
+
+/* Badge */
+.card-type{
+  display:inline-block;
+  padding:3px 12px;border-radius:20px;
+  font-size:11px;font-weight:700;
+  margin-bottom:12px;
+}
+.paid{background:rgba(200,169,110,0.15);color:var(--gold);border:1px solid rgba(200,169,110,0.3);}
+.free{background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+
+/* Title */
+.card-title{
+  font-size:15px;font-weight:700;
+  color:var(--white);
+  line-height:1.45;
+  margin-bottom:8px;
+  min-height:44px;
+  text-align:center;
+}
+/* Desc */
+.card-desc{
+  font-size:12px;color:rgba(255,255,255,0.55);
+  line-height:1.65;
+  margin-bottom:16px;
+  min-height:50px;
+}
+
+/* Register button - inside top */
+.btn-register{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;
+  background:linear-gradient(135deg,var(--gold),#a07840);
+  color:var(--navy);
+  padding:12px;border-radius:10px;
+  font-size:14px;font-weight:900;
+  text-decoration:none;border:none;cursor:pointer;
+  font-family:'Cairo',sans-serif;
+  box-shadow:0 4px 16px rgba(200,169,110,0.3);
+  transition:all 0.3s;
+  margin-bottom:16px;
+}
+.btn-register:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(200,169,110,0.45);
+  filter:brightness(1.07);
+}
+.btn-register:hover .btn-arrow{transform:translateX(-5px);}
+.btn-arrow{transition:transform 0.3s;}
+
+/* Countdown */
+.cd-wrap{
+  background:rgba(0,0,0,0.2);
+  border:1px solid rgba(200,169,110,0.18);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.cd-label{font-size:10px;color:rgba(200,169,110,0.65);font-weight:600;letter-spacing:1px;margin-bottom:8px;text-align:center;}
+.cd-row{display:flex;justify-content:center;align-items:center;gap:6px;}
+.cd-box{
+  background:rgba(27,42,74,0.7);
+  border:1px solid rgba(200,169,110,0.2);
+  border-radius:7px;padding:6px 10px;
+  text-align:center;min-width:42px;
+}
+.cd-n{display:block;font-size:18px;font-weight:900;color:var(--white);line-height:1;font-variant-numeric:tabular-nums;}
+.cd-u{font-size:9px;color:var(--gold);font-weight:600;margin-top:3px;}
+.cd-sep{color:rgba(200,169,110,0.35);font-size:16px;margin-bottom:14px;}
+
+/* BOTTOM - white area */
+.card-bottom{
+  padding:16px 20px;
+  display:flex;
+  gap:8px;
+  background:var(--white);
+}
+.meta-pill{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--gray);
+  border-radius:8px;
+  padding:8px 6px;
+  border:1px solid rgba(27,42,74,0.06);
+  gap:3px;
+}
+.meta-pill .ico{font-size:14px;}
+.meta-pill .val{font-size:11px;font-weight:700;color:var(--navy);text-align:center;line-height:1.2;}
+
+.course-price{
+  margin:0 20px 16px;
+  padding:10px 14px;
+  border-radius:10px;
+  background:rgba(200,169,110,0.12);
+  color:var(--navy);
+  font-size:14px;
+  font-weight:900;
+  text-align:center;
+  border:1px solid rgba(200,169,110,0.25);
+}
+.course-price.free-price{
+  background:rgba(34,197,94,0.1);
+  border-color:rgba(34,197,94,0.25);
+  color:#15803d;
+}
+
+/* Course info inside card — formal INEXC style */
+.card-info{
+  padding:0 16px 14px;
+  background:var(--white);
+  border-bottom:1px solid rgba(27,42,74,0.06);
+}
+.card-info-details{
+  border:1px solid rgba(27,42,74,0.12);
+  border-radius:14px;
+  background:var(--white);
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(27,42,74,0.06);
+}
+.card-info-details summary{
+  list-style:none;
+  cursor:pointer;
+  padding:12px 14px;
+  font-size:13px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg, #1B2A4A 0%, #243B5E 100%);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  user-select:none;
+  transition:background 0.2s;
+}
+.card-info-details summary:hover{
+  background:linear-gradient(135deg, #243B5E 0%, #1B2A4A 100%);
+}
+.card-info-details summary::-webkit-details-marker{display:none;}
+.card-info-summary-icon{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:rgba(200,169,110,0.14);
+  border:1.5px solid #C8A96E;
+  color:#E8D4A8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  font-size:15px;
+  font-weight:900;
+  line-height:1;
+}
+.card-info-summary-text{flex:1;}
+.card-info-details summary::after{
+  content:'';
+  width:8px;
+  height:8px;
+  border-right:2px solid #C8A96E;
+  border-bottom:2px solid #C8A96E;
+  transform:rotate(45deg);
+  margin-right:4px;
+  transition:transform 0.2s;
+  flex-shrink:0;
+}
+.card-info-details[open] summary::after{
+  transform:rotate(225deg);
+  margin-top:4px;
+}
+.card-info-body{
+  padding:12px 14px 14px;
+  background:linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-top:2px solid rgba(200,169,110,0.35);
+}
+.info-block{
+  padding:10px 0 10px;
+  border-bottom:1px solid rgba(27,42,74,0.07);
+}
+.info-block:last-child{border-bottom:none;padding-bottom:0;}
+.info-block-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.info-section-icon{
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:#1B2A4A;
+  border:1px solid rgba(200,169,110,0.5);
+  color:#C8A96E;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+}
+.info-block-title{
+  font-size:12px;
+  font-weight:800;
+  color:#1B2A4A;
+  letter-spacing:0.2px;
+}
+.info-block-list{
+  list-style:none;
+  margin:0;
+  padding:0 0 0 4px;
+}
+.info-block-list li{
+  position:relative;
+  padding:4px 16px 4px 0;
+  font-size:12px;
+  color:#2d3748;
+  line-height:1.7;
+}
+.info-block-list li::before{
+  content:'';
+  position:absolute;
+  right:0;
+  top:11px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#1B2A4A;
+  box-shadow:0 0 0 2px rgba(200,169,110,0.35);
+}
+.info-block-text{
+  font-size:12px;
+  color:#2d3748;
+  line-height:1.75;
+  white-space:pre-line;
+  padding-right:2px;
+}
+.info-block-meta .info-meta-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.info-meta-item{
+  background:#fff;
+  border:1px solid rgba(27,42,74,0.08);
+  border-radius:10px;
+  padding:8px 6px;
+  text-align:center;
+}
+.info-meta-item .info-meta-icon{
+  width:26px;
+  height:26px;
+  margin:0 auto 5px;
+  border-radius:7px;
+  background:#1B2A4A;
+  color:#C8A96E;
+  border:1px solid rgba(200,169,110,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+}
+.info-meta-item .info-meta-label{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+  font-weight:600;
+  margin-bottom:2px;
+}
+.info-meta-item .info-meta-val{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  color:#1B2A4A;
+  line-height:1.35;
+}
+.info-block-empty{
+  font-size:12px;
+  color:var(--muted);
+  margin:0;
+  padding-right:2px;
+}
+.info-block-list .info-block-empty-item{
+  color:var(--muted);
+  list-style:none;
+  padding-right:0;
+}
+.info-block-list .info-block-empty-item::before{display:none;}
+@media(max-width:680px){
+  .info-block-meta .info-meta-grid{grid-template-columns:1fr;}
+}
+
+/* PARTNERSHIP */
+.partnership-section{padding:80px 5%;background:var(--white);scroll-margin-top:80px;}
+.partnership-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:1100px;margin:0 auto;}
+.partnership-info h3{font-size:22px;font-weight:900;color:var(--navy);margin-bottom:16px;}
+.partnership-info p{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:24px;}
+.p-types{display:flex;flex-direction:column;gap:12px;}
+.p-type{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--gray);border-radius:10px;border-right:3px solid var(--gold);}
+.p-icon{font-size:22px;}
+.p-name{font-size:13px;font-weight:600;color:var(--navy);}
+.p-sub{font-size:12px;color:var(--muted);}
+.p-form{background:var(--gray);border-radius:16px;padding:32px;}
+.p-form h3{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:24px;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1px solid #dde3ec;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;direction:rtl;transition:border 0.2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);}
+.fg textarea{resize:vertical;min-height:90px;}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.p-submit{width:100%;background:var(--navy);color:var(--white);padding:13px;border-radius:10px;font-size:15px;font-weight:700;font-family:'Cairo',sans-serif;border:none;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+.p-submit:hover{background:var(--gold);color:var(--navy);}
+.p-success{display:none;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:14px;border-radius:10px;text-align:center;font-size:14px;font-weight:600;margin-top:12px;}
+
+/* CTA */
+.cta{background:var(--navy);padding:80px 5%;text-align:center;}
+.cta h2{font-size:clamp(24px,4vw,40px);font-weight:900;color:var(--white);margin-bottom:16px;}
+.cta p{font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:36px;}
+
+/* FOOTER */
+footer{background:#0f1a2e;padding:30px 5%;text-align:center;}
+footer p{color:rgba(255,255,255,0.4);font-size:13px;}
+footer span{color:var(--gold);}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.courses-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:680px){
+  .courses-grid{grid-template-columns:1fr;}
+  .partnership-grid{grid-template-columns:1fr;gap:30px;}
+  nav{
+    display:none;
+    position:absolute;
+    top:70px;
+    right:0;
+    left:0;
+    flex-direction:column;
+    align-items:stretch;
+    background:var(--navy);
+    padding:12px 16px 20px;
+    gap:6px;
+    border-top:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    z-index:99;
+  }
+  nav.open{display:flex;}
+  nav a{
+    width:100%;
+    text-align:center;
+    padding:12px 16px;
+    font-size:15px;
+  }
+  .menu-toggle{display:block;}
+  .logo-img{max-height:44px;max-width:200px;}
+  .fg-row{grid-template-columns:1fr;}
+  .card-bottom{flex-wrap:wrap;}
+  .meta-pill{min-width:calc(33% - 6px);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence — التميز الابتكاري" class="logo-img">
+  </a>
+  <nav id="nav">
+    <a href="index.html" class="active">الرئيسية</a>
+    <a href="#courses">الدورات</a>
+    <a href="#partnership">التعاون والشراكة</a>
+    <a href="register.html">التسجيل</a>
+    <a href="account.html">حسابي</a>
+  </nav>
+  <button type="button" class="menu-toggle" id="menuToggle" aria-label="فتح القائمة" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</header>
+
+<section class="hero">
+  <div class="hero-badge">🚀 رائدة في الذكاء الاصطناعي التعليمي</div>
+  <h1>نقود مستقبل التعليم<br><span>بالذكاء الاصطناعي</span></h1>
+  <p>شركة التميز الابتكاري INEXC — متخصصة في تدريب المعلمين والمؤسسات التعليمية على أحدث تطبيقات الذكاء الاصطناعي</p>
+  <div class="hero-btns">
+    <a href="register.html" class="btn-gold" id="heroRegisterBtn">ابدأ رحلتك التدريبية</a>
+    <a href="#courses" class="btn-outline" id="heroCoursesBtn">تصفح الدورات</a>
+  </div>
+</section>
+
+<section class="courses-section" id="courses">
+  <div class="sec-header">
+    <div class="sec-tag">COURSES</div>
+    <h2>دوراتنا التدريبية</h2>
+    <p>برامج متخصصة في الذكاء الاصطناعي والتحول الرقمي للمؤسسات التعليمية</p>
+  </div>
+  <div class="career-paths-banner" id="careerPathsIntro" hidden></div>
+  <div class="courses-grid" id="coursesGrid">
+    <p class="courses-load-msg" id="coursesLoadMsg">جاري تحميل الدورات...</p>
+  </div>
+</section>
+
+<section class="partnership-section" id="partnership">
+  <div class="sec-header">
+    <div class="sec-tag">PARTNERSHIP</div>
+    <h2>التعاون والشراكة</h2>
+    <p>نرحب بالشراكات الاستراتيجية مع المؤسسات والأفراد</p>
+  </div>
+  <div class="partnership-grid">
+    <div class="partnership-info">
+      <h3>لماذا تتشارك مع INEXC؟</h3>
+      <p>نقدم فرصاً حقيقية للمؤسسات والأفراد للمساهمة في تطوير منظومة التعليم بالذكاء الاصطناعي.</p>
+      <div class="p-types">
+        <div class="p-type"><div class="p-icon">🏫</div><div><div class="p-name">شراكة مؤسسية</div><div class="p-sub">للمدارس والجامعات والمراكز التدريبية</div></div></div>
+        <div class="p-type"><div class="p-icon">🤝</div><div><div class="p-name">شراكة تسويقية</div><div class="p-sub">للمسوّقين وأصحاب المنصات الرقمية</div></div></div>
+        <div class="p-type"><div class="p-icon">👨‍💼</div><div><div class="p-name">شراكة مدرّب</div><div class="p-sub">للمدربين المتخصصين في الذكاء الاصطناعي</div></div></div>
+        <div class="p-type"><div class="p-icon">💼</div><div><div class="p-name">شراكة استراتيجية</div><div class="p-sub">للشركات والمؤسسات الكبرى</div></div></div>
+      </div>
+    </div>
+    <div class="p-form">
+      <h3>📩 أرسل طلب شراكتك</h3>
+      <div id="pForm">
+        <div class="fg-row">
+          <div class="fg"><label>الاسم الكامل *</label><input type="text" id="pn" placeholder="اسمك الكامل"></div>
+          <div class="fg"><label>رقم الجوال *</label><input type="tel" id="pp" placeholder="05xxxxxxxx"></div>
+        </div>
+        <div class="fg"><label>البريد الإلكتروني *</label><input type="email" id="pe" placeholder="example@email.com"></div>
+        <div class="fg"><label>اسم المؤسسة</label><input type="text" id="po" placeholder="اسم شركتك أو مؤسستك"></div>
+        <div class="fg"><label>نوع الشراكة *</label>
+          <select id="pt"><option value="">اختر نوع الشراكة</option><option>شراكة مؤسسية</option><option>شراكة تسويقية</option><option>شراكة مدرّب</option><option>شراكة استراتيجية</option><option>أخرى</option></select>
+        </div>
+        <div class="fg"><label>رسالتك</label><textarea id="pm" placeholder="اكتب تفاصيل طلبك..."></textarea></div>
+        <button class="p-submit" onclick="submitP()">إرسال طلب الشراكة ←</button>
+      </div>
+      <div class="p-success" id="pSuccess">✅ تم استلام طلبك! سيتواصل معك فريق INEXC خلال 48 ساعة.</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>جاهز لتحويل مؤسستك؟</h2>
+  <p>انضم لمئات المعلمين والمدربين الذين غيّروا مسيرتهم مع INEXC</p>
+  <a href="register.html" class="btn-gold">سجّل الآن</a>
+</section>
+
+<footer><p>© 2026 <span>شركة التميز الابتكاري INEXC</span> — جميع الحقوق محفوظة</p></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function (global) {
+  'use strict';
+
+  const CAREER_ROLES = [
+    {
+      key: 'ai_trainer',
+      title: 'مدرب AI',
+      icon: '🎓',
+      requiredCourses: [
+        { name: 'الذكاء الاصطناعي في التعليم', weight: 35 },
+        { name: 'تدريب المدربين AI TOT', weight: 40 },
+        { name: 'هندسة الأوامر Prompt Engineering', weight: 25 }
+      ]
+    },
+    {
+      key: 'curriculum_designer',
+      title: 'مصمم مناهج ذكية',
+      icon: '📐',
+      requiredCourses: [
+        { name: 'بناء المناهج الذكية', weight: 45 },
+        { name: 'الذكاء الاصطناعي في التعليم', weight: 30 },
+        { name: 'صناعة المحتوى الرقمي', weight: 25 }
+      ]
+    },
+    {
+      key: 'ai_content_creator',
+      title: 'صانع محتوى AI',
+      icon: '🎬',
+      requiredCourses: [
+        { name: 'صناعة المحتوى الرقمي', weight: 40 },
+        { name: 'هندسة الأوامر Prompt Engineering', weight: 35 },
+        { name: 'بناء الشات بوتات التعليمية', weight: 25 }
+      ]
+    },
+    {
+      key: 'digital_leader',
+      title: 'قائد تحول رقمي',
+      icon: '🏛️',
+      requiredCourses: [
+        { name: 'التحول الرقمي للمؤسسات', weight: 40 },
+        { name: 'تطوير القيادات التعليمية', weight: 35 },
+        { name: 'بناء المناهج الذكية', weight: 25 }
+      ]
+    },
+    {
+      key: 'chatbot_specialist',
+      title: 'متخصص شات بوتات تعليمية',
+      icon: '🤖',
+      requiredCourses: [
+        { name: 'بناء الشات بوتات التعليمية', weight: 45 },
+        { name: 'هندسة الأوامر Prompt Engineering', weight: 30 },
+        { name: 'الذكاء الاصطناعي في التعليم', weight: 25 }
+      ]
+    }
+  ];
+
+  const COURSE_CATALOG_META = {
+    'الذكاء الاصطناعي في التعليم': {
+      hours: 20,
+      skills: ['تطبيق AI في التعليم', 'تصميم أنشطة تفاعلية', 'أدوات الذكاء الاصطناعي'],
+      domains: ['التعليم والتدريب', 'الذكاء الاصطناعي']
+    },
+    'تدريب المدربين AI TOT': {
+      hours: 30,
+      skills: ['تدريب المدربين', 'تصميم ورش AI', 'تقييم الأداء التدريبي'],
+      domains: ['التعليم والتدريب', 'القيادة التدريبية']
+    },
+    'هندسة الأوامر Prompt Engineering': {
+      hours: 15,
+      skills: ['هندسة الأوامر', 'ChatGPT & Claude', 'أتمتة المهام'],
+      domains: ['الذكاء الاصطناعي', 'الإنتاجية الرقمية']
+    },
+    'بناء المناهج الذكية': {
+      hours: 25,
+      skills: ['تصميم المناهج', 'تحليل احتياجات التعلم', 'AI Curriculum Design'],
+      domains: ['التعليم والتدريب', 'تصميم المحتوى']
+    },
+    'صناعة المحتوى الرقمي': {
+      hours: 20,
+      skills: ['إنتاج محتوى رقمي', 'تحرير بالذكاء الاصطناعي', 'التسويق التعليمي'],
+      domains: ['صناعة المحتوى', 'الإنتاجية الرقمية']
+    },
+    'بناء الشات بوتات التعليمية': {
+      hours: 18,
+      skills: ['بناء Chatbots', 'أتمتة الدعم التعليمي', 'تكامل AI'],
+      domains: ['الذكاء الاصطناعي', 'التعليم والتدريب']
+    },
+    'التحول الرقمي للمؤسسات': {
+      hours: 24,
+      skills: ['استراتيجية التحول الرقمي', 'إدارة التغيير', 'حوكمة التقنية'],
+      domains: ['الإدارة والقيادة', 'التحول الرقمي']
+    },
+    'المهارات المستقبلية': {
+      hours: 12,
+      skills: ['مهارات المستقبل', 'التعلم الذاتي', 'التفكير النقدي'],
+      domains: ['التطوير المهني', 'المهارات الشخصية']
+    },
+    'تطوير القيادات التعليمية': {
+      hours: 22,
+      skills: ['قيادة تعليمية', 'اتخاذ قرارات بالبيانات', 'إدارة فرق التعلم'],
+      domains: ['الإدارة والقيادة', 'التعليم والتدريب']
+    }
+  };
+
+  const COURSE_PATHS = {
+    'الذكاء الاصطناعي في التعليم': ['هندسة الأوامر Prompt Engineering', 'بناء المناهج الذكية', 'بناء الشات بوتات التعليمية'],
+    'هندسة الأوامر Prompt Engineering': ['الذكاء الاصطناعي في التعليم', 'صناعة المحتوى الرقمي'],
+    'تدريب المدربين AI TOT': ['صناعة المحتوى الرقمي', 'بناء الشات بوتات التعليمية'],
+    'بناء المناهج الذكية': ['التحول الرقمي للمؤسسات', 'تطوير القيادات التعليمية'],
+    'المهارات المستقبلية': ['الذكاء الاصطناعي في التعليم', 'هندسة الأوامر Prompt Engineering']
+  };
+
+  const KEYWORD_CAREER_RULES = [
+    { roleKey: 'ai_trainer', patterns: [/مدرب/i, /tot/i, /تدريب/i, /trainer/i] },
+    { roleKey: 'curriculum_designer', patterns: [/مناهج/i, /curriculum/i, /تعليم/i, /ترب/i] },
+    { roleKey: 'ai_content_creator', patterns: [/محتوى/i, /content/i, /صناعة/i, /رقمي/i] },
+    { roleKey: 'digital_leader', patterns: [/تحول/i, /قياد/i, /مؤسس/i, /إدار/i] },
+    { roleKey: 'chatbot_specialist', patterns: [/chatbot/i, /شات/i, /بوت/i, /bot/i] },
+    { roleKey: 'ai_trainer', patterns: [/prompt/i, /أوامر/i] },
+    { roleKey: 'ai_content_creator', patterns: [/prompt/i, /أوامر/i] },
+    { roleKey: 'ai_trainer', patterns: [/ذكاء/i, /\bai\b/i] },
+    { roleKey: 'ai_content_creator', patterns: [/ذكاء/i, /\bai\b/i] }
+  ];
+
+  const DEFAULT_CAREER_KEYS = ['ai_trainer', 'curriculum_designer', 'ai_content_creator', 'digital_leader'];
+
+  function buildCourseCareerReverseMap() {
+    const map = {};
+    CAREER_ROLES.forEach(role => {
+      role.requiredCourses.forEach(req => {
+        if (!map[req.name]) map[req.name] = [];
+        map[req.name].push({
+          roleKey: role.key,
+          weight: req.weight,
+          title: role.title,
+          icon: role.icon
+        });
+      });
+    });
+    return map;
+  }
+
+  const COURSE_TO_CAREER = buildCourseCareerReverseMap();
+
+  function normalizeCourseName(name) {
+    return String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  function getRoleByKey(key) {
+    return CAREER_ROLES.find(r => r.key === key) || null;
+  }
+
+  function resolveCanonicalCourseName(name) {
+    const raw = String(name || '').trim();
+    if (!raw) return raw;
+    if (COURSE_CATALOG_META[raw]) return raw;
+
+    const norm = normalizeCourseName(raw);
+    for (const key of Object.keys(COURSE_CATALOG_META)) {
+      if (normalizeCourseName(key) === norm) return key;
+    }
+    for (const key of Object.keys(COURSE_CATALOG_META)) {
+      const nk = normalizeCourseName(key);
+      if (norm.includes(nk) || nk.includes(norm)) return key;
+    }
+    return raw;
+  }
+
+  function parseCareerPathsField(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  function inferCareerLinksFromText(name, description) {
+    const text = (name + ' ' + (description || '')).toLowerCase();
+    const matched = new Map();
+
+    KEYWORD_CAREER_RULES.forEach(rule => {
+      if (rule.patterns.some(p => p.test(text))) {
+        matched.set(rule.roleKey, (matched.get(rule.roleKey) || 0) + 1);
+      }
+    });
+
+    if (matched.size) {
+      const weight = Math.max(20, Math.round(100 / matched.size));
+      return [...matched.keys()].map(roleKey => ({ roleKey, weight }));
+    }
+
+    return DEFAULT_CAREER_KEYS.map(roleKey => ({ roleKey, weight: 25 }));
+  }
+
+  function getCareerLinksForCourse(courseName, courseRow) {
+    const dbPaths = parseCareerPathsField(courseRow?.career_paths);
+    if (dbPaths.length) {
+      return dbPaths
+        .map(item => ({
+          roleKey: item.key || item.roleKey,
+          weight: Number(item.weight) || 25
+        }))
+        .filter(item => item.roleKey && getRoleByKey(item.roleKey));
+    }
+
+    const canonical = resolveCanonicalCourseName(courseName);
+    if (COURSE_TO_CAREER[canonical]) {
+      return COURSE_TO_CAREER[canonical].map(link => ({ ...link }));
+    }
+
+    return inferCareerLinksFromText(courseName, courseRow?.description || courseRow?.desc);
+  }
+
+  function getCareerLabelsForCourse(courseName, courseRow) {
+    const seen = new Set();
+    return getCareerLinksForCourse(courseName, courseRow)
+      .map(link => getRoleByKey(link.roleKey))
+      .filter(role => role && !seen.has(role.key) && seen.add(role.key));
+  }
+
+  function parseCourseHours(hoursStr, fallback) {
+    const match = String(hoursStr || '').match(/(\d+)/);
+    return match ? Number(match[1]) : (fallback || 20);
+  }
+
+  function getCourseMeta(courseName, courseRow) {
+    const canonical = resolveCanonicalCourseName(courseName);
+    const known = COURSE_CATALOG_META[canonical];
+    if (known) {
+      return {
+        ...known,
+        hours: known.hours || parseCourseHours(courseRow?.hours)
+      };
+    }
+    return {
+      hours: parseCourseHours(courseRow?.hours),
+      skills: inferSkillsFromCourse(courseName, courseRow?.description || courseRow?.desc),
+      domains: ['التطوير المهني']
+    };
+  }
+
+  function inferSkillsFromCourse(name, description) {
+    const links = getCareerLinksForCourse(name, { description });
+    const skills = new Set();
+    links.forEach(link => {
+      const role = getRoleByKey(link.roleKey);
+      if (role) skills.add('مهارات ' + role.title);
+    });
+    if (!skills.size) skills.add('مهارات ' + name);
+    return [...skills];
+  }
+
+  function computeCareerReadiness(courseProgress, courseMap) {
+    const roleEarned = {};
+    const roleWeight = {};
+    CAREER_ROLES.forEach(r => {
+      roleEarned[r.key] = 0;
+      roleWeight[r.key] = 0;
+    });
+
+    Object.entries(courseProgress || {}).forEach(([courseName, progress]) => {
+      const pct = Number(progress) || 0;
+      if (pct <= 0) return;
+
+      const links = getCareerLinksForCourse(courseName, courseMap?.[courseName]);
+      links.forEach(link => {
+        if (!roleEarned[link.roleKey]) return;
+        roleWeight[link.roleKey] += link.weight;
+        roleEarned[link.roleKey] += link.weight * (pct / 100);
+      });
+    });
+
+    return CAREER_ROLES.map(role => {
+      const total = roleWeight[role.key];
+      const readiness = total ? Math.round((roleEarned[role.key] / total) * 100) : 0;
+      return { ...role, readiness };
+    }).sort((a, b) => b.readiness - a.readiness);
+  }
+
+  global.InexcCareerMap = {
+    CAREER_ROLES,
+    COURSE_CATALOG_META,
+    COURSE_PATHS,
+    COURSE_TO_CAREER,
+    DEFAULT_CAREER_KEYS,
+    getRoleByKey,
+    resolveCanonicalCourseName,
+    getCareerLinksForCourse,
+    getCareerLabelsForCourse,
+    getCourseMeta,
+    parseCourseHours,
+    computeCareerReadiness,
+    inferCareerLinksFromText
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function parseCourseLines(text) {
+  if (!text || !String(text).trim()) return [];
+  const lines = String(text).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (lines.length) return lines;
+  return [String(text).trim()];
+}
+
+const COURSE_DETAIL_SECTIONS = [
+  { key: 'objectives', label: 'الأهداف', icon: '◎', list: true },
+  { key: 'outcomes', label: 'المخرجات', icon: '◈', list: true },
+  { key: 'what_you_learn', label: 'ماذا ستتعلم؟', icon: '★', list: true },
+  { key: 'course_method', label: 'طريقة التقديم', icon: '▣', list: false },
+  { key: 'target_audience', label: 'الفئة المستهدفة', icon: '◆', list: true },
+  { key: 'requirements', label: 'المتطلبات', icon: '◐', list: true }
+];
+
+function buildSectionBlock(section, course) {
+  const lines = parseCourseLines(course[section.key]);
+  const head = `<div class="info-block-head">
+    <span class="info-section-icon" aria-hidden="true">${section.icon}</span>
+    <span class="info-block-title">${section.label}</span>
+  </div>`;
+  if (section.list) {
+    const items = lines.length
+      ? lines.map(l => `<li>${escapeHtml(l)}</li>`).join('')
+      : '<li class="info-block-empty-item">—</li>';
+    return `<div class="info-block">${head}<ul class="info-block-list">${items}</ul></div>`;
+  }
+  const text = lines.length
+    ? escapeHtml(lines.join('\n'))
+    : '<span class="info-block-empty">—</span>';
+  return `<div class="info-block">${head}<div class="info-block-text">${text}</div></div>`;
+}
+
+function buildCourseMetaHtml(course) {
+  const items = [
+    { icon: '⏱', label: 'المدة', val: course.hours || '20 ساعة' },
+    { icon: '◆', label: 'المستوى', val: course.level || 'متوسط' },
+    { icon: '✓', label: 'الشهادة', val: course.cert || 'شهادة INEXC' }
+  ];
+  return `<div class="info-block info-block-meta">
+    <div class="info-block-head">
+      <span class="info-section-icon" aria-hidden="true">ℹ</span>
+      <span class="info-block-title">بيانات الدورة</span>
+    </div>
+    <div class="info-meta-grid">
+      ${items.map(item => `<div class="info-meta-item">
+        <span class="info-meta-icon">${item.icon}</span>
+        <span class="info-meta-label">${item.label}</span>
+        <span class="info-meta-val">${escapeHtml(item.val)}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function buildCourseInfoBody(course) {
+  const descBlock = `<div class="info-block">
+    <div class="info-block-head">
+      <span class="info-section-icon" aria-hidden="true">≡</span>
+      <span class="info-block-title">نبذة عن الدورة</span>
+    </div>
+    <div class="info-block-text">${course.desc ? escapeHtml(course.desc) : '<span class="info-block-empty">—</span>'}</div>
+  </div>`;
+  const detailBlocks = COURSE_DETAIL_SECTIONS.map(s => buildSectionBlock(s, course)).join('');
+  const metaBlock = buildCourseMetaHtml(course);
+  return descBlock + detailBlocks + metaBlock;
+}
+
+function buildCourseInfoHtml(course) {
+  return `<div class="card-info">
+    <details class="card-info-details">
+      <summary>
+        <span class="card-info-summary-icon" aria-hidden="true">i</span>
+        <span class="card-info-summary-text">معلومات الدورة</span>
+      </summary>
+      <div class="card-info-body">${buildCourseInfoBody(course)}</div>
+    </details>
+  </div>`;
+}
+
+function mapDbCourseToHome(c, i) {
+  const paid = c.type === 'paid';
+  return {
+    id: c.id,
+    title: c.name || 'دورة تدريبية',
+    desc: c.description || '',
+    hours: c.hours || '20 ساعة',
+    level: c.level || 'متوسط',
+    cert: c.cert || 'شهادة INEXC',
+    paid,
+    price: paid ? (Number(c.price) || 0) : 0,
+    days: c.days || (10 + i),
+    career_paths: c.career_paths || null,
+    objectives: c.objectives || '',
+    outcomes: c.outcomes || '',
+    what_you_learn: c.what_you_learn || c.learn_content || '',
+    course_method: c.course_method || c.delivery_method || '',
+    target_audience: c.target_audience || '',
+    requirements: c.requirements || ''
+  };
+}
+
+function buildCourseCareerPathsHtml(course) {
+  if (!window.InexcCareerMap) return '';
+  const roles = InexcCareerMap.getCareerLabelsForCourse(course.title, {
+    description: course.desc,
+    career_paths: course.career_paths,
+    hours: course.hours
+  });
+  if (!roles.length) return '';
+  return `<div class="course-career-paths">
+    <span class="course-career-label">مسارات التقدم:</span>
+    ${roles.map(r => `<span class="course-career-chip">${r.icon} ${escapeHtml(r.title)}</span>`).join('')}
+  </div>`;
+}
+
+function renderCareerPathsIntro() {
+  const el = document.getElementById('careerPathsIntro');
+  if (!el || !window.InexcCareerMap) return;
+  const roles = InexcCareerMap.CAREER_ROLES.slice(0, 4);
+  el.innerHTML = `
+    <h3>مسارات التقدم المهني</h3>
+    <p>كل دورة في الصفحة الرئيسية مربوطة بمسار مهني — عند إكمالها يرتفع مؤشر جاهزيتك في حسابك</p>
+    <div class="career-paths-legend">
+      ${roles.map(r => `<span>${r.icon} ${escapeHtml(r.title)}</span>`).join('')}
+    </div>`;
+  el.hidden = false;
+}
+
+async function loadCoursesForHome() {
+  const { data, error } = await supabaseClient
+    .from('courses')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  const rows = window.InexcCourseLoad
+    ? InexcCourseLoad.dedupeCoursesByName(data || [])
+    : (data || []);
+  return rows.map(mapDbCourseToHome);
+}
+
+function showCoursesError(message) {
+  const grid = document.getElementById('coursesGrid');
+  grid.innerHTML = `<p class="courses-error-msg">${message}</p>`;
+}
+
+let courses = [];
+let deadlines = [];
+
+function renderCourses(){
+  const grid = document.getElementById('coursesGrid');
+  if (!courses.length) {
+    grid.innerHTML = '<p class="courses-load-msg">لا توجد دورات متاحة حالياً</p>';
+    return;
+  }
+  grid.innerHTML = courses.map((c,i)=>`
+    <div class="course-card">
+      <div class="card-top">
+        <span class="card-type ${c.paid?'paid':'free'}">${c.paid?'مدفوعة':'مجانية'}</span>
+        <div class="card-title">${c.title}</div>
+        <a href="register.html?courseId=${encodeURIComponent(c.id)}" class="btn-register">
+          <span>سجّل الآن</span><span class="btn-arrow">←</span>
+        </a>
+        <div class="cd-wrap">
+          <div class="cd-label">⏳ ينتهي التسجيل خلال</div>
+          <div class="cd-row">
+            <div class="cd-box"><span class="cd-n" id="d${i}">00</span><div class="cd-u">يوم</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-box"><span class="cd-n" id="h${i}">00</span><div class="cd-u">ساعة</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-box"><span class="cd-n" id="m${i}">00</span><div class="cd-u">دقيقة</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-box"><span class="cd-n" id="s${i}">00</span><div class="cd-u">ثانية</div></div>
+          </div>
+        </div>
+      </div>
+      ${buildCourseInfoHtml(c)}
+      ${buildCourseCareerPathsHtml(c)}
+      <div class="course-price ${c.paid ? '' : 'free-price'}">${c.paid ? c.price + ' د.إ' : 'مجانية'}</div>
+      <div class="card-bottom">
+        <div class="meta-pill"><span class="ico">⏱</span><span class="val">${c.hours}</span></div>
+        <div class="meta-pill"><span class="ico">📊</span><span class="val">${c.level}</span></div>
+        <div class="meta-pill"><span class="ico">🏅</span><span class="val">${c.cert}</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function tick(){
+  const now=new Date();
+  courses.forEach((_,i)=>{
+    const diff=deadlines[i]-now;
+    if(diff<=0)return;
+    const pad=n=>String(n).padStart(2,'0');
+    document.getElementById('d'+i).textContent=pad(Math.floor(diff/86400000));
+    document.getElementById('h'+i).textContent=pad(Math.floor((diff%86400000)/3600000));
+    document.getElementById('m'+i).textContent=pad(Math.floor((diff%3600000)/60000));
+    document.getElementById('s'+i).textContent=pad(Math.floor((diff%60000)/1000));
+  });
+}
+
+function buildDeadlines(){
+  deadlines = courses.map((c,i)=>{
+    const d=new Date();
+    d.setDate(d.getDate()+c.days);
+    d.setHours(d.getHours()+(i*3)%24);
+    return d;
+  });
+}
+
+async function initHome(){
+  try {
+    courses = await loadCoursesForHome();
+  } catch (error) {
+    console.error('Supabase courses error:', error);
+    showCoursesError('تعذّر تحميل الدورات. يرجى المحاولة لاحقاً.');
+    return;
+  }
+  buildDeadlines();
+  renderCareerPathsIntro();
+  renderCourses();
+  tick();
+  setInterval(tick, 1000);
+}
+
+initHome();
+
+async function submitP(){
+  const name = document.getElementById('pn').value.trim();
+  const phone = document.getElementById('pp').value.trim();
+  const email = document.getElementById('pe').value.trim();
+  const organization = document.getElementById('po').value.trim();
+  const type = document.getElementById('pt').value.trim();
+  const message = document.getElementById('pm').value.trim();
+
+  if(!name || !email || !type){
+    alert('يرجى تعبئة الحقول المطلوبة *');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('messages')
+    .insert([{
+      sender_name: name,
+      sender_email: email,
+      sender_phone: phone,
+      organization_name: organization,
+      partnership_type: type,
+      subject: 'طلب شراكة جديد — ' + type,
+      body: message || 'تم إرسال طلب شراكة جديد من الموقع.',
+      read: false,
+      hidden: false,
+      source: 'partnership'
+    }]);
+
+  if(error){
+    console.error(error);
+    alert('تعذر إرسال الطلب: ' + error.message);
+    return;
+  }
+
+  document.getElementById('pForm').style.display='none';
+  document.getElementById('pSuccess').style.display='block';
+}
+</script>
+<script>
+(function () {
+  const nav = document.getElementById('nav');
+  const menuToggle = document.getElementById('menuToggle');
+  if (!nav || !menuToggle) return;
+
+  menuToggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!nav.classList.contains('open')) return;
+    if (nav.contains(e.target) || menuToggle.contains(e.target)) return;
+    nav.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+  });
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const hash = link.getAttribute('href');
+      if (!hash || hash === '#') return;
+      const id = hash.slice(1);
+      const target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      scrollToSection(id);
+      history.replaceState(null, '', hash);
+    });
+  });
+})();
+</script>
+<script src="whatsapp-float.js"></script>
+</body>
+</html>

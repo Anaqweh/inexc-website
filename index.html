@@ -607,6 +607,7 @@ footer span{color:var(--gold);}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="js/course-load-utils.js"></script>
 <script src="js/course-career-map.js"></script>
 <script>
 function escapeHtml(str) {
@@ -699,6 +700,7 @@ function buildCourseInfoHtml(course) {
 function mapDbCourseToHome(c, i) {
   const paid = c.type === 'paid';
   return {
+    id: c.id,
     title: c.name || 'دورة تدريبية',
     desc: c.description || '',
     hours: c.hours || '20 ساعة',
@@ -752,7 +754,10 @@ async function loadCoursesForHome() {
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return (data || []).map(mapDbCourseToHome);
+  const rows = window.InexcCourseLoad
+    ? InexcCourseLoad.dedupeCoursesByName(data || [])
+    : (data || []);
+  return rows.map(mapDbCourseToHome);
 }
 
 function showCoursesError(message) {
@@ -774,7 +779,7 @@ function renderCourses(){
       <div class="card-top">
         <span class="card-type ${c.paid?'paid':'free'}">${c.paid?'مدفوعة':'مجانية'}</span>
         <div class="card-title">${c.title}</div>
-        <a href="register.html?course=${encodeURIComponent(c.title)}" class="btn-register">
+        <a href="register.html?courseId=${encodeURIComponent(c.id)}" class="btn-register">
           <span>سجّل الآن</span><span class="btn-arrow">←</span>
         </a>
         <div class="cd-wrap">
