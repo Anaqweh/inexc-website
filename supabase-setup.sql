@@ -24,6 +24,7 @@ ALTER TABLE public.registrations DISABLE ROW LEVEL SECURITY;
 
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON public.registrations TO anon, authenticated, service_role;
+GRANT DELETE ON public.registrations TO anon, authenticated, service_role;
 GRANT ALL ON SEQUENCE registrations_id_seq TO anon, authenticated, service_role;
 
 -- ─── 2) جدول الدورات (courses) ───
@@ -143,6 +144,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
 
 ALTER TABLE public.payments DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON public.payments TO anon, authenticated, service_role;
+GRANT DELETE ON public.payments TO anon, authenticated, service_role;
 
 -- إصلاح جدول payments إن وُجد مسبقاً بأعمدة ناقصة
 ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS registration_id BIGINT;

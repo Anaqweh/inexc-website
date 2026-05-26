@@ -5478,7 +5478,7 @@
 
     window.viewTrainee = function(id) {
       const trainees = traineesCache;
-      const trainee = trainees.find(t => t.id === id);
+      const trainee = trainees.find(t => String(t.id) === String(id));
       if (!trainee) return;
 
       document.getElementById('traineeModalBody').innerHTML = `
@@ -5538,29 +5538,56 @@
       }
     };
 
+    function isPermissionError(error) {
+      const msg = (error?.message || '').toLowerCase();
+      const code = error?.code || '';
+      return code === '42501' || msg.includes('permission denied') || msg.includes('row-level security');
+    }
+
+    function normalizeRegistrationId(id) {
+      if (id == null || id === '') return null;
+      const numeric = Number(id);
+      return Number.isFinite(numeric) ? numeric : id;
+    }
+
     async function deleteRelatedByRegistrationId(registrationId) {
+      const regId = normalizeRegistrationId(registrationId);
       const relatedTables = [
         { table: 'payments', column: 'registration_id' },
         { table: 'trainee_enrollments', column: 'registration_id' },
         { table: 'coupon_redemptions', column: 'registration_id' },
-        { table: 'trainee_messages', column: 'registration_id' }
+        { table: 'trainee_messages', column: 'registration_id' },
+        { table: 'certificates', column: 'registration_id' }
       ];
 
       for (const { table, column } of relatedTables) {
         const { error } = await supabaseClient
           .from(table)
           .delete()
-          .eq(column, registrationId);
+          .eq(column, regId);
 
         if (error && !isMissingTableError(error)) {
-          throw new Error('تعذّر حذف البيانات المرتبطة (' + table + '): ' + error.message);
+          console.warn('delete related (' + table + '):', error.message);
         }
       }
     }
 
+    async function hideTraineeRegistration(registrationId) {
+      const regId = normalizeRegistrationId(registrationId);
+      const { error } = await supabaseClient
+        .from('registrations')
+        .update({ admin_hidden: true, status: 'inactive' })
+        .eq('id', regId);
+
+      if (error) throw error;
+    }
+
     window.deleteTraineePermanently = async function(id) {
       const trainee = traineesCache.find(t => String(t.id) === String(id));
-      if (!trainee) return;
+      if (!trainee) {
+        showActionError('تعذّر العثور على المتدرب.');
+        return;
+      }
 
       const confirmMsg =
         'هل تريد حذف المتدرب «' + trainee.name + '» نهائياً؟\n\n' +
@@ -5570,17 +5597,34 @@
       if (!confirm(confirmMsg)) return;
 
       hideActionError();
+      const regId = normalizeRegistrationId(id);
 
       try {
-        await deleteRelatedByRegistrationId(id);
+        await deleteRelatedByRegistrationId(regId);
 
-        const { error } = await supabaseClient
+        const { data, error } = await supabaseClient
           .from('registrations')
           .delete()
-          .eq('id', id);
+          .eq('id', regId)
+          .select('id');
 
         if (error) {
+          if (isPermissionError(error)) {
+            await hideTraineeRegistration(regId);
+            closeModal('traineeModal');
+            await reloadFromSupabase();
+            showActionError('لا توجد صلاحية حذف نهائي — تم إخفاء المتدرب من القائمة. نفّذ سكربت الصلاحيات في Supabase للحذف الكامل.');
+            return;
+          }
           showSupabaseError(error, 'delete trainee');
+          return;
+        }
+
+        if (!data || !data.length) {
+          await hideTraineeRegistration(regId);
+          closeModal('traineeModal');
+          await reloadFromSupabase();
+          showActionError('لم يُحذف السجل نهائياً — تم إخفاء المتدرب. تحقّق من صلاحيات DELETE في Supabase.');
           return;
         }
 
