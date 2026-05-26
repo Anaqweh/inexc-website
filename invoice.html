@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فاتورة ضريبية — INEXC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --navy-deep: #0f1a30;
+      --gold: #C8A96E;
+      --border: #dde3ec;
+      --text-muted: #64748b;
+      --green: #059669;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #eef1f6;
+      color: var(--navy);
+      padding: 24px;
+    }
+    .toolbar {
+      max-width: 920px;
+      margin: 0 auto 16px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .toolbar button, .toolbar a {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .btn-print { background: var(--navy); color: #fff; }
+    .btn-back { background: #fff; color: var(--navy); border: 1px solid var(--border); }
+    .invoice-page {
+      max-width: 920px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+    }
+    .company-header {
+      text-align: center;
+      padding: 28px 32px 16px;
+    }
+    .company-header .name-ar {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.6;
+    }
+    .company-header .name-en {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+    }
+    .company-header .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.35em;
+      color: var(--navy);
+      margin-top: 10px;
+    }
+    .contact-bar {
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 20px;
+      font-size: 0.78rem;
+    }
+    .contact-bar span { opacity: 0.95; }
+    .invoice-body { padding: 28px 32px 24px; }
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 720px) {
+      .top-grid { grid-template-columns: 1fr; }
+    }
+    .invoice-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .invoice-title small {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .trainee-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .trainee-box-head {
+      background: #f8fafc;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .trainee-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.88rem;
+    }
+    .trainee-row:last-child { border-bottom: none; }
+    .trainee-row .ico { opacity: 0.55; width: 20px; flex-shrink: 0; }
+    .trainee-row .lbl { color: var(--text-muted); min-width: 110px; }
+    .meta-list { display: flex; flex-direction: column; gap: 10px; }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+    .meta-item .ico { width: 22px; text-align: center; opacity: 0.6; }
+    .meta-item .lbl { color: var(--text-muted); min-width: 120px; }
+    .meta-item .val { font-weight: 600; }
+    .status-paid {
+      display: inline-block;
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--green);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+    }
+    .items-table thead th {
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 14px;
+      text-align: right;
+      font-weight: 700;
+    }
+    .items-table thead th:first-child { width: 40px; text-align: center; }
+    .items-table tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .items-table tbody td:first-child { text-align: center; font-weight: 700; }
+    .item-title { font-weight: 700; margin-bottom: 4px; }
+    .item-sub { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+    .totals-wrap { display: flex; justify-content: flex-end; margin-bottom: 28px; }
+    .totals {
+      width: 320px;
+      font-size: 0.9rem;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .totals-row.grand {
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      border: none;
+    }
+    .amount-words {
+      text-align: left;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-style: italic;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+    @media (max-width: 720px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+    .footer-block h4 {
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      color: var(--navy);
+    }
+    .footer-block p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .qr-wrap { text-align: center; }
+    .qr-wrap img {
+      width: 110px;
+      height: 110px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px;
+      background: #fff;
+    }
+    .qr-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .signature-block { text-align: center; }
+    .signature-img {
+      max-width: 180px;
+      max-height: 70px;
+      margin: 8px auto;
+      display: block;
+      object-fit: contain;
+    }
+    .signature-fallback {
+      font-family: 'Segoe Script', cursive;
+      font-size: 1.4rem;
+      color: var(--navy);
+      margin: 12px 0;
+    }
+    .license-no {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .bottom-bar {
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 20px;
+      font-size: 0.75rem;
+    }
+    .loading, .error-box {
+      max-width: 920px;
+      margin: 60px auto;
+      text-align: center;
+      padding: 40px;
+      background: #fff;
+      border-radius: 12px;
+    }
+    .hidden { display: none !important; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .invoice-page { box-shadow: none; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print" id="toolbar" style="display:none;">
+    <a href="admin.html" class="btn-back">← لوحة التحكم</a>
+    <button type="button" class="btn-print" onclick="window.print()">🖨 طباعة / PDF</button>
+  </div>
+  <div class="loading" id="loading">جاري تحميل الفاتورة...</div>
+  <div class="error-box hidden" id="errorBox"></div>
+  <div id="invoiceRoot"></div>
+
+  <script>
+    const COMPANY = {
+      nameAr: 'شركة التميز الإبتكاري لتصميم نظم الحاسب الآلي التعليمية والتدريبية',
+      nameEn: 'ALTMYZ ALABTKARY FOR EDUCATION & TRAINING COMPUTER SOFTWARE CO',
+      brand: 'I N E X C',
+      email: 'info@inexc.com',
+      phone: '+971 54 347 5500',
+      website: 'inexc.com',
+      location: 'الإمارات العربية المتحدة - دبي',
+      license: '1393230'
+    };
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    function formatMoney(amount) {
+      return (Number(amount) || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' د.إ';
+    }
+
+    function formatInvoiceDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('ar-SA', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+    }
+
+    function formatInvoiceTime(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+      });
+    }
+
+    function buildInvoiceNumber(payment, seq) {
+      const year = payment.created_at
+        ? new Date(payment.created_at).getFullYear()
+        : new Date().getFullYear();
+      return 'INV-INEXC-' + year + '-' + String(seq).padStart(6, '0');
+    }
+
+    function buildRegNumber(regId) {
+      if (!regId) return '—';
+      const year = new Date().getFullYear();
+      return 'REG-' + year + '-' + String(regId).padStart(6, '0');
+    }
+
+    function amountInArabicWords(amount) {
+      const n = Math.floor(Number(amount) || 0);
+      if (n === 0) return 'فقط صفر درهم إماراتي لا غير';
+
+      const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+      const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+      const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+      const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+      function under1000(x) {
+        if (x === 0) return '';
+        if (x < 10) return ones[x];
+        if (x < 20) return teens[x - 10];
+        if (x < 100) {
+          const t = Math.floor(x / 10);
+          const o = x % 10;
+          return o ? ones[o] + ' و' + tens[t] : tens[t];
+        }
+        const h = Math.floor(x / 100);
+        const r = x % 100;
+        return r ? hundreds[h] + ' و' + under1000(r) : hundreds[h];
+      }
+
+      function convert(x) {
+        if (x === 0) return '';
+        if (x < 1000) return under1000(x);
+        if (x < 1000000) {
+          const th = Math.floor(x / 1000);
+          const r = x % 1000;
+          const thWord = th === 1 ? 'ألف' : th === 2 ? 'ألفان' : under1000(th) + ' ألف';
+          return r ? thWord + ' و' + under1000(r) : thWord;
+        }
+        const m = Math.floor(x / 1000000);
+        const r = x % 1000000;
+        const mWord = m === 1 ? 'مليون' : under1000(m) + ' مليون';
+        return r ? mWord + ' و' + convert(r) : mWord;
+      }
+
+      const words = convert(n);
+      const dirhamWord = n === 1 ? 'درهم' : n === 2 ? 'درهمان' : n <= 10 ? 'دراهم' : 'درهم';
+      return `(فقط ${words} ${dirhamWord} إماراتي لا غير)`;
+    }
+
+    function paymentMethodLabel(method) {
+      const m = String(method || '').toLowerCase();
+      if (/stripe/i.test(m)) return 'Stripe';
+      if (m === 'bank') return 'تحويل بنكي';
+      if (m === 'card') return 'بطاقة';
+      return method || 'Stripe';
+    }
+
+    function isPaidStatus(status) {
+      return ['active', 'completed', 'paid', 'succeeded', 'confirmed'].includes(
+        String(status || '').toLowerCase()
+      );
+    }
+
+    function renderInvoice(payment, trainee, invoiceNo, courseDesc) {
+      const amount = Number(payment.amount) || 0;
+      const verifyUrl = 'https://' + COMPANY.website + '/verify?inv=' + encodeURIComponent(invoiceNo);
+      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(verifyUrl);
+      const txId = payment.stripe_session_id || payment.id || '—';
+      const statusHtml = isPaidStatus(payment.status)
+        ? '<span class="status-paid">مدفوعة</span>'
+        : '<span class="status-paid" style="background:rgba(217,119,6,0.12);color:#d97706;">معلقة</span>';
+
+      document.getElementById('invoiceRoot').innerHTML = `
+        <div class="invoice-page">
+          <div class="company-header">
+            <div class="name-ar">${COMPANY.nameAr}</div>
+            <div class="name-en">${COMPANY.nameEn}</div>
+            <div class="brand">${COMPANY.brand}</div>
+          </div>
+          <div class="contact-bar">
+            <span>✉ ${COMPANY.email}</span>
+            <span>📞 ${COMPANY.phone}</span>
+            <span>🌐 ${COMPANY.website}</span>
+            <span>📍 ${COMPANY.location}</span>
+          </div>
+          <div class="invoice-body">
+            <div class="top-grid">
+              <div>
+                <div class="invoice-title">
+                  فاتورة ضريبية إلكترونية
+                  <small>TAX INVOICE</small>
+                </div>
+                <div class="trainee-box">
+                  <div class="trainee-box-head">بيانات المتدرب</div>
+                  <div class="trainee-row"><span class="ico">👤</span><span class="lbl">الاسم</span><span>${escapeHtml(trainee?.full_name || payment.full_name)}</span></div>
+                  <div class="trainee-row"><span class="ico">✉</span><span class="lbl">البريد الإلكتروني</span><span dir="ltr">${escapeHtml(trainee?.email || '—')}</span></div>
+                  <div class="trainee-row"><span class="ico">📱</span><span class="lbl">رقم الهاتف</span><span dir="ltr">${escapeHtml(trainee?.phone || '—')}</span></div>
+                  <div class="trainee-row"><span class="ico">🆔</span><span class="lbl">رقم التسجيل</span><span>${buildRegNumber(payment.registration_id)}</span></div>
+                </div>
+              </div>
+              <div class="meta-list">
+                <div class="meta-item"><span class="ico">📄</span><span class="lbl">رقم الفاتورة</span><span class="val" dir="ltr">${invoiceNo}</span></div>
+                <div class="meta-item"><span class="ico">📅</span><span class="lbl">تاريخ الإصدار</span><span class="val">${formatInvoiceDate(payment.created_at)}</span></div>
+                <div class="meta-item"><span class="ico">🕐</span><span class="lbl">وقت الإصدار</span><span class="val">${formatInvoiceTime(payment.created_at)}</span></div>
+                <div class="meta-item"><span class="ico">✅</span><span class="lbl">حالة الفاتورة</span><span class="val">${statusHtml}</span></div>
+                <div class="meta-item"><span class="ico">💳</span><span class="lbl">وسيلة الدفع</span><span class="val">${paymentMethodLabel(payment.payment_method)}</span></div>
+                <div class="meta-item"><span class="ico">#</span><span class="lbl">رقم عملية الدفع</span><span class="val" dir="ltr" style="font-size:0.78rem;">${escapeHtml(txId)}</span></div>
+              </div>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الوصف</th>
+                  <th>الكمية</th>
+                  <th>سعر الوحدة</th>
+                  <th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>
+                    <div class="item-title">${escapeHtml(payment.course_name || 'دورة تدريبية')}</div>
+                    <div class="item-sub">${escapeHtml(courseDesc || 'شاملة المواد التعليمية — المشاريع العملية — الشهادة المعتمدة')}</div>
+                  </td>
+                  <td>1</td>
+                  <td>${formatMoney(amount)}</td>
+                  <td>${formatMoney(amount)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="totals-wrap">
+              <div class="totals">
+                <div class="totals-row"><span>المجموع الفرعي</span><span>${formatMoney(amount)}</span></div>
+                <div class="totals-row"><span>الضريبة (0%)</span><span>0.00 د.إ</span></div>
+                <div class="totals-row grand"><span>الإجمالي الكلي</span><span>${formatMoney(amount)}</span></div>
+                <div class="amount-words">${amountInArabicWords(amount)}</div>
+              </div>
+            </div>
+            <div class="footer-grid">
+              <div class="footer-block qr-wrap">
+                <div class="qr-wrap">
+                  <img src="${qrUrl}" alt="QR">
+                  <div class="qr-hint">امسح رمز QR للتحقق من صحة الفاتورة الإلكترونية<br>${COMPANY.website}/verify</div>
+                </div>
+              </div>
+              <div class="footer-block">
+                <h4>ملاحظات</h4>
+                <p>شكراً لثقتك بنا، نلتزم بتقديم أفضل الخدمات في INEXC.<br>هذه فاتورة ضريبية إلكترونية صادرة من نظام المنصة.</p>
+              </div>
+              <div class="footer-block signature-block">
+                <h4>توقيع وختم الشركة</h4>
+                <img class="signature-img" src="assets/inexc-signature.png" alt="التوقيع" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <div class="signature-fallback" style="display:none;">Dr. Wasfi Alnasser</div>
+                <p style="font-size:0.82rem;font-weight:700;margin-top:8px;">${COMPANY.nameAr.split(' ').slice(0, 3).join(' ')}...</p>
+                <div class="license-no">رقم رخصة الشركة: ${COMPANY.license}</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-bar">
+            <span>✉ ${COMPANY.email}</span>
+            <span>📞 ${COMPANY.phone}</span>
+            <span>🌐 ${COMPANY.website}</span>
+            <span>📍 ${COMPANY.location}</span>
+          </div>
+        </div>`;
+    }
+
+    async function loadInvoice() {
+      const params = new URLSearchParams(location.search);
+      const paymentId = params.get('payment_id') || params.get('id');
+      const autoPrint = params.get('print') === '1';
+
+      if (!paymentId) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('errorBox').textContent = 'معرّف الفاتورة غير موجود في الرابط';
+        document.getElementById('errorBox').classList.remove('hidden');
+        return;
+      }
+
+      const { data: payment, error } = await supabaseClient
+        .from('payments')
+        .select('*')
+        .eq('id', paymentId)
+        .maybeSingle();
+
+      if (error || !payment) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('errorBox').textContent = 'تعذّر تحميل بيانات الفاتورة';
+        document.getElementById('errorBox').classList.remove('hidden');
+        return;
+      }
+
+      let trainee = null;
+      if (payment.registration_id) {
+        const { data: reg } = await supabaseClient
+          .from('registrations')
+          .select('full_name, email, phone, course_name')
+          .eq('id', payment.registration_id)
+          .maybeSingle();
+        trainee = reg;
+      }
+
+      let courseDesc = '';
+      if (payment.course_name) {
+        const { data: course } = await supabaseClient
+          .from('courses')
+          .select('description')
+          .eq('name', payment.course_name)
+          .maybeSingle();
+        courseDesc = course?.description || '';
+      }
+
+      const { data: allPaid } = await supabaseClient
+        .from('payments')
+        .select('id, created_at, status')
+        .order('created_at', { ascending: true });
+
+      const confirmed = (allPaid || []).filter(p =>
+        isPaidStatus(p.status)
+      );
+      const seq = confirmed.findIndex(p => p.id === payment.id) + 1 || confirmed.length + 1;
+      const invoiceNo = buildInvoiceNumber(payment, seq);
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('toolbar').style.display = 'flex';
+      renderInvoice(payment, trainee, invoiceNo, courseDesc);
+      document.title = 'فاتورة ' + invoiceNo;
+
+      if (autoPrint) {
+        setTimeout(() => window.print(), 600);
+      }
+    }
+
+    loadInvoice();
+  </script>
+</body>
+</html>
