@@ -1111,9 +1111,16 @@
   <script src="js/registration-email-template.js"></script>
   <script src="js/registration-email.js"></script>
   <script>
-    const EMAILJS_PUBLIC_KEY = 'yMzG_9c-aPOcDzeXF';
-    const EMAILJS_SERVICE_ID = 'service_6saogmp';
-    const EMAILJS_TEMPLATE_ID = 'template_dfjikev';
+    /*
+     * EmailJS — قالب "Contact Us"
+     * انسخ Template ID من: https://dashboard.emailjs.com/admin/templates
+     * Service: service_58hjcoc | Public Key: gc0MqAK4Mwebs_GOg
+     *
+     * To Email: {{to_email}} | Reply To: {{email}} | From Name: {{name}} | Subject: {{title}}
+     */
+    const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
+    const EMAILJS_SERVICE_ID = 'service_58hjcoc';
+    const EMAILJS_TEMPLATE_ID = 'template_dfjikev'; // ← ضع Template ID من لوحة EmailJS
 
     const SUPABASE_FIX_SQL = `ALTER TABLE public.registrations DISABLE ROW LEVEL SECURITY;
 GRANT USAGE ON SCHEMA public TO anon;
@@ -1720,44 +1727,49 @@ NOTIFY pgrst, 'reload schema';`;
         throw new Error('البريد الإلكتروني مطلوب لإرسال رسالة التأكيد');
       }
 
-      if (typeof emailjs === 'undefined') {
-        throw new Error('مكتبة EmailJS غير محمّلة');
-      }
       if (typeof InexcRegistrationEmail === 'undefined') {
         throw new Error('ملف js/registration-email.js غير محمّل');
       }
 
       const baseParams = { to_name, email: recipientEmail, course_name, registration_type, phone };
-      const attempts = [
-        InexcRegistrationEmail.getEmailParams(baseParams),
-        InexcRegistrationEmail.getCompactEmailParams(baseParams)
-      ];
+      const emailPayload = InexcRegistrationEmail.getContactUsTemplateParams(baseParams);
 
-      for (const payload of attempts) {
-        try {
-          const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-            },
-            body: JSON.stringify(payload)
-          });
-          if (res.ok) return;
-          console.warn('send-registration-email:', await res.text());
-        } catch (err) {
-          console.warn('send-registration-email error:', err);
-        }
-
-        try {
-          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
-          return;
-        } catch (err) {
-          console.warn('EmailJS attempt failed:', err?.text || err?.message || err);
-        }
+      try {
+        const res = await fetch(SUPABASE_URL + '/functions/v1/swift-action', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            action: 'send_registration_email',
+            email: recipientEmail,
+            to_name,
+            full_name: to_name,
+            course_name,
+            registration_type,
+            phone
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) return;
+        console.warn('swift-action email:', data.error || res.status);
+      } catch (err) {
+        console.warn('swift-action email error:', err);
       }
 
-      throw new Error('تعذّر إرسال رسالة التأكيد عبر EmailJS');
+      if (typeof emailjs === 'undefined') {
+        throw new Error('مكتبة EmailJS غير محمّلة');
+      }
+
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailPayload);
+        return;
+      } catch (err) {
+        const detail = err?.text || err?.message || String(err);
+        console.error('EmailJS confirmation error:', detail);
+        throw new Error(detail || 'تعذّر إرسال رسالة التأكيد عبر EmailJS');
+      }
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {

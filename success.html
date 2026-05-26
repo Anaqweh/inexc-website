@@ -184,8 +184,8 @@
   <script src="js/registration-email-template.js"></script>
   <script src="js/registration-email.js"></script>
   <script>
-    const EMAILJS_PUBLIC_KEY = 'yMzG_9c-aPOcDzeXF';
-    const EMAILJS_SERVICE_ID = 'service_6saogmp';
+    const EMAILJS_PUBLIC_KEY = 'gc0MqAK4Mwebs_GOg';
+    const EMAILJS_SERVICE_ID = 'service_58hjcoc';
     const EMAILJS_TEMPLATE_ID = 'template_dfjikev';
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
@@ -250,7 +250,7 @@
     async function sendRegistrationConfirmationEmail(registration) {
       if (!registration?.email) return;
       const recipientEmail = String(registration.email).trim();
-      const emailParams = InexcRegistrationEmail.getEmailParams({
+      const payload = InexcRegistrationEmail.getContactUsTemplateParams({
         to_name: registration.full_name,
         email: recipientEmail,
         phone: registration.phone,
@@ -258,32 +258,29 @@
         registration_type: registration.registration_type
       });
 
-      const payload = {
-        to_name: emailParams.to_name,
-        email: recipientEmail,
-        to_email: recipientEmail,
-        reply_to: recipientEmail,
-        full_name: registration.full_name,
-        course_name: emailParams.course_name,
-        registration_type: emailParams.registration_type,
-        phone: emailParams.phone,
-        subject: emailParams.subject,
-        message_html: emailParams.message_html
-      };
-
       try {
-        const res = await fetch(SUPABASE_URL + '/functions/v1/send-registration-email', {
+        const res = await fetch(SUPABASE_URL + '/functions/v1/swift-action', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            action: 'send_registration_email',
+            email: recipientEmail,
+            to_name: registration.full_name,
+            course_name: registration.course_name,
+            registration_type: registration.registration_type,
+            phone: registration.phone
+          })
         });
-        if (res.ok) return;
-        console.warn('send-registration-email:', await res.text());
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (data.ok) return;
+        }
+        console.warn('swift-action email:', await res.text());
       } catch (err) {
-        console.warn('send-registration-email error:', err);
+        console.warn('swift-action email error:', err);
       }
 
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
