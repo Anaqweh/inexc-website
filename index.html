@@ -487,6 +487,7 @@ nav a.active{background:var(--gold);color:var(--navy);}
   border-top:2px solid rgba(200,169,110,0.35);
 }
 .course-info-item.open .course-info-panel{display:block;}
+.course-info-item.is-pressing .course-info-header{opacity:0.92;}
 .card-certs-wrap{
   padding:0 16px 14px;
   background:var(--white);
@@ -504,6 +505,52 @@ nav a.active{background:var(--gold);color:var(--navy);}
   color:#1B2A4A;
   margin-top:6px;
 }
+.cert-cards-list{display:flex;flex-direction:column;gap:8px;}
+.cert-mini-card{
+  border:1px solid rgba(27,42,74,0.12);
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+}
+.cert-mini-header{
+  width:100%;
+  border:none;
+  background:#f8fafc;
+  color:#1B2A4A;
+  cursor:pointer;
+  padding:10px 12px;
+  font-family:'Cairo',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-align:right;
+}
+.cert-mini-header:hover{background:#eef2f7;}
+.cert-mini-name{flex:1;}
+.cert-mini-chevron{
+  width:7px;height:7px;
+  border-right:2px solid #C8A96E;
+  border-bottom:2px solid #C8A96E;
+  transform:rotate(45deg);
+  transition:transform 0.2s;
+  flex-shrink:0;
+}
+.cert-mini-card.open .cert-mini-chevron{transform:rotate(225deg);margin-top:2px;}
+.cert-mini-panel{
+  display:none;
+  padding:10px 12px 12px;
+  border-top:1px solid rgba(27,42,74,0.08);
+  font-size:12px;
+  color:#2d3748;
+  line-height:1.7;
+}
+.cert-mini-panel p{margin:0 0 6px;}
+.cert-mini-panel p:last-child{margin-bottom:0;}
+.cert-mini-card.open .cert-mini-panel{display:block;}
+.course-info-header:active{opacity:0.92;}
+.cert-mini-header:active{opacity:0.92;}
 @media(max-width:680px){
   .info-block-meta .info-meta-grid{grid-template-columns:1fr;}
 }
@@ -734,6 +781,43 @@ function buildAccordionItem(label, icon, contentHtml) {
   </div>`;
 }
 
+function buildCourseCertificatesContent(course) {
+  const certs = (course.certificates || []).filter(c => c && c.is_enabled !== false);
+  if (!certs.length) {
+    return `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
+  }
+
+  const isPaid = !!course.paid;
+  const cards = certs.map(cert => {
+    const name = escapeHtml(cert.certificate_name || cert.name || cert.label || 'شهادة');
+    const issuer = cert.issuer_name ? escapeHtml(cert.issuer_name) : '';
+    const price = Number(cert.price ?? cert.certificate_price ?? cert.price_override) || 0;
+    const included = cert.included_in_paid_course !== false;
+    const typeLabel = isPaid
+      ? (included ? 'مشمولة في الدورة' : 'اختيارية')
+      : (price > 0 ? 'اختيارية — مدفوعة' : 'اختيارية');
+    const showPrice = !isPaid && price > 0;
+    const priceHtml = showPrice
+      ? `<p><strong>السعر:</strong> ${price.toLocaleString('ar-SA')} د.إ</p>`
+      : (isPaid && included ? '<p><strong>السعر:</strong> مشمولة في الدورة</p>' : '');
+
+    return `<div class="cert-mini-card" data-cert-card>
+      <button type="button" class="cert-mini-header" aria-expanded="false">
+        <span class="cert-mini-name">${name}</span>
+        <span class="cert-mini-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="cert-mini-panel">
+        <p><strong>اسم الشهادة:</strong> ${name}</p>
+        ${issuer ? `<p><strong>الجهة المصدرة:</strong> ${issuer}</p>` : `<p><strong>الجهة المصدرة:</strong> ${EMPTY_INFO_TEXT}</p>`}
+        <p><strong>النوع:</strong> ${typeLabel}</p>
+        ${priceHtml}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="cert-cards-list" data-cert-cards-list>${cards}</div>`;
+}
+
 function buildCourseInfoBody(course) {
   const descContent = course.desc
     ? `<div class="info-block-text">${escapeHtml(course.desc)}</div>`
@@ -757,31 +841,9 @@ function buildCourseInfoBody(course) {
     </div>`).join('')}
   </div>`;
   sections.push(buildAccordionItem('بيانات الدورة', 'ℹ', metaContent));
+  sections.push(buildAccordionItem('الشهادات المرتبطة بالدورة', '🏅', buildCourseCertificatesContent(course)));
 
   return `<div class="card-info-accordion" data-course-accordion>${sections.join('')}</div>`;
-}
-
-function buildCourseCertificatesHtml(course) {
-  const certs = course.certificates || [];
-  if (!certs.length) return '';
-
-  const items = certs.map(cert => {
-    const name = escapeHtml(cert.certificate_name || cert.name || cert.label || 'شهادة');
-    const issuer = cert.issuer_name ? `<div class="info-block-text">الجهة المصدرة: ${escapeHtml(cert.issuer_name)}</div>` : '';
-    const desc = cert.description || cert.subtitle || '';
-    const descHtml = desc ? `<div class="info-block-text">${escapeHtml(desc)}</div>` : '';
-    const price = Number(cert.price ?? cert.certificate_price ?? cert.price_override) || 0;
-    const priceHtml = price > 0 ? `<div class="cert-info-price">${price.toLocaleString('ar-SA')} د.إ</div>` : '';
-    const body = (issuer || descHtml || priceHtml)
-      ? (issuer + descHtml + priceHtml)
-      : `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
-    return buildAccordionItem(name, '🏅', body);
-  }).join('');
-
-  return `<div class="card-certs-wrap">
-    <div class="card-certs-title">الشهادات المتاحة</div>
-    <div class="card-info-accordion" data-course-accordion>${items}</div>
-  </div>`;
 }
 
 function buildCourseInfoHtml(course) {
@@ -796,6 +858,30 @@ function buildCourseInfoHtml(course) {
   </div>`;
 }
 
+function wireCertCards(root) {
+  const scope = root || document;
+  scope.querySelectorAll('[data-cert-cards-list]').forEach(list => {
+    list.querySelectorAll('[data-cert-card]').forEach(card => {
+      const header = card.querySelector('.cert-mini-header');
+      if (!header || header.dataset.wired === '1') return;
+      header.dataset.wired = '1';
+      header.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = card.classList.contains('open');
+        list.querySelectorAll('[data-cert-card].open').forEach(openCard => {
+          openCard.classList.remove('open');
+          const btn = openCard.querySelector('.cert-mini-header');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          card.classList.add('open');
+          header.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  });
+}
+
 function wireCourseAccordions(root) {
   const scope = root || document;
   scope.querySelectorAll('[data-course-accordion]').forEach(group => {
@@ -805,6 +891,8 @@ function wireCourseAccordions(root) {
       header.dataset.wired = '1';
       header.addEventListener('click', () => {
         const isOpen = item.classList.contains('open');
+        item.classList.add('is-pressing');
+        requestAnimationFrame(() => item.classList.remove('is-pressing'));
         group.querySelectorAll('.course-info-item.open').forEach(openItem => {
           openItem.classList.remove('open');
           const btn = openItem.querySelector('.course-info-header');
@@ -817,6 +905,7 @@ function wireCourseAccordions(root) {
       });
     });
   });
+  wireCertCards(scope);
 }
 
 function mapDbCourseToHome(c, i, certificates) {
@@ -941,7 +1030,6 @@ function renderCourses(){
         </div>
       </div>
       ${buildCourseInfoHtml(c)}
-      ${buildCourseCertificatesHtml(c)}
       ${buildCourseCareerPathsHtml(c)}
       <div class="course-price ${c.paid ? '' : 'free-price'}">${c.paid ? c.price + ' د.إ' : 'مجانية'}</div>
       <div class="card-bottom">

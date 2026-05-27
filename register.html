@@ -511,6 +511,11 @@
       transform: none;
     }
 
+    .btn-submit.is-loading {
+      opacity: 0.85;
+      cursor: wait;
+    }
+
     .form-error {
       display: none;
       background: rgba(196, 92, 92, 0.1);
@@ -967,7 +972,9 @@ NOTIFY pgrst, 'reload schema';`;
       });
     }
 
-    const REGISTRATION_SUCCESS_TEXT = 'تم تسجيلك بنجاح، وسيتواصل معك فريقنا قريبًا.';
+    const REGISTRATION_SUCCESS_WITH_EMAIL = 'تم تسجيلك بنجاح، وتم إرسال تفاصيل التسجيل إلى بريدك الإلكتروني.';
+    const REGISTRATION_SUCCESS_NO_EMAIL = 'تم تسجيلك بنجاح، وسيتواصل معك فريقنا قريبًا.';
+    const EMAIL_UI_WAIT_MS = 5000;
     let certificateTypesCache = [];
 
     const CERTIFICATE_TYPE_FALLBACKS = [
@@ -1657,10 +1664,13 @@ NOTIFY pgrst, 'reload schema';`;
       if (sqlHelp) sqlHelp.classList.remove('visible');
     }
 
-    function setSubmitting(isSubmitting) {
+    function setSubmitting(isSubmitting, statusText) {
       if (!submitBtn) return;
       submitBtn.disabled = isSubmitting;
-      submitBtn.textContent = isSubmitting ? 'جاري الإرسال...' : submitBtnDefaultText;
+      submitBtn.classList.toggle('is-loading', isSubmitting);
+      submitBtn.textContent = isSubmitting
+        ? (statusText || 'جارٍ إرسال التسجيل...')
+        : submitBtnDefaultText;
     }
 
     function generateAccessToken() {
@@ -1733,9 +1743,14 @@ NOTIFY pgrst, 'reload schema';`;
 
     async function sendAutoWelcomeEmail(params) {
       if (typeof InexcAutoWelcomeEmail === 'undefined') {
-        throw new Error('ملف js/auto-welcome-email.js غير محمّل');
+        console.error('Welcome email failed: js/auto-welcome-email.js not loaded');
+        return { sent: false };
       }
       return InexcAutoWelcomeEmail.sendWelcomeEmail(params);
+    }
+
+    function getRegistrationSuccessText(emailSent) {
+      return emailSent ? REGISTRATION_SUCCESS_WITH_EMAIL : REGISTRATION_SUCCESS_NO_EMAIL;
     }
 
     function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {
@@ -1858,8 +1873,9 @@ NOTIFY pgrst, 'reload schema';`;
         certificate_payment_status: !isPaid && hasCerts && checkoutAmount > 0 ? 'pending' : (isPaid && hasCerts ? 'included' : 'not_required')
       };
 
-      setSubmitting(true);
+      setSubmitting(true, 'جارٍ إرسال التسجيل...');
       let savedToSupabase = false;
+      let emailSent = false;
 
       try {
         const savedRegistration = await saveToSupabase(supabaseRecord);
@@ -1869,22 +1885,31 @@ NOTIFY pgrst, 'reload schema';`;
         const welcomeParams = {
           registration_id: savedRegistration?.id,
           to_name: fullName,
+          full_name: fullName,
           email,
           course_name: courseName,
           registration_type: registrationType,
           phone
         };
 
-        try {
-          await sendAutoWelcomeEmail(welcomeParams);
-        } catch (emailErr) {
-          console.error('Welcome email failed (service_58hjcoc):', emailErr);
+        setSubmitting(true, 'جارٍ معالجة طلبك...');
+        const emailResult = await Promise.race([
+          sendAutoWelcomeEmail(welcomeParams),
+          new Promise(resolve => setTimeout(() => resolve({ sent: false, timeout: true }), EMAIL_UI_WAIT_MS))
+        ]);
+        emailSent = emailResult && emailResult.sent === true;
+
+        if (emailResult && emailResult.timeout) {
+          sendAutoWelcomeEmail(welcomeParams).then(r => {
+            if (r && r.sent) console.log('Registration email sent in background (service_58hjcoc)');
+            else if (r && !r.sent) console.error('Registration email failed in background (service_58hjcoc):', r.error);
+          });
         }
 
         if (!needsPayment) {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: REGISTRATION_SUCCESS_TEXT,
+            text: getRegistrationSuccessText(emailSent),
             accountToken: accessToken
           });
           return;
@@ -1940,7 +1965,7 @@ NOTIFY pgrst, 'reload schema';`;
         } else {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: REGISTRATION_SUCCESS_TEXT,
+            text: getRegistrationSuccessText(emailSent),
             accountToken: accessToken
           });
         }
