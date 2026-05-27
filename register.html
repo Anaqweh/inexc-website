@@ -1408,6 +1408,13 @@ NOTIFY pgrst, 'reload schema';`;
         console.error('loadCoursesIntoSelect: #course select not found');
         return false;
       }
+      // انتظر supabaseClient حتى 5 ثواني
+      if (!window.supabaseClient) {
+        const t = Date.now();
+        while (!window.supabaseClient && Date.now() - t < 5000) {
+          await new Promise(r => setTimeout(r, 100));
+        }
+      }
       if (!window.supabaseClient) {
         console.error('loadCoursesIntoSelect: supabaseClient missing');
         courseSelect.innerHTML = '<option value="" disabled selected>— تعذّر تحميل الدورات —</option>';
