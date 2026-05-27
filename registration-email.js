@@ -8,15 +8,17 @@
    * Reply To: {{email}}
    * Subject: {{title}}
    * Content: HTML كامل في لوحة EmailJS (يستخدم {{to_name}} {{course_name}} {{registration_type}} {{phone}})
-   * اربط القالب بخدمة service_58hjcoc
+   * Template: template_fq8l9x8 (Contact Us)
+   * https://dashboard.emailjs.com/admin/templates/fq8l9x8
    */
 
   function buildContactUsParams(params) {
     const email = String(params.email || '').trim();
-    const toName = params.to_name || '';
+    const toName = params.to_name || params.full_name || '';
 
     return {
       to_email: email,
+      reply_to: email,
       email,
       name: toName,
       title: 'تم تسجيلك بنجاح — INEXC | قطاع التدريب والتطوير',
@@ -26,6 +28,29 @@
       registration_type: params.registration_type || '',
       phone: params.phone || ''
     };
+  }
+
+  function buildWelcomeEmailParams(params) {
+    const email = String(params.email || '').trim();
+    const toName = params.to_name || params.full_name || '';
+    const base = {
+      to_email: email,
+      reply_to: email,
+      email,
+      name: toName,
+      title: 'تم تسجيلك بنجاح — INEXC | قطاع التدريب والتطوير',
+      subject: 'تم تسجيلك بنجاح — INEXC | قطاع التدريب والتطوير',
+      to_name: toName,
+      full_name: toName,
+      course_name: params.course_name || '',
+      registration_type: params.registration_type || '',
+      phone: params.phone || ''
+    };
+    const html = getRawTemplate() ? buildHtml(base) : buildCompactHtml(base);
+    return Object.assign(base, {
+      message: html,
+      message_html: html
+    });
   }
 
   function escapeHtml(str) {
@@ -108,6 +133,7 @@
     buildHtml,
     buildCompactHtml,
     buildContactUsParams,
+    buildWelcomeEmailParams,
     getEmailParams,
     getCompactEmailParams,
     getContactUsTemplateParams: buildContactUsParams

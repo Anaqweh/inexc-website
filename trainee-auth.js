@@ -602,37 +602,123 @@
     return { completed, active, progress, certCount: (certificates || []).length };
   }
 
-  const CERT_UPGRADE_PROGRESS_MIN = 90;
-  const CERT_UPGRADE_HOURS_MIN = 70;
+  const certAuthApi = () => global.InexcCertAuth || null;
 
-  function computeCertUpgradeOffer(stats, professionalValue) {
-    const progress = Number(stats?.progress) || 0;
-    const hours = Number(professionalValue?.trainingHours) || 0;
-    const progressUnlocked = progress > CERT_UPGRADE_PROGRESS_MIN;
-    const hoursUnlocked = hours > CERT_UPGRADE_HOURS_MIN;
-    const eligible = progressUnlocked && hoursUnlocked;
+  function computeCertUpgradeOffer(stats, professionalValue, existingRequest) {
+    const base = certAuthApi()?.computeOffer(stats, professionalValue) || {
+      eligible: false,
+      progress: Number(stats?.progress) || 0,
+      hours: Number(professionalValue?.trainingHours) || 0,
+      progressMin: 90,
+      hoursMin: 70
+    };
+
+    const mappedRequest = existingRequest
+      ? (certAuthApi()?.mapRow(existingRequest) || existingRequest)
+      : null;
 
     return {
-      eligible,
-      progress,
-      hours,
-      progressUnlocked,
-      hoursUnlocked,
-      progressMin: CERT_UPGRADE_PROGRESS_MIN,
-      hoursMin: CERT_UPGRADE_HOURS_MIN
+      ...base,
+      progressUnlocked: base.progress >= base.progressMin,
+      hoursUnlocked: base.hours > base.hoursMin,
+      existingRequest: mappedRequest,
+      hasOpenRequest: mappedRequest && certAuthApi()?.isOpenRequest(mappedRequest),
+      canSubmit: base.eligible && !(mappedRequest && certAuthApi()?.isOpenRequest(mappedRequest))
     };
   }
 
-  async function submitCertUpgradeRequest(profile, stats, professionalValue) {
+  async function loadCertAuthRequest(traineeId) {
+    if (!traineeId) return null;
+    const table = certAuthApi()?.TABLE || 'certificate_authentication_requests';
+    const { data, error } = await supabaseClient
+      .from(table)
+      .select('*')
+      .eq('trainee_id', traineeId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.warn('loadCertAuthRequest:', error.message);
+      return null;
+    }
+    return data;
+  }
+
+  async function maybeNotifyCertAuthEligibility(profile, offer, existingRequest) {
+    if (!offer?.eligible || existingRequest) return;
+
+    const { data: existing } = await supabaseClient
+      .from('trainee_notifications')
+      .select('id')
+      .eq('trainee_id', profile.id)
+      .ilike('title', '%مؤهل للتقديم على مصادقة%')
+      .limit(1);
+
+    if (existing?.length) return;
+
+    await supabaseClient.from('trainee_notifications').insert([{
+      trainee_id: profile.id,
+      title: 'أنت مؤهل للتقديم على مصادقة الشهادات',
+      body: 'لقد تجاوزت 90% من إنجاز مسارك التدريبي وأكثر من 70 ساعة تدريبية. يمكنك الآن التقديم على مصادقة الشهادات ضمن مسار الماجستير المهني.',
+      read: false
+    }]);
+  }
+
+  async function submitCertUpgradeRequest(profile, stats, professionalValue, enrollments, certificates) {
+    const offer = computeCertUpgradeOffer(stats, professionalValue);
+    if (!offer.canSubmit) {
+      throw new Error(offer.hasOpenRequest
+        ? 'لديك طلب مصادقة قيد المعالجة بالفعل'
+        : 'لم تصل بعد إلى شروط الأهلية للمصادقة');
+    }
+
     const progress = stats?.progress ?? 0;
     const hours = professionalValue?.trainingHours ?? 0;
+    const completedCourses = (enrollments || [])
+      .filter(e => e.status === 'completed' || Number(e.progress_percent) >= 100)
+      .map(e => ({
+        course_name: e.course_name,
+        status: e.status,
+        progress_percent: e.progress_percent,
+        completed_at: e.completed_at
+      }));
+
+    const certSnapshot = (certificates || []).map(c => ({
+      course_name: c.course_name,
+      certificate_number: c.certificate_number,
+      certificate_type: c.certificate_type,
+      created_at: c.created_at
+    }));
+
+    const table = certAuthApi()?.TABLE || 'certificate_authentication_requests';
+    const { data: inserted, error: insertError } = await supabaseClient
+      .from(table)
+      .insert([{
+        trainee_id: profile.id,
+        full_name: profile.full_name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        total_hours: hours,
+        completion_percent: progress,
+        certificates_count: certSnapshot.length,
+        completed_courses: completedCourses,
+        certificates: certSnapshot,
+        status: 'new',
+        payment_status: 'not_required'
+      }])
+      .select('*')
+      .single();
+
+    if (insertError) throw insertError;
+
     const detail = [
       'طلب مصادقة شهادات — مسار الماجستير المهني',
+      'رقم الطلب: ' + (inserted?.id || '—'),
       'الاسم: ' + (profile.full_name || '—'),
       'البريد: ' + profile.email,
       'التقدم التدريبي: ' + progress + '%',
       'ساعات التدريب: ' + hours,
-      'الشهادات: ' + (professionalValue?.skillsCount ?? '—')
+      'الشهادات: ' + certSnapshot.length
     ].join('\n');
 
     const { error: notifError } = await supabaseClient.from('trainee_notifications').insert([{
@@ -652,9 +738,9 @@
       source: 'cert_upgrade_portal',
       read: false
     }]);
-    if (msgError) throw msgError;
+    if (msgError) console.warn('cert upgrade message:', msgError.message);
 
-    return true;
+    return inserted;
   }
 
   async function syncRegistrationsByEmail(email, authUserId, profileId, certificates) {
@@ -823,6 +909,14 @@
     const tier = tierFromPoints(freshProfile.loyalty_points || 0);
     const digitalId = buildDigitalId(freshProfile, tier, certificates, professionalValue);
 
+    const existingAuthRequest = await loadCertAuthRequest(profile.id);
+    const certUpgradeOffer = computeCertUpgradeOffer(stats, professionalValue, existingAuthRequest);
+    await maybeNotifyCertAuthEligibility(freshProfile, certUpgradeOffer, existingAuthRequest);
+
+    if (global.InexcAttendance?.loadAll) {
+      try { await global.InexcAttendance.loadAll(); } catch (_) {}
+    }
+
     const regCounts = {};
     (registrations || []).forEach(r => {
       regCounts[r.course_name] = (regCounts[r.course_name] || 0) + 1;
@@ -844,7 +938,7 @@
       stats,
       professionalValue,
       digitalId,
-      certUpgradeOffer: computeCertUpgradeOffer(stats, professionalValue),
+      certUpgradeOffer,
       recommendations: buildRecommendations(enrollments || [], courses || [], paths || [])
     };
   }

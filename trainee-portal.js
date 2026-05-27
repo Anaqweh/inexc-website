@@ -3,6 +3,10 @@
 
   const { escapeHtml, initials, tierFromPoints } = global.TraineeAuth;
 
+  const LOGO = 'assets/images/inexc-logo-white.png';
+  const LOGO_FB = 'assets/inexc-logo-white.png';
+  const LOGO_ONERR = 'onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried=\'1\';this.src=this.dataset.fallback}else{this.style.display=\'none\'}"';
+
   function formatDate(iso) {
     if (!iso) return '—';
     return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -41,7 +45,7 @@
     document.getElementById('portalRoot').innerHTML = `
       <header class="portal-header">
         <div class="portal-header-inner">
-          <a href="index.html"><img src="assets/inexc-logo-white.png" alt="INEXC" class="logo-img"></a>
+          <a href="index.html"><img src="${LOGO}" data-fallback="${LOGO_FB}" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img" ${LOGO_ONERR}></a>
           <div class="header-actions">
             <button type="button" class="notif-btn" id="notifBtn" title="الإشعارات">
               🔔
@@ -67,6 +71,7 @@
             <button type="button" data-section="profile">👤 الملف الشخصي</button>
             <button type="button" data-section="courses">📚 دوراتي</button>
             <button type="button" data-section="certificates">🏅 الشهادات</button>
+            <button type="button" data-section="attendance">📋 الحضور</button>
             <button type="button" data-section="rewards">⭐ المكافآت</button>
             <button type="button" data-section="offers">🎁 العروض والكوبونات</button>
           </nav>
@@ -81,6 +86,7 @@
           ${renderProfileSection(p, progress, completed, certCount, data.professionalValue, data)}
           ${renderCoursesSection(data)}
           ${renderCertificatesSection(data)}
+          ${renderAttendanceSection(data)}
           ${renderRewardsSection(data, tier)}
           ${renderOffersSection(data)}
         </main>
@@ -101,6 +107,7 @@
     bindProfileSave(data);
     bindDigitalIdEvents(data);
     bindCertUpgradeEvents(data);
+    bindAttendanceEvents(data);
   }
 
   async function refreshPortalData(keepSection) {
@@ -254,7 +261,7 @@
         <div class="digital-id-card digital-id-card-preview">
           <div class="did-visual">
             <div class="did-top">
-              <img src="assets/inexc-logo-white.png" alt="INEXC" class="did-logo">
+              <img src="${LOGO}" data-fallback="${LOGO_FB}" alt="INEXC — Innovative Excellence" class="inexc-logo did-logo" ${LOGO_ONERR}>
               <span class="did-badge">Digital ID</span>
             </div>
             <div class="did-body">
@@ -339,6 +346,16 @@
   function renderCertUpgradeCard(offer) {
     if (!offer?.eligible) return '';
 
+    const statusBlock = offer.hasOpenRequest && offer.existingRequest
+      ? `<div class="cert-upgrade-status-box">
+          <strong>حالة طلبك: ${escapeHtml(offer.existingRequest.statusLabel || '—')}</strong>
+          <p>تم استلام طلبك وسيتواصل معك فريق INEXC قريباً.</p>
+        </div>`
+      : `<button type="button" class="btn-sm cert-upgrade-btn cert-upgrade-submit-btn">
+          قدّم طلب مصادقة شهاداتي
+        </button>
+        <p class="cert-upgrade-msg cert-upgrade-feedback" hidden></p>`;
+
     return `
       <div class="cert-upgrade-card is-unlocked">
         <div class="cert-upgrade-glow" aria-hidden="true"></div>
@@ -348,9 +365,9 @@
             <span class="lock-icon lock-open">🔓</span>
           </div>
           <div class="cert-upgrade-badge">Premium · الماجستير المهني</div>
-          <h3 class="cert-upgrade-title">ارتقِ بشهاداتك إلى مستوى أعلى</h3>
+          <h3 class="cert-upgrade-title">أنت مؤهل للتقديم على مصادقة الشهادات</h3>
           <p class="cert-upgrade-lead">
-            أنت الآن قريب من إنجاز مميز. لقد أتممت أكثر من <strong>${offer.progress}%</strong> من مسارك التدريبي،
+            لقد أتممت أكثر من <strong>${offer.progress}%</strong> من مسارك التدريبي،
             وتجاوزت <strong>${offer.hours}</strong> ساعة تدريبية، وهذا يؤهلك للتقديم على خدمة
             <strong>مصادقة الشهادات</strong> ضمن مسار الماجستير المهني.
           </p>
@@ -361,10 +378,7 @@
             <li>تعزيز قيمة شهاداتك أمام المؤسسات.</li>
             <li>التقدم لمسار مهني أكثر قوة واعتمادًا.</li>
           </ul>
-          <button type="button" class="btn-sm cert-upgrade-btn cert-upgrade-submit-btn">
-            قدّم طلب مصادقة شهاداتي
-          </button>
-          <p class="cert-upgrade-msg cert-upgrade-feedback" hidden></p>
+          ${statusBlock}
           <p class="cert-upgrade-footnote">
             هذه المرحلة مخصصة للمتدربين الذين أظهروا التزامًا عاليًا واستمرارية حقيقية في التطور المهني.
           </p>
@@ -385,11 +399,16 @@
           await global.TraineeAuth.submitCertUpgradeRequest(
             data.profile,
             data.stats,
-            data.professionalValue
+            data.professionalValue,
+            data.enrollments,
+            data.certificates
           );
           document.querySelectorAll('.cert-upgrade-submit-btn').forEach(b => {
             b.disabled = true;
             b.textContent = 'تم إرسال الطلب ✓';
+          });
+          document.querySelectorAll('.cert-upgrade-status-box').forEach(box => {
+            box.innerHTML = '<strong>حالة طلبك: جديد</strong><p>تم استلام طلبك وسيتواصل معك فريق INEXC قريباً.</p>';
           });
           document.querySelectorAll('.cert-upgrade-feedback').forEach(m => {
             m.textContent = 'تم إرسال طلبك بنجاح — سيتواصل معك فريق INEXC قريباً';
@@ -575,7 +594,7 @@
             return `
               <div class="cert-card">
                 <div class="cert-visual">
-                  <img src="assets/inexc-logo-white.png" alt="" class="cert-logo">
+                  <img src="${LOGO}" data-fallback="${LOGO_FB}" alt="" class="inexc-logo cert-logo" ${LOGO_ONERR}>
                   <h4>${escapeHtml(c.course_name)}</h4>
                   <p>${escapeHtml(c.certificate_type || 'شهادة INEXC')}</p>
                 </div>
@@ -591,6 +610,85 @@
           }).join('')}
         </div>
       </section>`;
+  }
+
+  function renderAttendanceSection(data) {
+    const Att = global.InexcAttendance;
+    const sessions = (Att?.getSessions() || []).filter(s => Att.isSessionOpenForPortal(s));
+    const regs = data.registrations || [];
+    const mySessions = sessions.filter(s =>
+      regs.some(r =>
+        (s.course_id && r.course_id && String(s.course_id) === String(r.course_id)) ||
+        (s.course_name && r.course_name === s.course_name)
+      )
+    );
+
+    const records = Att?.getRecords() || [];
+    const cards = (data.registrations || []).map(reg => {
+      const st = Att?.computeAttendancePercent(records, Att.getSessions(), {
+        registrationId: reg.id,
+        courseId: reg.course_id,
+        courseName: reg.course_name
+      }) || { percent: 100, total: 0, minRequired: 75, eligible: true };
+      return `<div class="detail-row"><span>${escapeHtml(reg.course_name)}</span><strong>${st.total ? st.percent + '%' : '—'}</strong></div>`;
+    }).join('');
+
+    const liveHtml = mySessions.length ? mySessions.map(s => `
+      <div class="course-item att-live-item">
+        <div>
+          <h4>${escapeHtml(s.title)}</h4>
+          <p>${escapeHtml(s.course_name)} · ${Att.fmtDate(s.starts_at)}</p>
+        </div>
+        <button type="button" class="btn-sm att-portal-checkin" data-session="${s.id}">تسجيل حضور</button>
+      </div>`).join('') : '<p class="empty-state">لا توجد جلسات نشطة الآن — استخدم QR في القاعة</p>';
+
+    return `
+      <section class="portal-section" id="section-attendance">
+        <div class="card">
+          <div class="card-head"><h3>جلسات نشطة — سجّل حضورك</h3></div>
+          ${liveHtml}
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>نسب حضورك</h3></div>
+          <div class="detail-grid">${cards || '<p class="empty-state">لا توجد بيانات حضور بعد</p>'}</div>
+        </div>
+      </section>`;
+  }
+
+  function bindAttendanceEvents(data) {
+    document.querySelectorAll('.att-portal-checkin').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const Att = global.InexcAttendance;
+        if (!Att) return;
+        const sessionId = btn.dataset.session;
+        const session = Att.getSessions().find(s => s.id === sessionId);
+        const reg = (data.registrations || []).find(r =>
+          (session.course_id && r.course_id && String(r.course_id) === String(session.course_id)) ||
+          r.course_name === session.course_name
+        );
+        if (!reg) {
+          alert('لم يُعثر على تسجيلك في هذه الدورة');
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'جاري التسجيل...';
+        try {
+          const record = await Att.recordCheckIn({
+            session,
+            registration_id: reg.id,
+            trainee_profile_id: data.profile.id,
+            trainee_name: data.profile.full_name,
+            trainee_email: data.profile.email,
+            check_in_source: 'portal'
+          });
+          btn.textContent = 'تم ✓ ' + (Att.STATUS[record.status]?.label || record.status);
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = 'تسجيل حضور';
+          alert(err.message || 'تعذّر تسجيل الحضور');
+        }
+      });
+    });
   }
 
   function renderRewardsSection(data, tier) {

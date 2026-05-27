@@ -44,8 +44,35 @@
     );
   }
 
+  const EMPTY_INFO_TEXT = 'لم تتم إضافة معلومات بعد';
+
+  function normalizeCourseFields(row) {
+    if (!row) return {};
+    return {
+      id: row.id || null,
+      name: row.name || '',
+      description: row.description || '',
+      type: row.type || 'free',
+      price: Number(row.price) || 0,
+      status: row.status || 'active',
+      hours: row.hours || '20 ساعة',
+      level: row.level || 'متوسط',
+      cert: row.cert || 'شهادة INEXC',
+      days: row.days || 20,
+      career_paths: row.career_paths || null,
+      objectives: row.objectives || row.goals || '',
+      outcomes: row.outcomes || row.outputs || '',
+      what_you_learn: row.what_you_learn || row.learning_points || row.learn_content || '',
+      course_method: row.course_method || row.delivery_method || row.method || '',
+      target_audience: row.target_audience || row.audience || '',
+      requirements: row.requirements || ''
+    };
+  }
+
   global.InexcCourseLoad = {
+    EMPTY_INFO_TEXT,
     courseContentScore,
-    dedupeCoursesByName
+    dedupeCoursesByName,
+    normalizeCourseFields
   };
 })(typeof window !== 'undefined' ? window : globalThis);
