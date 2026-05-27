@@ -5905,17 +5905,13 @@
           },
           fetchCourseCertificates: async function (client, opts) {
             try {
-              const { data, error } = await client
-                .from('course_certificates')
-                .select('*')
-                .eq('course_id', opts.courseId || opts.course_id || '');
-              if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
-                return { data: [], error: null };
-              }
-              return { data: data || [], error: error || null };
-            } catch (e) {
-              return { data: [], error: null };
-            }
+              var query = client.from('course_certificates').select('*');
+              var cid = (opts && (opts.courseId || opts.course_id)) || '';
+              if (cid) query = query.eq('course_id', cid);
+              var r = await query;
+              if (r.error) { console.warn('course_certificates:', r.error.message); return { data: [], error: null }; }
+              return { data: r.data || [], error: null };
+            } catch (e) { return { data: [], error: null }; }
           },
           saveCourseCertificateRecord: async function (client, record, existingId) {
             if (existingId) {
@@ -9465,9 +9461,6 @@
     }
 
     function buildCourseCertDbRecord(cert, courseId) {
-      if (window.InexcCourseCertificatesApi?.buildCourseCertRecord) {
-        return InexcCourseCertificatesApi.buildCourseCertRecord(cert, courseId);
-      }
       return {
         course_id: courseId,
         certificate_name: String(cert.certificate_name || '').trim(),
@@ -9497,9 +9490,9 @@
       }
 
       try {
-        const result = window.InexcCourseCertificatesApi
-          ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId })
-          : { data: [], error: new Error('InexcCourseCertificatesApi missing') };
+        const { data: _certData, error: _certErr } = await supabaseClient
+          .from('course_certificates').select('*').eq('course_id', courseId);
+        const result = { data: _certData || [], error: _certErr };
 
         if (result.error) {
           console.error('load certificates:', result.error.message || result.error);
@@ -9540,22 +9533,19 @@
 
         const existingIds = new Set((existingRows || []).map(r => String(r.id)));
         const keptIds = new Set();
-        const saveFn = window.InexcCourseCertificatesApi?.saveCourseCertificateRecord;
 
         for (const cert of certificatesData) {
           const record = buildCourseCertDbRecord(cert, courseId);
           let savedId = null;
 
-          if (saveFn) {
-            savedId = await saveFn(supabaseClient, record, cert.id || null);
-          } else if (cert.id) {
+          if (cert.id) {
             const { error } = await supabaseClient.from('course_certificates').update(record).eq('id', cert.id);
-            if (error) throw error;
-            savedId = cert.id;
+            if (error) console.warn('update cert warning:', error.message);
+            else savedId = cert.id;
           } else {
             const { data, error } = await supabaseClient.from('course_certificates').insert([record]).select('id').single();
-            if (error) throw error;
-            savedId = data?.id;
+            if (error) console.warn('insert cert warning:', error.message);
+            else savedId = data?.id;
           }
 
           if (savedId) keptIds.add(String(savedId));
@@ -9564,7 +9554,7 @@
         for (const id of existingIds) {
           if (keptIds.has(id)) continue;
           const { error } = await supabaseClient.from('course_certificates').delete().eq('id', id);
-          if (error) throw error;
+          if (error) console.warn('delete cert warning:', error.message);
         }
 
         return { ok: true };

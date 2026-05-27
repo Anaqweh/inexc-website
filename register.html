@@ -997,7 +997,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <!-- js/registration-email مدمج أو غير ضروري -->
-  <script src="js/auto-welcome-email.js"></script>
+  <!-- js/auto-welcome-email.js not required -->
   <script>
     /*
      * EmailJS — قالب Contact Us: template_fq8l9x8
@@ -1107,9 +1107,6 @@ NOTIFY pgrst, 'reload schema';`;
 
     function cacheCourseRow(row, certsByCourse) {
       let certs = (certsByCourse && certsByCourse[row.id]) || [];
-      if (window.InexcCertificateSystem) {
-        certs = InexcCertificateSystem.dedupeCourseCertificates(certs);
-      }
       coursesById[row.id] = buildRegisterCourseEntry(row, certs);
       return coursesById[row.id];
     }
@@ -1169,9 +1166,6 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function getConfiguredCourseCertificates(courseCertificates) {
-      if (window.InexcCertificateSystem) {
-        return InexcCertificateSystem.getVisibleForStudent(courseCertificates || []);
-      }
       return (courseCertificates || []).filter(c => c && c.is_enabled !== false && c.show_to_student !== false);
     }
 
@@ -1208,12 +1202,8 @@ NOTIFY pgrst, 'reload schema';`;
           const name = escapeHtml(cert.certificate_name || cert.name);
           const issuer = escapeHtml(cert.issuer_name || '');
           const desc = escapeHtml(cert.description || '');
-          const included = window.InexcCertificateSystem
-            ? InexcCertificateSystem.isIncludedInCourse(cert)
-            : !!cert.included_in_course;
-          const optional = window.InexcCertificateSystem
-            ? InexcCertificateSystem.isOptionalPurchase(cert)
-            : !!cert.is_optional_purchase;
+          const included = !!cert.included_in_course;
+          const optional = !!cert.is_optional_purchase;
           const price = Number(cert.price) || 0;
           const badge = included
             ? 'الشهادة مشمولة مع الدورة'
@@ -1430,25 +1420,15 @@ NOTIFY pgrst, 'reload schema';`;
 
         let certsByCourse = {};
         try {
-          const certResult = window.InexcCourseCertificatesApi
-            ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, {})
-            : { data: [], error: null };
-
-          if (certResult.error) {
-            console.error('course_certificates load warning:', certResult.error.message || certResult.error);
-          } else {
-            (certResult.data || []).forEach(normalized => {
-              const cid = normalized.course_id;
-              if (!cid) return;
-              if (!certsByCourse[cid]) certsByCourse[cid] = [];
-              const duplicate = normalized.id
-                && certsByCourse[cid].some(item => String(item.id) === String(normalized.id));
-              if (duplicate) return;
-              certsByCourse[cid].push(normalized);
-            });
-          }
+          const { data: allCerts } = await supabaseClient.from('course_certificates').select('*').eq('is_enabled', true);
+          (allCerts || []).forEach(cert => {
+            const cid = String(cert.course_id || '');
+            if (!cid) return;
+            if (!certsByCourse[cid]) certsByCourse[cid] = [];
+            certsByCourse[cid].push(cert);
+          });
         } catch (certLoadErr) {
-          console.error('course_certificates load failed (non-fatal):', certLoadErr);
+          console.warn('course_certificates load failed:', certLoadErr);
         }
 
         if (note) note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
@@ -1505,7 +1485,7 @@ NOTIFY pgrst, 'reload schema';`;
             if (!courseCerts.length) {
               try {
                 const certResult = window.InexcCourseCertificatesApi
-                  ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId: data.id })
+                  ? await supabaseClient.from('course_certificates').select('*').eq('course_id', data.id).eq('is_enabled', true).then(r => ({ data: r.data || [], error: r.error }))
                   : { data: [], error: null };
                 courseCerts = certResult.data || [];
               } catch (certErr) {
