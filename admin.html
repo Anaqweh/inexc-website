@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/inexc-icon.png">
+  <link rel="stylesheet" href="css/inexc-logo.css">
   <style>
     :root {
       --navy: #1B2A4A;
@@ -84,14 +86,7 @@
     }
 
     .login-brand .logo-img {
-      height: auto;
-      max-height: 64px;
-      width: auto;
-      max-width: min(100%, 280px);
-      object-fit: contain;
-      display: block;
       margin-bottom: 32px;
-      border-radius: 6px;
     }
 
     .login-brand h1 {
@@ -234,6 +229,38 @@
       text-align: right;
     }
 
+    .cert-name-field {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .cert-name-input {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 4px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .cert-name-input:focus {
+      outline: none;
+      border-color: var(--navy-light);
+      box-shadow: 0 0 0 3px rgba(46, 74, 122, 0.12);
+    }
+
+    .cert-name-input:disabled {
+      background: var(--bg);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
     .cert-price-row input[type="number"] {
       width: 110px;
       flex-shrink: 0;
@@ -274,6 +301,42 @@
       display: flex;
       gap: 6px;
       flex-shrink: 0;
+    }
+
+    .cert-row-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 8px;
+    }
+
+    .cert-row-options label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cert-row-options input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--navy);
+    }
+
+    .cert-price-field-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .cert-price-field-wrap .cert-price-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
     }
 
     .cert-types-toolbar {
@@ -425,16 +488,11 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      background: transparent;
     }
 
     .sidebar-brand .logo-img {
-      height: auto;
-      max-height: 44px;
-      width: auto;
-      max-width: 200px;
-      object-fit: contain;
-      display: block;
-      border-radius: 4px;
+      max-height: 52px;
     }
 
     .sidebar-brand .company-ar {
@@ -758,6 +816,21 @@
     }
 
     .action-error-banner.hidden {
+      display: none;
+    }
+
+    .action-success-banner {
+      background: rgba(21, 128, 61, 0.12);
+      border: 1px solid rgba(21, 128, 61, 0.28);
+      color: #166534;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .action-success-banner.hidden {
       display: none;
     }
 
@@ -1416,7 +1489,7 @@
       color: var(--navy);
     }
 
-    /* جدول المتدربين — مضغوط */
+    /* جدول المتدربين — تصميم منظم */
     #page-trainees .page-header h2 {
       font-size: 1.35rem;
     }
@@ -1426,57 +1499,1496 @@
       font-size: 0.82rem;
     }
 
-    #page-trainees table {
-      font-size: 0.78rem;
+    #page-trainees .table-wrap {
+      overflow-x: auto;
+      border-radius: 0 0 var(--radius) var(--radius);
     }
 
-    #page-trainees th {
-      padding: 9px 10px;
-      font-size: 0.65rem;
-      letter-spacing: 0.3px;
+    #page-trainees .trainees-table {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.82rem;
     }
 
-    #page-trainees td {
-      padding: 9px 10px;
-      font-size: 0.78rem;
-      line-height: 1.45;
+    #page-trainees .trainees-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 0;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--border);
     }
 
-    #page-trainees td.cell-course {
-      max-width: 140px;
-      word-break: break-word;
-    }
-
-    #page-trainees td.cell-email {
-      max-width: 150px;
-      word-break: break-all;
-      font-size: 0.72rem;
-    }
-
-    #page-trainees td.cell-certs {
-      max-width: 190px;
-      min-width: 110px;
-    }
-
-    #page-trainees td.cell-amount {
+    #page-trainees .trainees-table .group-header-row th {
+      top: 0;
+      z-index: 3;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-bottom: none;
       white-space: nowrap;
-      font-weight: 600;
-      font-size: 0.72rem;
     }
 
-    #page-trainees .status-badge {
-      font-size: 0.66rem;
-      padding: 3px 8px;
+    #page-trainees .trainees-table .column-header-row th {
+      top: 36px;
+      z-index: 2;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      padding: 10px 12px;
+      background: #fff;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+      box-shadow: 0 1px 0 #edf1f6;
+    }
+
+    #page-trainees .trainees-table thead {
+      box-shadow: 0 2px 8px rgba(27, 42, 74, 0.06);
+    }
+
+    #page-trainees .trainees-table tbody td {
+      padding: 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf1f6;
+      line-height: 1.5;
+    }
+
+    #page-trainees .trainees-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    #page-trainees .trainees-table tbody tr:nth-child(even) td {
+      background: #fafbfd;
+    }
+
+    #page-trainees .trainees-table tbody tr:hover td {
+      background: #f7f2e8;
+    }
+
+    #page-trainees .trainees-table tr.row-selected td {
+      background: rgba(200, 169, 110, 0.12) !important;
+    }
+
+    #page-trainees .grp-select-head { background: #5a6478; }
+    #page-trainees .grp-identity-head { background: #1B2A4A; }
+    #page-trainees .grp-course-head { background: #2E4A7A; }
+    #page-trainees .grp-enroll-head { background: #3d5a8a; }
+    #page-trainees .grp-certs-head { background: #4a6288; }
+    #page-trainees .grp-money-head { background: #8a7348; }
+    #page-trainees .grp-meta-head { background: #6b7280; }
+    #page-trainees .grp-actions-head { background: #374151; }
+
+    #page-trainees .grp-select { background: #f8f9fb; }
+    #page-trainees .grp-identity { background: #fcfdff; min-width: 220px; border-inline-start: 3px solid rgba(27, 42, 74, 0.12); }
+    #page-trainees .grp-course { background: #fff; min-width: 160px; max-width: 220px; border-inline-start: 3px solid rgba(46, 74, 122, 0.1); }
+    #page-trainees .grp-enroll { background: #fafbfd; min-width: 100px; border-inline-start: 3px solid rgba(61, 90, 138, 0.08); }
+    #page-trainees .grp-certs { background: #fff; min-width: 140px; max-width: 200px; border-inline-start: 3px solid rgba(74, 98, 136, 0.08); }
+    #page-trainees .grp-money { background: #fffbf5; min-width: 96px; text-align: center; border-inline-start: 3px solid rgba(200, 169, 110, 0.25); }
+    #page-trainees .grp-meta { background: #fafbfd; min-width: 110px; border-inline-start: 3px solid rgba(107, 114, 128, 0.12); }
+    #page-trainees .grp-actions { background: #fff; min-width: 108px; border-inline-start: 3px solid rgba(55, 65, 81, 0.12); }
+
+    #page-trainees .col-num {
+      width: 48px;
+      min-width: 48px;
+      text-align: center;
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    #page-trainees .col-check {
+      width: 44px;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    #page-trainees .col-check input,
+    #page-trainees th.col-check input {
+      width: 17px;
+      height: 17px;
+      cursor: pointer;
+      accent-color: var(--navy);
+    }
+
+    #page-trainees .trainee-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    #page-trainees .trainee-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--navy-light));
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    #page-trainees .trainee-identity-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    #page-trainees .trainee-name {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 0.84rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #page-trainees .trainee-phone,
+    #page-trainees .trainee-email {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      direction: ltr;
+      text-align: right;
+    }
+
+    #page-trainees .trainee-email {
+      color: #7a8a9a;
+      margin-top: 1px;
+    }
+
+    #page-trainees .course-name-cell {
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #page-trainees .reg-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    #page-trainees .money-value {
+      display: block;
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    #page-trainees .money-value.muted {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    #page-trainees .money-value.total {
+      color: #9a7d4a;
+      font-size: 0.84rem;
+    }
+
+    #page-trainees .col-date {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      line-height: 1.6;
     }
 
     #page-trainees .actions-cell {
-      min-width: 128px;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: stretch;
     }
 
     #page-trainees .actions-cell .btn-sm {
+      font-size: 0.72rem;
+      padding: 6px 10px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    #page-trainees .status-badge {
       font-size: 0.68rem;
+      padding: 4px 9px;
+      white-space: nowrap;
+    }
+
+    #page-trainees td.cell-certs {
+      vertical-align: top;
+    }
+
+    #page-trainees .cert-types-list {
+      gap: 4px;
+    }
+
+    #page-trainees .cert-type-chip {
+      font-size: 0.66rem;
+      padding: 4px 8px;
+    }
+
+    #page-trainees .trainees-table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    #page-trainees .trainees-table-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #page-trainees .trainees-search-input {
+      min-width: 220px;
+      max-width: 320px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      background: var(--bg);
+      color: var(--navy);
+    }
+
+    #page-trainees .trainees-selected-chip {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: rgba(200, 169, 110, 0.15);
+      border: 1px solid rgba(200, 169, 110, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    #page-trainees .trainees-selected-chip.hidden {
+      display: none;
+    }
+
+    @media (max-width: 1200px) {
+      #page-trainees .trainees-table .column-header-row th {
+        top: 0;
+      }
+      #page-trainees .trainees-table .group-header-row {
+        display: none;
+      }
+    }
+
+    /* ─── صفحة الدورات (مركز إدارة الدورات) ─── */
+    #page-courses .courses-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    #page-courses .course-stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      box-shadow: 0 4px 18px rgba(27, 42, 74, 0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #page-courses .course-stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(27, 42, 74, 0.1);
+    }
+
+    #page-courses .course-stat-card .stat-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    #page-courses .course-stat-card .stat-icon-wrap.navy { background: rgba(27, 42, 74, 0.1); }
+    #page-courses .course-stat-card .stat-icon-wrap.gold { background: rgba(200, 169, 110, 0.18); }
+    #page-courses .course-stat-card .stat-icon-wrap.green { background: rgba(5, 150, 105, 0.12); }
+    #page-courses .course-stat-card .stat-icon-wrap.blue { background: rgba(46, 74, 122, 0.12); }
+
+    #page-courses .course-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    #page-courses .course-stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    #page-courses .courses-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(27, 42, 74, 0.04);
+    }
+
+    #page-courses .courses-toolbar-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    #page-courses .courses-search-input {
+      flex: 1;
+      min-width: 200px;
+      max-width: 320px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+    }
+
+    #page-courses .courses-search-input:focus {
+      outline: none;
+      border-color: var(--navy-light);
+      box-shadow: 0 0 0 3px rgba(46, 74, 122, 0.12);
+    }
+
+    #page-courses .courses-filter-select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      background: #fff;
+      min-width: 130px;
+    }
+
+    #page-courses .courses-results-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #page-courses .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 18px;
+    }
+
+    #page-courses .course-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(27, 42, 74, 0.07);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #page-courses .course-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(27, 42, 74, 0.12);
+    }
+
+    #page-courses .course-card.inactive {
+      opacity: 0.82;
+    }
+
+    #page-courses .course-card-head {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(27, 42, 74, 0.03) 0%, transparent 100%);
+    }
+
+    #page-courses .course-card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    #page-courses .course-card-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #page-courses .course-card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    #page-courses .course-card-body {
+      padding: 14px 18px;
+      flex: 1;
+    }
+
+    #page-courses .course-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+
+    #page-courses .course-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #page-courses .course-meta-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    #page-courses .course-meta-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    #page-courses .course-meta-value.price-gold {
+      color: #9a7d4a;
+    }
+
+    #page-courses .course-card-foot {
+      padding: 14px 18px 16px;
+      border-top: 1px solid var(--border);
+      background: #fafbfd;
+    }
+
+    #page-courses .course-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    #page-courses .course-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 10px 6px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    #page-courses .course-action-btn:hover {
+      background: rgba(27, 42, 74, 0.06);
+      border-color: rgba(27, 42, 74, 0.2);
+    }
+
+    #page-courses .course-action-btn.primary {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    #page-courses .course-action-btn.primary:hover {
+      background: var(--navy-light);
+    }
+
+    #page-courses .course-action-btn.gold {
+      background: rgba(200, 169, 110, 0.15);
+      border-color: rgba(200, 169, 110, 0.45);
+      color: #7a6235;
+    }
+
+    #page-courses .course-action-btn.danger {
+      color: #b91c1c;
+      border-color: rgba(185, 28, 28, 0.25);
+    }
+
+    #page-courses .course-action-btn .action-icon {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    #page-courses .courses-empty {
+      text-align: center;
+      padding: 48px 24px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      color: var(--text-muted);
+    }
+
+    #page-courses .courses-empty .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+      #page-courses .courses-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #page-courses .courses-toolbar-filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #page-courses .courses-search-input {
+        max-width: none;
+      }
+
+      #page-courses .course-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      #page-courses .courses-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ========== الشهادات — Accordion (عرض فقط) ========== */
+    #page-certificates .cert-accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 0 8px;
+    }
+
+    #page-certificates .cert-accordion-item {
+      border: 1px solid rgba(27, 42, 74, 0.1);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(12, 21, 40, 0.04);
+      transition: box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    #page-certificates .cert-accordion-item:hover {
+      border-color: rgba(200, 169, 110, 0.45);
+      box-shadow: 0 8px 22px rgba(12, 21, 40, 0.07);
+    }
+
+    #page-certificates .cert-accordion-item[open] {
+      border-color: rgba(200, 169, 110, 0.55);
+      box-shadow: 0 10px 28px rgba(27, 42, 74, 0.08);
+    }
+
+    #page-certificates .cert-accordion-item.is-inactive {
+      opacity: 0.88;
+    }
+
+    #page-certificates .cert-accordion-summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(27, 42, 74, 0.03) 0%, rgba(255, 255, 255, 1) 100%);
+      user-select: none;
+    }
+
+    #page-certificates .cert-accordion-summary::-webkit-details-marker { display: none; }
+
+    #page-certificates .cert-accordion-summary-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: rgba(200, 169, 110, 0.16);
+      border: 1.5px solid rgba(200, 169, 110, 0.45);
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    #page-certificates .cert-accordion-item[open] .cert-accordion-summary-icon {
+      transform: rotate(45deg);
+      background: rgba(27, 42, 74, 0.08);
+    }
+
+    #page-certificates .cert-accordion-summary-main {
+      flex: 1;
+      min-width: 0;
+      text-align: right;
+    }
+
+    #page-certificates .cert-accordion-summary-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    #page-certificates .cert-accordion-summary-hint {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    #page-certificates .cert-accordion-summary-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    #page-certificates .cert-accordion-summary-meta .status-badge {
+      font-size: 0.68rem;
+    }
+
+    #page-certificates .cert-accordion-summary-price {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #92682a;
+      white-space: nowrap;
+    }
+
+    #page-certificates .cert-accordion-chevron {
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      margin-right: 4px;
+    }
+
+    #page-certificates .cert-accordion-item[open] .cert-accordion-chevron {
+      transform: rotate(225deg);
+      margin-top: 3px;
+    }
+
+    #page-certificates .cert-accordion-body {
+      padding: 14px 16px 16px;
+      background: linear-gradient(180deg, rgba(27, 42, 74, 0.02) 0%, #fff 100%);
+      border-top: 1px solid rgba(200, 169, 110, 0.28);
+      animation: certAccordionOpen 0.28s ease;
+    }
+
+    @keyframes certAccordionOpen {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #page-certificates .cert-accordion-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+      margin-bottom: 14px;
+    }
+
+    #page-certificates .cert-accordion-detail {
+      text-align: right;
+    }
+
+    #page-certificates .cert-accordion-detail-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    #page-certificates .cert-accordion-detail-value {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    #page-certificates .cert-accordion-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(27, 42, 74, 0.1);
+    }
+
+    #page-certificates .cert-accordion-empty {
+      padding: 32px 16px;
+    }
+
+    @media (max-width: 768px) {
+      #page-certificates .cert-accordion-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #page-certificates .cert-accordion-summary {
+        flex-wrap: wrap;
+      }
+
+      #page-certificates .cert-accordion-summary-meta {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+
+    /* ========== طلبات المصادقة ========== */
+    #page-cert-auth .cert-auth-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    #page-cert-auth .cert-auth-stat-card {
+      background: #fff;
+      border: 1px solid rgba(27, 42, 74, 0.08);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 8px 24px rgba(12, 21, 40, 0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #page-cert-auth .cert-auth-stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(12, 21, 40, 0.08);
+    }
+
+    #page-cert-auth .cert-auth-stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    #page-cert-auth .cert-auth-stat-icon.navy { background: rgba(27, 42, 74, 0.1); }
+    #page-cert-auth .cert-auth-stat-icon.gold { background: rgba(200, 169, 110, 0.18); }
+    #page-cert-auth .cert-auth-stat-icon.green { background: rgba(5, 150, 105, 0.12); }
+    #page-cert-auth .cert-auth-stat-icon.blue { background: rgba(46, 74, 122, 0.12); }
+
+    #page-cert-auth .cert-auth-stat-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    #page-cert-auth .cert-auth-stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+    }
+
+    #page-cert-auth .cert-auth-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    #page-cert-auth .cert-auth-search {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 16px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      border-radius: 12px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    #page-cert-auth .cert-auth-filter {
+      min-width: 180px;
+      padding: 12px 14px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      border-radius: 12px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    #page-cert-auth .cert-auth-table-card {
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    #page-cert-auth .cert-auth-table tbody tr {
+      cursor: default;
+      transition: background 0.15s;
+    }
+
+    #page-cert-auth .cert-auth-table tbody tr:hover {
+      background: rgba(200, 169, 110, 0.06);
+    }
+
+    .auth-status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .auth-status-new { background: rgba(46, 74, 122, 0.12); color: var(--navy-light); }
+    .auth-status-review { background: rgba(200, 169, 110, 0.2); color: #8a6d3b; }
+    .auth-status-payment { background: rgba(234, 88, 12, 0.12); color: #c2410c; }
+    .auth-status-done { background: rgba(5, 150, 105, 0.14); color: #047857; }
+    .auth-status-rejected { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+
+    .cert-auth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 21, 40, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 1200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .cert-auth-modal.open { display: flex; }
+
+    .cert-auth-modal-dialog {
+      width: min(920px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(12, 21, 40, 0.22);
+    }
+
+    .cert-auth-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(27, 42, 74, 0.08);
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+    }
+
+    .cert-auth-modal-head h3 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 1.15rem;
+    }
+
+    .cert-auth-modal-close {
+      border: none;
+      background: rgba(27, 42, 74, 0.06);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--navy);
+    }
+
+    .cert-auth-modal-body { padding: 24px; }
+
+    .cert-auth-detail-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .cert-auth-detail-header h3 {
+      margin: 0 0 6px;
+      color: var(--navy);
+    }
+
+    .cert-auth-detail-sub {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .cert-auth-detail-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .cert-auth-mini-stat {
+      background: rgba(27, 42, 74, 0.04);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .cert-auth-mini-stat span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .cert-auth-mini-stat strong {
+      color: var(--navy);
+      font-size: 1.1rem;
+    }
+
+    .cert-auth-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .cert-auth-panel {
+      border: 1px solid rgba(27, 42, 74, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fafbfd;
+    }
+
+    .cert-auth-panel h4 {
+      margin: 0 0 12px;
+      color: var(--navy);
+      font-size: 0.92rem;
+    }
+
+    .cert-auth-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cert-auth-list li {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(27, 42, 74, 0.08);
+      font-size: 0.85rem;
+    }
+
+    .cert-auth-list li:last-child { border-bottom: none; }
+
+    .cert-auth-list li span,
+    .cert-auth-panel .muted {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .cert-auth-verification-box,
+    .cert-auth-payment-link-box {
+      background: rgba(200, 169, 110, 0.1);
+      border: 1px solid rgba(200, 169, 110, 0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+    }
+
+    .cert-auth-link-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .cert-auth-link-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      direction: ltr;
+    }
+
+    .cert-auth-admin-notes {
+      margin-bottom: 18px;
+    }
+
+    .cert-auth-admin-notes label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 0.88rem;
+    }
+
+    .cert-auth-admin-notes textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      border-radius: 12px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .cert-auth-detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(27, 42, 74, 0.08);
+    }
+
+    .cert-auth-action-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .cert-auth-action-group label {
+      width: 100%;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .cert-auth-action-group select,
+    .cert-auth-action-group input[type="number"] {
+      padding: 10px 12px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      border-radius: 10px;
+      font-family: inherit;
+      min-width: 140px;
+    }
+
+    .cert-auth-action-primary {
+      margin-right: auto;
+    }
+
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid rgba(220, 38, 38, 0.35);
+      color: #b91c1c;
+    }
+
+    @media (max-width: 960px) {
+      #page-cert-auth .cert-auth-stats-grid,
+      #page-cert-auth .cert-auth-detail-stats,
+      .cert-auth-detail-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      #page-cert-auth .cert-auth-stats-grid,
+      #page-cert-auth .cert-auth-detail-stats,
+      .cert-auth-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ========== الحضور الذكي ========== */
+    #page-attendance .att-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    #page-attendance .att-stat-card {
+      background: #fff;
+      border: 1px solid rgba(27, 42, 74, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(12, 21, 40, 0.04);
+    }
+
+    #page-attendance .att-stat-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px; font-size: 1.1rem;
+    }
+
+    #page-attendance .att-stat-icon.navy { background: rgba(27, 42, 74, 0.1); }
+    #page-attendance .att-stat-icon.gold { background: rgba(200, 169, 110, 0.18); }
+    #page-attendance .att-stat-icon.green { background: rgba(5, 150, 105, 0.12); }
+    #page-attendance .att-stat-icon.blue { background: rgba(46, 74, 122, 0.12); }
+
+    #page-attendance .att-stat-label { font-size: 0.82rem; color: var(--text-muted); }
+    #page-attendance .att-stat-value { font-size: 1.45rem; font-weight: 800; color: var(--navy); margin-top: 4px; }
+
+    #page-attendance .att-tabs {
+      display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap;
+    }
+
+    #page-attendance .att-tab {
+      padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; font-family: inherit; font-weight: 700; cursor: pointer; color: var(--navy);
+    }
+
+    #page-attendance .att-tab.active {
+      background: var(--navy); border-color: var(--navy); color: #fff;
+    }
+
+    #page-attendance .att-tab-panel { display: none; }
+    #page-attendance .att-tab-panel.active { display: block; }
+
+    #page-attendance .att-toolbar {
+      display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    #page-attendance .att-filter-select {
+      min-width: 180px; padding: 11px 14px; border-radius: 12px;
+      border: 1px solid rgba(27, 42, 74, 0.12); font-family: inherit; background: #fff;
+    }
+
+    #page-attendance .att-setup-banner {
+      background: rgba(234, 88, 12, 0.1);
+      border: 1px solid rgba(234, 88, 12, 0.25);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      color: #9a3412;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    #page-attendance .att-setup-banner a { color: var(--navy); font-weight: 700; }
+    #page-attendance .att-setup-banner code {
+      background: rgba(27, 42, 74, 0.08);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
+    .att-session-pill {
+      display: inline-flex; padding: 4px 10px; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+
+    .att-session-scheduled { background: rgba(46, 74, 122, 0.12); color: var(--navy-light); }
+    .att-session-active { background: rgba(5, 150, 105, 0.14); color: #047857; }
+    .att-session-completed { background: rgba(100, 116, 139, 0.15); color: #475569; }
+    .att-session-cancelled { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+
+    .att-status-pill { display: inline-flex; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .att-status-present { background: rgba(5, 150, 105, 0.14); color: #047857; }
+    .att-status-late { background: rgba(234, 88, 12, 0.12); color: #c2410c; }
+    .att-status-absent { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+    .att-status-excused { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+    .att-status-partial { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+    .att-status-no-part { background: rgba(100, 116, 139, 0.15); color: #64748b; }
+    .att-status-engaged { background: rgba(200, 169, 110, 0.22); color: #92682a; }
+
+    .att-status-select {
+      width: 100%;
+      min-width: 140px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      font-family: inherit;
+      font-size: 0.82rem;
+      background: #fff;
+    }
+
+    .att-extra-row td { background: rgba(27, 42, 74, 0.02); padding: 0 !important; }
+    .att-extra-panel {
+      padding: 14px 16px 16px;
+      border-top: 1px dashed rgba(27, 42, 74, 0.1);
+    }
+    .att-extra-panel label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .att-extra-panel textarea,
+    .att-extra-panel input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      font-family: inherit;
+      margin-bottom: 10px;
+    }
+    .att-partial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .att-session-report {
+      background: rgba(27, 42, 74, 0.03);
+      border: 1px solid rgba(27, 42, 74, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .att-session-report h4 { margin: 0 0 14px; color: var(--navy); font-size: 1rem; }
+    .att-report-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .att-report-stat {
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 0.78rem;
+    }
+    .att-report-stat strong { display: block; font-size: 1.25rem; margin-top: 4px; }
+    .att-report-overall { background: rgba(27, 42, 74, 0.08) !important; color: var(--navy); }
+    .att-report-groups {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .att-report-group {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid rgba(27, 42, 74, 0.06);
+    }
+    .att-report-group h5 { margin: 0 0 8px; font-size: 0.85rem; }
+    .att-report-group ul { margin: 0; padding-right: 18px; font-size: 0.82rem; color: var(--text-muted); }
+
+    @media (max-width: 960px) {
+      .att-partial-grid, .att-report-stats, .att-report-groups { grid-template-columns: 1fr 1fr; }
+    }
+
+    .att-rate-ok { color: #047857; }
+    .att-rate-bad { color: #b91c1c; }
+
+    .att-form-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px;
+    }
+
+    .att-form-group label {
+      display: block; font-size: 0.82rem; font-weight: 700; color: var(--navy); margin-bottom: 6px;
+    }
+
+    .att-form-group input,
+    .att-form-group select,
+    .att-form-group textarea {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid rgba(27, 42, 74, 0.12); font-family: inherit;
+    }
+
+    .att-qr-dialog { max-width: 420px; }
+    .att-qr-body { text-align: center; }
+    .att-qr-title { font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+    .att-qr-wrap {
+      display: inline-block; padding: 14px; border-radius: 16px;
+      background: #fff; border: 2px solid rgba(200, 169, 110, 0.35);
+    }
+    .att-qr-countdown { margin-top: 14px; color: var(--text-muted); font-size: 0.88rem; }
+    .att-qr-url { margin-top: 10px; font-size: 0.68rem; color: var(--text-muted); word-break: break-all; direction: ltr; }
+
+    .att-detail-dialog { max-width: 1100px; }
+    .att-detail-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .att-detail-actions-top { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .att-excel-actions { border-bottom: 1px solid rgba(27, 42, 74, 0.08); padding-bottom: 14px; }
+
+    .att-session-roster-preview {
+      grid-column: 1 / -1;
+      background: rgba(27, 42, 74, 0.03);
+      border: 1px solid rgba(27, 42, 74, 0.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 4px;
+    }
+    .att-session-roster-preview h4 {
+      margin: 0 0 10px;
+      font-size: 0.92rem;
+      color: var(--navy);
+    }
+    .att-preview-list { max-height: 180px; overflow-y: auto; }
+    .att-preview-names { margin: 0; padding-right: 18px; font-size: 0.82rem; color: var(--text-muted); }
+    .att-preview-names li { margin-bottom: 6px; }
+    .att-preview-empty { margin: 0; font-size: 0.85rem; color: #c2410c; }
+
+    .att-form-group-full { grid-column: 1 / -1; }
+
+    .att-full-table { min-width: 1180px; font-size: 0.82rem; }
+    .att-full-table th { white-space: nowrap; background: var(--navy); color: #fff; }
+    .att-full-table td { vertical-align: middle; }
+    .att-full-table .att-status-select { min-width: 130px; margin-bottom: 6px; }
+    .att-full-table .att-row-checkin,
+    .att-full-table .att-row-checkout,
+    .att-full-table .att-row-partial-select,
+    .att-full-table .att-row-excuse,
+    .att-full-table .att-row-notes {
+      width: 100%;
+      min-width: 110px;
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      font-family: inherit;
+      font-size: 0.78rem;
+    }
+    .att-trainee-table-wrap { overflow-x: auto; margin-bottom: 8px; }
+
+    .att-detail-empty {
+      text-align: center;
+      padding: 28px 16px;
+      background: rgba(200, 169, 110, 0.08);
+      border: 1px dashed rgba(200, 169, 110, 0.45);
+      border-radius: 14px;
+      margin-top: 12px;
+    }
+    .att-detail-empty p { margin: 0 0 14px; color: var(--navy); font-weight: 700; }
+    .att-detail-empty-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+    .att-manual-dialog { max-width: 720px; }
+    .att-manual-form-actions {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+    }
+
+    .att-col-num { width: 42px; text-align: center; font-weight: 700; color: var(--navy); }
+    .att-col-actions {
+      min-width: 200px;
+      white-space: nowrap;
+    }
+    .att-col-actions .btn { display: block; width: 100%; margin-bottom: 4px; }
+    .att-col-actions .btn:last-child { margin-bottom: 0; }
+    .att-col-status { min-width: 150px; }
+    .att-col-source { min-width: 100px; }
+
+    .att-source-pill {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: rgba(27, 42, 74, 0.08);
+      color: var(--navy);
+    }
+    .att-source-manual { background: rgba(200, 169, 110, 0.22); color: #92682a; }
+    .att-source-import { background: rgba(46, 74, 122, 0.12); color: var(--navy-light); }
+    .att-source-roster { background: rgba(5, 150, 105, 0.12); color: #047857; }
+    .att-source-qr { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+    .att-source-admin { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+
+    .att-time-col { min-width: 138px; }
+    .att-time-display, .att-partial-display, .att-manual-time-display {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--navy);
+      margin-bottom: 5px;
+      line-height: 1.35;
+    }
+    .att-btn-mini {
+      display: block;
+      width: 100%;
       padding: 5px 8px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 3px;
+    }
+    .att-btn-mini.btn-gold { background: var(--gold); color: var(--navy); }
+    .att-time-manual-btn {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 0.62rem;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      font-family: inherit;
+    }
+    .att-row-partial-select {
+      width: 100%;
+      min-width: 96px;
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(27, 42, 74, 0.12);
+      font-family: inherit;
+      font-size: 0.78rem;
+      background: #fff;
+    }
+    .att-time-input { margin-bottom: 4px; }
+    .att-partial-wrap { min-width: 96px; }
+    .att-manual-time-actions { margin-top: 6px; }
+    .att-time-form-group { grid-column: span 1; }
+
+    .att-detail-feedback {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .att-detail-feedback-success {
+      background: rgba(5, 150, 105, 0.12);
+      color: #047857;
+      border: 1px solid rgba(5, 150, 105, 0.25);
+    }
+    .att-detail-feedback-error {
+      background: rgba(220, 38, 38, 0.1);
+      color: #b91c1c;
+      border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+
+    @media (max-width: 960px) {
+      #page-attendance .att-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .att-form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      #page-attendance .att-stats-grid { grid-template-columns: 1fr; }
     }
 
     .cert-type-chip {
@@ -2831,7 +4343,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-brand">
       <div class="login-brand-inner">
-        <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="logo-img">
+        <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
         <h1>INEXC Command Center</h1>
         <p class="tagline">نظام إدارة متكامل لمنصة التميز الابتكاري — راقب التسجيلات، الدورات، المدفوعات، والتحليلات من مركز قيادة واحد مدعوم بالذكاء الاصطناعي.</p>
         <div class="login-features">
@@ -2880,7 +4392,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="logo-wrap">
-          <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="logo-img">
+          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
         </div>
         <div class="sidebar-platform-tag">
           <span class="status-dot"></span>
@@ -2923,6 +4435,19 @@
             <button class="sidebar-link" data-page="certificates" data-title="الشهادات">
               <span class="icon">🎓</span>
               الشهادات
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-link" data-page="cert-auth" data-title="طلبات المصادقة">
+              <span class="icon">🛡️</span>
+              طلبات المصادقة
+              <span class="badge-count hidden" id="certAuthBadge">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-link" data-page="attendance" data-title="الحضور الذكي">
+              <span class="icon">📋</span>
+              الحضور الذكي
             </button>
           </li>
         </ul>
@@ -2991,6 +4516,7 @@
       <main class="main-content">
         <div class="data-load-banner hidden" id="dataLoadBanner" role="alert"></div>
         <div class="action-error-banner hidden" id="actionErrorBanner" role="alert"></div>
+        <div class="action-success-banner hidden" id="actionSuccessBanner" role="status"></div>
 
         <!-- لوحة القيادة -->
         <section class="page-section active" id="page-stats">
@@ -3134,23 +4660,41 @@
           </div>
           <div class="table-card">
             <div class="table-toolbar">
-              <span class="table-toolbar-title">سجل المتدربين</span>
+              <div class="trainees-table-toolbar">
+                <span class="table-toolbar-title">سجل المتدربين</span>
+                <div class="trainees-table-toolbar-actions">
+                  <input type="search" class="trainees-search-input" id="traineesSearchInput" placeholder="بحث بالاسم، الجوال، البريد، الدورة...">
+                  <span class="trainees-selected-chip hidden" id="traineesSelectedChip">محدّد: 0</span>
+                  <button type="button" class="btn btn-danger btn-sm" id="traineesBulkDeleteBtn" disabled>🗑 حذف المحدّد</button>
+                </div>
+              </div>
             </div>
-            <div class="table-wrap">
-              <table>
+            <div class="table-wrap" id="traineesTableWrap">
+              <table class="trainees-table">
                 <thead>
-                  <tr>
-                    <th>اسم المتدرب</th>
-                    <th>رقم الجوال</th>
-                    <th>البريد</th>
-                    <th>الدورة المختارة</th>
-                    <th>سعر الدورة</th>
-                    <th>نوع الشهادة</th>
-                    <th>سعر الشهادة</th>
-                    <th>الإجمالي</th>
-                    <th>نوع التسجيل</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
+                  <tr class="group-header-row">
+                    <th colspan="2" class="grp-select-head">تحديد</th>
+                    <th class="grp-identity-head">بيانات المتدرب</th>
+                    <th class="grp-course-head">الدورة</th>
+                    <th colspan="2" class="grp-enroll-head">التسجيل</th>
+                    <th class="grp-certs-head">الشهادات</th>
+                    <th colspan="3" class="grp-money-head">الرسوم (د.إ)</th>
+                    <th class="grp-meta-head">التاريخ</th>
+                    <th class="grp-actions-head">إجراءات</th>
+                  </tr>
+                  <tr class="column-header-row">
+                    <th class="col-num grp-select">#</th>
+                    <th class="col-check grp-select"><input type="checkbox" id="traineesSelectAll" title="تحديد الكل" aria-label="تحديد الكل"></th>
+                    <th class="grp-identity">المتدرب</th>
+                    <th class="grp-course">اسم الدورة</th>
+                    <th class="grp-enroll">النوع</th>
+                    <th class="grp-enroll">الحالة</th>
+                    <th class="grp-certs">نوع الشهادة</th>
+                    <th class="grp-money">الدورة</th>
+                    <th class="grp-money">الشهادة</th>
+                    <th class="grp-money">الإجمالي</th>
+                    <th class="grp-meta">تاريخ التسجيل</th>
+                    <th class="grp-actions">إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="traineesTableBody"></tbody>
@@ -3164,30 +4708,62 @@
           <div class="page-header">
             <div>
               <h2>الدورات</h2>
-              <p>إدارة محتوى الدورات التدريبية الذكية</p>
+              <p>مركز إدارة الدورات — محتوى، شهادات، متدربون، وتسجيل</p>
             </div>
             <button type="button" class="btn btn-gold" id="addCourseBtn">+ إضافة دورة جديدة</button>
           </div>
-          <div class="table-card">
-            <div class="table-toolbar">
-              <span class="table-toolbar-title">سجل الدورات</span>
+
+          <div class="courses-stats-grid" id="coursesStatsGrid">
+            <div class="course-stat-card">
+              <div class="stat-icon-wrap navy">📚</div>
+              <div class="course-stat-label">إجمالي الدورات</div>
+              <div class="course-stat-value" id="courseStatTotal">0</div>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>اسم الدورة</th>
-                    <th>الوصف</th>
-                    <th>السعر</th>
-                    <th>النوع</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="coursesTableBody"></tbody>
-              </table>
+            <div class="course-stat-card">
+              <div class="stat-icon-wrap green">✅</div>
+              <div class="course-stat-label">الدورات النشطة</div>
+              <div class="course-stat-value" id="courseStatActive">0</div>
+            </div>
+            <div class="course-stat-card">
+              <div class="stat-icon-wrap blue">🎁</div>
+              <div class="course-stat-label">دورات مجانية</div>
+              <div class="course-stat-value" id="courseStatFree">0</div>
+            </div>
+            <div class="course-stat-card">
+              <div class="stat-icon-wrap gold">💳</div>
+              <div class="course-stat-label">دورات مدفوعة</div>
+              <div class="course-stat-value" id="courseStatPaid">0</div>
+            </div>
+            <div class="course-stat-card">
+              <div class="stat-icon-wrap navy">👥</div>
+              <div class="course-stat-label">إجمالي المتدربين</div>
+              <div class="course-stat-value" id="courseStatTrainees">0</div>
             </div>
           </div>
+
+          <div class="courses-toolbar">
+            <div class="courses-toolbar-filters">
+              <input type="search" class="courses-search-input" id="coursesSearchInput" placeholder="بحث باسم الدورة أو الوصف...">
+              <select class="courses-filter-select" id="coursesTypeFilter" aria-label="فلترة النوع">
+                <option value="all">كل الأنواع</option>
+                <option value="free">مجانية</option>
+                <option value="paid">مدفوعة</option>
+              </select>
+              <select class="courses-filter-select" id="coursesStatusFilter" aria-label="فلترة الحالة">
+                <option value="all">كل الحالات</option>
+                <option value="active">نشطة</option>
+                <option value="inactive">معطّلة</option>
+              </select>
+              <select class="courses-filter-select" id="coursesSortBy" aria-label="ترتيب">
+                <option value="newest">الأحدث تحديثاً</option>
+                <option value="registrations">الأعلى تسجيلاً</option>
+                <option value="name">الاسم (أ–ي)</option>
+              </select>
+            </div>
+            <span class="courses-results-meta" id="coursesResultsMeta">0 دورة</span>
+          </div>
+
+          <div class="courses-grid" id="coursesGrid"></div>
         </section>
 
         <!-- صفحة المدفوعات -->
@@ -3304,27 +4880,206 @@
           <div class="page-header">
             <div>
               <h2>الشهادات</h2>
-              <p>إدارة شهادات المتدربين وإنشاء أرقام تحقق</p>
+              <p>إدارة أنواع الشهادات وشهادات المتدربين</p>
+            </div>
+            <button type="button" class="btn btn-gold btn-sm" id="addCertTypeFromPageBtn">+ نوع شهادة جديد</button>
+          </div>
+          <div class="table-card" style="margin-bottom: 24px;">
+            <div class="table-toolbar">
+              <span class="table-toolbar-title">أنواع الشهادات</span>
+              <span class="table-toolbar-meta" id="certTypesCountChip">0 نوع</span>
+            </div>
+            <div class="table-wrap cert-accordion-wrap">
+              <div id="certificateTypesTableBody" class="cert-accordion-list" role="list"></div>
             </div>
           </div>
           <div class="table-card">
             <div class="table-toolbar">
               <span class="table-toolbar-title">الشهادات الصادرة</span>
             </div>
+            <div class="table-wrap cert-accordion-wrap">
+              <div id="certificatesTableBody" class="cert-accordion-list" role="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- طلبات مصادقة الشهادات -->
+        <section class="page-section" id="page-cert-auth">
+          <div class="page-header">
+            <div>
+              <h2>طلبات المصادقة</h2>
+              <p>إدارة طلبات مصادقة الشهادات — مسار الماجستير المهني</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="certAuthRefreshBtn">↻ تحديث</button>
+          </div>
+
+          <div class="cert-auth-stats-grid">
+            <div class="cert-auth-stat-card">
+              <div class="cert-auth-stat-icon navy">🆕</div>
+              <div class="cert-auth-stat-label">طلبات جديدة</div>
+              <div class="cert-auth-stat-value" id="certAuthStatNew">0</div>
+            </div>
+            <div class="cert-auth-stat-card">
+              <div class="cert-auth-stat-icon gold">✓</div>
+              <div class="cert-auth-stat-label">طلبات معتمدة</div>
+              <div class="cert-auth-stat-value" id="certAuthStatApproved">0</div>
+            </div>
+            <div class="cert-auth-stat-card">
+              <div class="cert-auth-stat-icon green">💰</div>
+              <div class="cert-auth-stat-label">إيرادات المصادقات</div>
+              <div class="cert-auth-stat-value" id="certAuthStatRevenue">0 AED</div>
+            </div>
+            <div class="cert-auth-stat-card">
+              <div class="cert-auth-stat-icon blue">⭐</div>
+              <div class="cert-auth-stat-label">متدربون مؤهلون</div>
+              <div class="cert-auth-stat-value" id="certAuthStatEligible">0</div>
+            </div>
+          </div>
+
+          <div class="cert-auth-toolbar">
+            <input type="search" id="certAuthSearchInput" class="cert-auth-search" placeholder="بحث بالاسم أو البريد أو الهاتف...">
+            <select id="certAuthStatusFilter" class="cert-auth-filter">
+              <option value="all">كل الحالات</option>
+              <option value="new">جديد</option>
+              <option value="under_review">قيد المراجعة</option>
+              <option value="awaiting_payment">بانتظار الدفع</option>
+              <option value="authenticated">تمت المصادقة</option>
+              <option value="rejected">مرفوض</option>
+            </select>
+          </div>
+
+          <div class="table-card cert-auth-table-card">
+            <div class="table-toolbar">
+              <span class="table-toolbar-title">جميع طلبات المصادقة</span>
+              <span class="table-toolbar-meta" id="certAuthTableMeta">0 طلب</span>
+            </div>
             <div class="table-wrap">
-              <table>
+              <table class="cert-auth-table">
                 <thead>
                   <tr>
-                    <th>اسم المتدرب</th>
-                    <th>الدورة</th>
-                    <th>رقم الشهادة</th>
-                    <th>تاريخ الإصدار</th>
+                    <th>المتدرب</th>
+                    <th>البريد</th>
+                    <th>الهاتف</th>
+                    <th>الساعات</th>
+                    <th>الإنجاز</th>
+                    <th>الدورات</th>
+                    <th>الشهادات</th>
+                    <th>تاريخ الطلب</th>
                     <th>الحالة</th>
-                    <th>إجراءات</th>
+                    <th>إجراء</th>
                   </tr>
                 </thead>
-                <tbody id="certificatesTableBody"></tbody>
+                <tbody id="certAuthTableBody"></tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- نظام الحضور الذكي -->
+        <section class="page-section" id="page-attendance">
+          <div class="page-header">
+            <div>
+              <h2>الحضور والغياب الذكي</h2>
+              <p>إدارة الجلسات — QR متغيّر — قياس الالتزام والتفاعل</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button type="button" class="btn btn-outline btn-sm" id="attRefreshBtn">↻ تحديث</button>
+              <button type="button" class="btn btn-outline btn-sm" id="attExportAllBtn">تصدير Excel</button>
+              <button type="button" class="btn btn-gold btn-sm" id="attNewSessionBtn">+ جلسة جديدة</button>
+            </div>
+          </div>
+
+          <div class="att-setup-banner hidden" id="attSetupBanner">
+            <strong>⚠️ إعداد مطلوب:</strong>
+            جداول الحضور غير موجودة في Supabase.
+            افتح <a href="https://supabase.com/dashboard/project/mhrrktcrbpvaxqltdtgo/sql/new" target="_blank" rel="noopener">SQL Editor</a>
+            ونفّذ محتوى الملف <code>smart-attendance-setup.sql</code> من مجلد المشروع، ثم اضغط «تحديث».
+          </div>
+
+          <div class="att-stats-grid">
+            <div class="att-stat-card">
+              <div class="att-stat-icon navy">📅</div>
+              <div class="att-stat-label">إجمالي الجلسات</div>
+              <div class="att-stat-value" id="attStatSessions">0</div>
+            </div>
+            <div class="att-stat-card">
+              <div class="att-stat-icon gold">▶</div>
+              <div class="att-stat-label">جلسات جارية</div>
+              <div class="att-stat-value" id="attStatActive">0</div>
+            </div>
+            <div class="att-stat-card">
+              <div class="att-stat-icon green">✓</div>
+              <div class="att-stat-label">تسجيلات اليوم</div>
+              <div class="att-stat-value" id="attStatCheckins">0</div>
+            </div>
+            <div class="att-stat-card">
+              <div class="att-stat-icon blue">📊</div>
+              <div class="att-stat-label">متوسط الحضور</div>
+              <div class="att-stat-value" id="attStatAvg">0%</div>
+            </div>
+          </div>
+
+          <div class="att-tabs">
+            <button type="button" class="att-tab active" data-att-tab="sessions">الجلسات التدريبية</button>
+            <button type="button" class="att-tab" data-att-tab="rates">نسب حضور المتدربين</button>
+          </div>
+
+          <div class="att-tab-panel active" data-att-panel="sessions">
+            <div class="att-toolbar">
+              <select id="attCourseFilter" class="att-filter-select"><option value="all">كل الدورات</option></select>
+              <select id="attStatusFilter" class="att-filter-select">
+                <option value="all">كل الحالات</option>
+                <option value="scheduled">مجدولة</option>
+                <option value="active">جارية</option>
+                <option value="completed">منتهية</option>
+                <option value="cancelled">ملغاة</option>
+              </select>
+            </div>
+            <div class="table-card">
+              <div class="table-toolbar">
+                <span class="table-toolbar-title">الجلسات</span>
+                <span class="table-toolbar-meta" id="attSessionsMeta">0 جلسة</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الجلسة / الدورة</th>
+                      <th>المدرب</th>
+                      <th>الموعد</th>
+                      <th>الحالة</th>
+                      <th>الحضور</th>
+                      <th>الحد الأدنى</th>
+                      <th>تاريخ الإنشاء</th>
+                      <th>إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attSessionsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="att-tab-panel" data-att-panel="rates">
+            <div class="table-card">
+              <div class="table-toolbar">
+                <span class="table-toolbar-title">نسب حضور المتدربين</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>المتدرب</th>
+                      <th>البريد</th>
+                      <th>الدورة</th>
+                      <th>نسبة الحضور</th>
+                      <th>الجلسات</th>
+                      <th>المطلوب</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attRatesTableBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </section>
@@ -3755,6 +5510,172 @@
   </div>
 
   <!-- نافذة تفاصيل المتدرب -->
+  <div class="cert-auth-modal" id="certAuthDetailModal" aria-hidden="true">
+    <div class="cert-auth-modal-dialog">
+      <div class="cert-auth-modal-head">
+        <h3>تفاصيل طلب المصادقة</h3>
+        <button type="button" class="cert-auth-modal-close" id="certAuthDetailClose" aria-label="إغلاق">×</button>
+      </div>
+      <div class="cert-auth-modal-body" id="certAuthDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- نوافذ الحضور الذكي -->
+  <div class="cert-auth-modal" id="attSessionFormModal" aria-hidden="true">
+    <div class="cert-auth-modal-dialog">
+      <div class="cert-auth-modal-head">
+        <h3>جلسة تدريبية جديدة</h3>
+        <button type="button" class="cert-auth-modal-close" id="attSessionFormClose">×</button>
+      </div>
+      <div class="cert-auth-modal-body">
+        <form id="attSessionForm">
+          <div class="att-form-grid">
+            <div class="att-form-group att-form-group-full">
+              <label for="attSessionCourse">الدورة</label>
+              <select id="attSessionCourse" required></select>
+            </div>
+            <div id="attSessionTraineePreview" class="att-session-roster-preview hidden">
+              <h4>المتدربون المسجلون (<span id="attPreviewCount">0</span>)</h4>
+              <div id="attPreviewList" class="att-preview-list"></div>
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionTitle">عنوان الجلسة</label>
+              <input type="text" id="attSessionTitle" required placeholder="مثال: الجلسة الأولى — مقدمة">
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionTrainer">المدرب</label>
+              <input type="text" id="attSessionTrainer" placeholder="اسم المدرب">
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionDate">التاريخ</label>
+              <input type="date" id="attSessionDate" required>
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionStart">البداية</label>
+              <input type="datetime-local" id="attSessionStart" required>
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionEnd">النهاية</label>
+              <input type="datetime-local" id="attSessionEnd" required>
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionLate">التأخير (دقيقة)</label>
+              <input type="number" id="attSessionLate" value="15" min="1">
+            </div>
+            <div class="att-form-group">
+              <label for="attSessionMinPct">الحد الأدنى للشهادة (%)</label>
+              <input type="number" id="attSessionMinPct" value="75" min="1" max="100">
+            </div>
+          </div>
+          <div class="att-form-group">
+            <label for="attSessionNotes">ملاحظات</label>
+            <textarea id="attSessionNotes" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-gold btn-sm">حفظ الجلسة</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-auth-modal" id="attLiveQrModal" aria-hidden="true">
+    <div class="cert-auth-modal-dialog att-qr-dialog">
+      <div class="cert-auth-modal-head">
+        <h3>QR الحضور المباشر</h3>
+        <button type="button" class="cert-auth-modal-close" id="attLiveQrClose">×</button>
+      </div>
+      <div class="cert-auth-modal-body att-qr-body">
+        <p id="attQrTitle" class="att-qr-title"></p>
+        <div class="att-qr-wrap">
+          <img id="attQrImage" alt="QR Code" width="280" height="280">
+        </div>
+        <p class="att-qr-countdown">يتجدّد خلال <strong id="attQrCountdown">60</strong> ثانية</p>
+        <p class="att-qr-url" id="attQrUrl"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-auth-modal" id="attSessionDetailModal" aria-hidden="true">
+    <div class="cert-auth-modal-dialog att-detail-dialog">
+      <div class="cert-auth-modal-head">
+        <h3>سجل حضور الجلسة</h3>
+        <button type="button" class="cert-auth-modal-close" id="attSessionDetailClose">×</button>
+      </div>
+      <div class="cert-auth-modal-body" id="attSessionDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- نافذة إضافة متدرب يدويًا — تُفتح من تفاصيل الجلسة فقط -->
+  <div class="cert-auth-modal" id="attManualTraineeModal" aria-hidden="true">
+    <div class="cert-auth-modal-dialog att-manual-dialog">
+      <div class="cert-auth-modal-head">
+        <h3>إضافة متدرب يدويًا</h3>
+        <button type="button" class="cert-auth-modal-close" id="attManualTraineeClose">×</button>
+      </div>
+      <div class="cert-auth-modal-body">
+        <form id="attManualTraineeForm" class="att-manual-form">
+          <div class="att-form-grid">
+            <div class="att-form-group">
+              <label for="attManualName">اسم المتدرب</label>
+              <input type="text" id="attManualName" placeholder="الاسم الكامل">
+            </div>
+            <div class="att-form-group">
+              <label for="attManualEmail">البريد الإلكتروني</label>
+              <input type="email" id="attManualEmail" dir="ltr" placeholder="email@example.com">
+            </div>
+            <div class="att-form-group">
+              <label for="attManualPhone">رقم الهاتف</label>
+              <input type="text" id="attManualPhone" dir="ltr" placeholder="05xxxxxxxx">
+            </div>
+            <div class="att-form-group">
+              <label for="attManualCourseName">اسم الدورة</label>
+              <input type="text" id="attManualCourseName" placeholder="اسم الدورة">
+            </div>
+            <div class="att-form-group">
+              <label for="attManualStatus">حالة الحضور</label>
+              <select id="attManualStatus"></select>
+            </div>
+            <div class="att-form-group att-time-form-group">
+              <label>وقت الدخول</label>
+              <span class="att-manual-time-display" id="attManualCheckInDisplay">—</span>
+              <input type="datetime-local" id="attManualCheckIn" class="hidden">
+              <div class="att-manual-time-actions">
+                <button type="button" class="att-btn-mini btn-gold" id="attManualCheckInNow">تسجيل الدخول الآن</button>
+                <button type="button" class="att-time-manual-btn" id="attManualCheckInManual">تعديل يدوي</button>
+              </div>
+            </div>
+            <div class="att-form-group att-time-form-group">
+              <label>وقت الخروج</label>
+              <span class="att-manual-time-display" id="attManualCheckOutDisplay">—</span>
+              <input type="datetime-local" id="attManualCheckOut" class="hidden">
+              <div class="att-manual-time-actions">
+                <button type="button" class="att-btn-mini btn-gold" id="attManualCheckOutNow">تسجيل الخروج الآن</button>
+                <button type="button" class="att-time-manual-btn" id="attManualCheckOutManual">تعديل يدوي</button>
+              </div>
+            </div>
+            <div class="att-form-group">
+              <label for="attManualPartial">نسبة الحضور الجزئي</label>
+              <select id="attManualPartial" class="att-row-partial-select"></select>
+            </div>
+            <div class="att-form-group att-form-group-full">
+              <label for="attManualExcuse">سبب الغياب المعتذر عنه</label>
+              <input type="text" id="attManualExcuse" placeholder="اختياري — للغياب المعتذر عنه">
+            </div>
+            <div class="att-form-group att-form-group-full">
+              <label for="attManualNotes">ملاحظات</label>
+              <textarea id="attManualNotes" rows="2" placeholder="ملاحظات إضافية"></textarea>
+            </div>
+          </div>
+          <div class="att-manual-form-actions">
+            <button type="submit" class="btn btn-gold btn-sm">حفظ المتدرب</button>
+            <button type="button" class="btn btn-outline btn-sm" id="attManualTraineeCancel">إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="attImportExcelInput" accept=".xlsx,.xls,.csv" hidden aria-hidden="true">
+
   <div class="modal-overlay" id="traineeModal">
     <div class="modal">
       <div class="modal-header">
@@ -3823,20 +5744,13 @@
             <label for="courseRequirements">المتطلبات</label>
             <textarea id="courseRequirements" placeholder="متطلبات قبل التسجيل..."></textarea>
           </div>
-          <div class="form-group">
-            <label>مسارات التقدم المهني</label>
-            <p style="font-size:0.82rem;color:var(--text-muted);margin:0 0 10px;line-height:1.7;">
-              حدّد المسارات التي تساهم فيها هذه الدورة في حساب المتدرب. إن تُركت فارغة يُستنتج الربط تلقائياً من اسم الدورة.
-            </p>
-            <div id="courseCareerPaths" class="career-path-checkboxes"></div>
-          </div>
           <div class="form-group" id="certificatesGroup" style="display:none;">
-            <label>خيارات الشهادات</label>
+            <label>الشهادات المرتبطة بالدورة</label>
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.7;">
-              فعّل الشهادة لهذه الدورة فقط ثم أدخل سعراً أكبر من صفر. التعطيل هنا لا يؤثر على دورات أخرى. الشهادات غير المفعّلة أو بدون سعر لن تظهر في صفحة التسجيل.
+              فعّل الشهادات لهذه الدورة وحدّد إعدادات العرض. في الدورات المجانية: يظهر للمتدرب ما فُعّل مع السعر. في الدورات المدفوعة: تُعرض الشهادات المشمولة للمعرفة فقط دون سعر منفصل.
             </p>
             <div class="cert-types-toolbar">
-              <button type="button" class="btn btn-navy btn-sm" id="addCertificateTypeBtn">+ إضافة شهادة</button>
+              <span style="font-size:0.82rem;color:var(--text-muted);">اختر من أنواع الشهادات الموجودة — لإضافة نوع جديد استخدم صفحة «الشهادات».</span>
             </div>
             <div id="certificatesList"></div>
           </div>
@@ -3852,18 +5766,35 @@
   <div class="modal-overlay" id="certTypeModal">
     <div class="modal">
       <div class="modal-header">
-        <h3>إضافة نوع شهادة</h3>
+        <h3 id="certTypeModalTitle">إضافة نوع شهادة</h3>
         <button type="button" class="modal-close" data-close="certTypeModal">&times;</button>
       </div>
       <form id="certTypeForm">
+        <input type="hidden" id="certificateTypeId" value="">
         <div class="modal-body">
           <div class="form-group">
             <label for="certificateName">اسم الشهادة <span class="required">*</span></label>
             <input type="text" id="certificateName" required placeholder="مثال: شهادة حضور">
           </div>
           <div class="form-group">
-            <label for="certificateShortDesc">الوصف المختصر</label>
-            <input type="text" id="certificateShortDesc" placeholder="وصف قصير يظهر في صفحة التسجيل">
+            <label for="certificateIssuerName">الجهة المصدرة</label>
+            <input type="text" id="certificateIssuerName" placeholder="مثال: INEXC أو جامعة إماراتية">
+          </div>
+          <div class="form-group">
+            <label for="certificateShortDesc">الوصف</label>
+            <input type="text" id="certificateShortDesc" placeholder="وصف يظهر في صفحة التسجيل">
+          </div>
+          <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div class="form-group" style="flex:1;min-width:140px;">
+              <label for="certificateTypePrice">السعر الافتراضي (د.إ)</label>
+              <input type="number" id="certificateTypePrice" min="0" step="1" value="0">
+            </div>
+            <div class="form-group" style="flex:1;min-width:140px;display:flex;align-items:flex-end;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+                <input type="checkbox" id="certificateTypeActive" checked style="width:18px;height:18px;">
+                <span>نشطة (متاحة للربط بالدورات)</span>
+              </label>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -3876,7 +5807,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="js/course-career-map.js"></script>
+  <script src="js/course-load-utils.js"></script>
+  <script src="js/certificate-system.js"></script>
+  <script src="js/cert-auth-requests.js"></script>
+  <script src="js/cert-auth-admin.js"></script>
+  <script src="js/attendance-api.js"></script>
+  <script src="js/attendance-admin.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/registration-email.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -3897,7 +5833,14 @@
     const ADMIN_PASS = 'admin123';
 
     let coursesCache = [];
+    let courseCertCountsByCourseId = {};
+    let coursesFilterQuery = '';
+    let coursesFilterType = 'all';
+    let coursesFilterStatus = 'all';
+    let coursesSortBy = 'newest';
     let traineesCache = [];
+    let selectedTraineeIds = new Set();
+    let traineesTableQuery = '';
     let paymentsCache = [];
     let messagesCache = [];
     let sentMessagesCache = [];
@@ -3934,8 +5877,44 @@
       const msg = (error?.message || '').toLowerCase();
       const code = error?.code || '';
       const col = String(columnName || '').toLowerCase();
-      return code === 'PGRST204'
-        || (col && msg.includes(col) && (msg.includes('schema cache') || msg.includes('column')));
+      return code === '42703' || code === 'PGRST204'
+        || (col && msg.includes(col) && (msg.includes('column') || msg.includes('schema cache')));
+    }
+
+    function extractMissingColumnFromError(error) {
+      const msg = error?.message || '';
+      const match = msg.match(/Could not find the '([^']+)' column/i);
+      return match ? match[1] : null;
+    }
+
+    /** يحاول الحفظ ويزيل الأعمدة غير الموجودة في Supabase تلقائياً */
+    async function saveRecordWithColumnFallback(table, record, options = {}) {
+      let payload = { ...record };
+      const maxAttempts = Object.keys(payload).length + 2;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        let result;
+        if (options.id) {
+          result = await supabaseClient.from(table).update(payload).eq('id', options.id);
+        } else {
+          result = await supabaseClient.from(table).insert([payload]);
+        }
+
+        if (!result.error) return { error: null };
+
+        const missingCol = extractMissingColumnFromError(result.error)
+          || ['key', 'certificate_name', 'issuer_name', 'description', 'price', 'default_price', 'is_active']
+            .find(col => isMissingColumnError(result.error, col));
+
+        if (missingCol && Object.prototype.hasOwnProperty.call(payload, missingCol)) {
+          delete payload[missingCol];
+          continue;
+        }
+
+        return { error: result.error };
+      }
+
+      return { error: new Error('تعذّر حفظ السجل — تحقق من أعمدة الجدول في Supabase') };
     }
 
     async function saveCoursePayload(id, payload) {
@@ -3982,7 +5961,9 @@
         course_method: row.course_method || row.delivery_method || '',
         target_audience: row.target_audience || '',
         requirements: row.requirements || '',
-        career_paths: row.career_paths || null
+        career_paths: row.career_paths || null,
+        created_at: row.created_at || null,
+        updated_at: row.updated_at || row.created_at || null
       };
     }
 
@@ -4001,45 +5982,6 @@
         requirements: course.requirements || '',
         career_paths: course.career_paths && course.career_paths.length ? course.career_paths : null
       };
-    }
-
-    function renderCourseCareerPathOptions() {
-      const box = document.getElementById('courseCareerPaths');
-      if (!box || !window.InexcCareerMap) return;
-      box.innerHTML = InexcCareerMap.CAREER_ROLES.map(role => `
-        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.88rem;">
-          <input type="checkbox" value="${role.key}" data-weight="25">
-          <span>${role.icon} ${role.title}</span>
-        </label>
-      `).join('');
-    }
-
-    function readCareerPathsFromForm() {
-      return [...document.querySelectorAll('#courseCareerPaths input:checked')].map(el => ({
-        key: el.value,
-        weight: Number(el.dataset.weight) || 25
-      }));
-    }
-
-    function setCareerPathsOnForm(paths) {
-      const selected = new Set((paths || []).map(p => p.key || p.roleKey));
-      document.querySelectorAll('#courseCareerPaths input').forEach(inp => {
-        inp.checked = selected.has(inp.value);
-      });
-    }
-
-    function parseStoredCareerPaths(value) {
-      if (!value) return [];
-      if (Array.isArray(value)) return value;
-      if (typeof value === 'string') {
-        try {
-          const parsed = JSON.parse(value);
-          return Array.isArray(parsed) ? parsed : [];
-        } catch {
-          return [];
-        }
-      }
-      return [];
     }
 
     function parseRegistrationCertificates(row) {
@@ -4089,17 +6031,38 @@
       }).join('، ');
     }
 
+    function findCourseByName(courseName) {
+      const name = String(courseName || '').trim();
+      if (!name) return null;
+      const matches = coursesCache.filter(c => String(c.name || '').trim() === name);
+      if (!matches.length) return null;
+      if (matches.length === 1) return matches[0];
+      const deduped = window.InexcCourseLoad
+        ? InexcCourseLoad.dedupeCoursesByName(matches)
+        : matches;
+      return deduped[0] || matches[0];
+    }
+
+    function findCourseForRegistration(row) {
+      if (!row) return null;
+      if (row.course_id) {
+        const byId = coursesCache.find(c => c.id === row.course_id);
+        if (byId) return byId;
+      }
+      return findCourseByName(row.course_name);
+    }
+
     function getRegistrationCoursePrice(row) {
-      if (!row?.course_name) return 0;
-      const course = coursesCache.find(c => c.name === row.course_name);
+      const course = findCourseForRegistration(row);
       if (course?.type === 'paid') return Number(course.price) || 0;
       return 0;
     }
 
     function getRegistrationTotalAmount(row) {
       const coursePrice = getRegistrationCoursePrice(row);
+      // دورة مدفوعة: السعر شامل الشهادات — لا نضيف سعر الشهادة منفصلًا
+      if (coursePrice > 0) return coursePrice;
       const certPrice = Number(row?.certificate_price) || 0;
-      if (coursePrice > 0) return coursePrice + (row.wants_certificate ? certPrice : 0);
       return certPrice > 0 ? certPrice : 0;
     }
 
@@ -4130,6 +6093,7 @@
         phone: row.phone || '',
         email: row.email || '',
         course: row.course_name || '',
+        courseId: row.course_id || findCourseForRegistration(row)?.id || null,
         regType: isPaid ? 'paid' : 'free',
         status,
         paymentMethod,
@@ -4224,6 +6188,26 @@
       coursesCache = (data || []).map(mapCourseFromDb);
     }
 
+    async function loadCourseCertificateCounts() {
+      courseCertCountsByCourseId = {};
+      const { data, error } = await supabaseClient
+        .from('course_certificates')
+        .select('course_id, is_enabled, status');
+
+      if (error) {
+        console.warn('course_certificates counts:', error.message);
+        return;
+      }
+
+      (data || []).forEach(row => {
+        const cid = row.course_id;
+        if (!cid) return;
+        const enabled = row.is_enabled != null ? row.is_enabled : (row.status === 'active');
+        if (!enabled) return;
+        courseCertCountsByCourseId[cid] = (courseCertCountsByCourseId[cid] || 0) + 1;
+      });
+    }
+
     async function loadRegistrationsFromSupabase() {
       const { data, error } = await supabaseClient
         .from('registrations')
@@ -4240,6 +6224,154 @@
       loadState.registrations = { ok: true };
       visibleRegistrations = (data || []).filter(r => r.admin_hidden !== true);
       traineesCache = visibleRegistrations.map(mapRegistrationToTrainee);
+      const validIds = new Set(traineesCache.map(t => String(t.id)));
+      selectedTraineeIds.forEach(id => {
+        if (!validIds.has(id)) selectedTraineeIds.delete(id);
+      });
+    }
+
+    function enrichPaymentLinks(paymentRow) {
+      const mapped = mapPaymentFromDb(paymentRow);
+      if (mapped.registrationId) return mapped;
+
+      const email = String(paymentRow.trainee_email || paymentRow.email || '').toLowerCase().trim();
+      const courseName = String(paymentRow.course_name || '').trim();
+      if (!email && !courseName) return mapped;
+
+      const match = visibleRegistrations.find(r => {
+        const regEmail = String(r.email || '').toLowerCase().trim();
+        const regCourse = String(r.course_name || '').trim();
+        if (email && regEmail !== email) return false;
+        if (courseName && regCourse !== courseName) return false;
+        return true;
+      });
+
+      if (match) mapped.registrationId = String(match.id);
+      return mapped;
+    }
+
+
+    async function syncUnlinkedSupabaseData() {
+      let updated = 0;
+
+      try {
+        const { data: regsNoCourse, error: regCourseErr } = await supabaseClient
+          .from('registrations')
+          .select('id, course_name, course_id, email, trainee_profile_id')
+          .is('course_id', null);
+
+        if (!regCourseErr) {
+          for (const reg of regsNoCourse || []) {
+            const course = findCourseByName(reg.course_name);
+            if (!course?.id) continue;
+            const { error } = await supabaseClient
+              .from('registrations')
+              .update({ course_id: course.id })
+              .eq('id', reg.id);
+            if (error) continue;
+            updated += 1;
+          }
+        } else if (!isMissingColumnError(regCourseErr, 'course_id')) {
+          console.warn('sync course links:', regCourseErr.message);
+        }
+
+        const { data: profiles, error: profilesErr } = await supabaseClient
+          .from('trainee_profiles')
+          .select('id, email');
+
+        if (profilesErr) {
+          console.warn('sync profiles:', profilesErr.message);
+          return updated;
+        }
+
+        const profileByEmail = new Map(
+          (profiles || []).map(p => [String(p.email || '').toLowerCase().trim(), p.id])
+        );
+
+        const { data: regsNoProfile } = await supabaseClient
+          .from('registrations')
+          .select('id, email, trainee_profile_id')
+          .is('trainee_profile_id', null);
+
+        for (const reg of regsNoProfile || []) {
+          const profileId = profileByEmail.get(String(reg.email || '').toLowerCase().trim());
+          if (!profileId) continue;
+          const { error } = await supabaseClient
+            .from('registrations')
+            .update({ trainee_profile_id: profileId })
+            .eq('id', reg.id);
+          if (error) {
+            if (isMissingColumnError(error, 'trainee_profile_id')) break;
+            continue;
+          }
+          updated += 1;
+        }
+
+        const { data: allRegs } = await supabaseClient
+          .from('registrations')
+          .select('id, email, course_name');
+
+        const { data: orphanPayments } = await supabaseClient
+          .from('payments')
+          .select('id, registration_id, course_id, course_name, trainee_email, full_name');
+
+        for (const pay of orphanPayments || []) {
+          const patch = {};
+          if (!pay.course_id && pay.course_name) {
+            const course = findCourseByName(pay.course_name);
+            if (course?.id) patch.course_id = course.id;
+          }
+
+          const badRegId = !pay.registration_id || !(allRegs || []).some(r => r.id === pay.registration_id);
+          if (badRegId) {
+            const email = String(pay.trainee_email || '').toLowerCase().trim();
+            const courseName = String(pay.course_name || '').trim();
+            const match = (allRegs || []).find(r => {
+              if (email && String(r.email || '').toLowerCase().trim() !== email) return false;
+              if (courseName && String(r.course_name || '').trim() !== courseName) return false;
+              return Boolean(email || courseName);
+            });
+            if (match) patch.registration_id = match.id;
+          }
+
+          if (!Object.keys(patch).length) continue;
+          const { error } = await supabaseClient
+            .from('payments')
+            .update(patch)
+            .eq('id', pay.id);
+          if (error) {
+            if (Object.keys(patch).some(k => isMissingColumnError(error, k))) continue;
+            continue;
+          }
+          updated += 1;
+        }
+
+        const { data: orphanMessages } = await supabaseClient
+          .from('trainee_messages')
+          .select('id, registration_id, trainee_email, course_name')
+          .is('registration_id', null);
+
+        for (const msg of orphanMessages || []) {
+          const email = String(msg.trainee_email || '').toLowerCase().trim();
+          if (!email) continue;
+          const match = (allRegs || []).find(r => {
+            if (String(r.email || '').toLowerCase().trim() !== email) return false;
+            const courseName = String(msg.course_name || '').trim();
+            if (!courseName || courseName === '—' || courseName === '-') return true;
+            return String(r.course_name || '').trim() === courseName;
+          });
+          if (!match) continue;
+          const { error } = await supabaseClient
+            .from('trainee_messages')
+            .update({ registration_id: match.id })
+            .eq('id', msg.id);
+          if (!error) updated += 1;
+        }
+      } catch (err) {
+        console.warn('syncUnlinkedSupabaseData:', err);
+      }
+
+      return updated;
     }
 
     async function loadPaymentsFromSupabase() {
@@ -4260,7 +6392,7 @@
       }
 
       loadState.payments = { ok: true };
-      paymentsCache = (data || []).map(mapPaymentFromDb);
+      paymentsCache = (data || []).map(enrichPaymentLinks);
     }
 
     async function loadMessagesFromSupabase() {
@@ -4320,12 +6452,29 @@
       loadState.payments = null;
 
       await loadCoursesFromSupabase();
+      await loadCourseCertificateCounts();
       await loadRegistrationsFromSupabase();
       await loadPaymentsFromSupabase();
       await loadMessagesFromSupabase();
       await loadSentMessagesFromSupabase();
       await loadCouponsFromSupabase();
       await loadCertificateTypes();
+      if (window.InexcCertAuthAdmin) {
+        await InexcCertAuthAdmin.loadCertAuthRequests();
+        await InexcCertAuthAdmin.loadEligibleTraineesCount();
+      }
+      if (window.InexcAttendanceAdmin) {
+        await InexcAttendance.loadAll();
+        await InexcAttendanceAdmin.loadCoursesAndRegs();
+        await InexcAttendanceAdmin.ensureReady?.();
+      }
+      const linked = await syncUnlinkedSupabaseData();
+      if (linked > 0) {
+        await loadCoursesFromSupabase();
+        await loadCourseCertificateCounts();
+        await loadRegistrationsFromSupabase();
+        await loadPaymentsFromSupabase();
+      }
       updateDataLoadBanner();
     }
 
@@ -4349,15 +6498,35 @@
 
     function showActionError(message) {
       const banner = document.getElementById('actionErrorBanner');
+      const successBanner = document.getElementById('actionSuccessBanner');
+      if (successBanner) successBanner.classList.add('hidden');
       if (!banner) return;
       banner.textContent = message;
       banner.classList.remove('hidden');
+    }
+
+    function showActionSuccess(message) {
+      const banner = document.getElementById('actionSuccessBanner');
+      const errorBanner = document.getElementById('actionErrorBanner');
+      if (errorBanner) errorBanner.classList.add('hidden');
+      if (!banner) return;
+      banner.textContent = message;
+      banner.classList.remove('hidden');
+      setTimeout(() => banner.classList.add('hidden'), 4000);
     }
 
     function hideActionError() {
       const banner = document.getElementById('actionErrorBanner');
       if (banner) banner.classList.add('hidden');
     }
+
+    function hideActionSuccess() {
+      const banner = document.getElementById('actionSuccessBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    window.showActionSuccess = showActionSuccess;
+    window.showActionError = showActionError;
 
     async function reloadFromSupabase() {
       await loadAllFromSupabase();
@@ -4479,6 +6648,8 @@
       if (page === 'payments') renderPayments();
       if (page === 'coupons') renderCoupons();
       if (page === 'trainees') renderTraineesCourseExports();
+      if (page === 'cert-auth' && window.InexcCertAuthAdmin) InexcCertAuthAdmin.renderCertAuthPage();
+      if (page === 'attendance' && window.InexcAttendanceAdmin) InexcAttendanceAdmin.renderAttendancePage();
     }
 
     sidebarLinks.forEach(link => {
@@ -5655,24 +7826,210 @@
       document.getElementById('bulkCancelBtn').textContent = 'جاري الإيقاف...';
     }
 
-    async function saveCertificateType(name, shortDescription) {
-      const { error } = await supabaseClient
-        .from('certificate_types')
-        .insert([{
-          certificate_type: name,
-          short_description: shortDescription,
-          status: 'active'
-        }]);
+    function findExistingCertificateType(name, excludeId) {
+      const needle = String(name || '').trim().toLowerCase();
+      if (!needle) return null;
+      return (certificateTypesCache || []).find(t => {
+        if (excludeId && String(t.id) === String(excludeId)) return false;
+        const fields = [t.certificate_name, t.name, t.certificate_type, t.key];
+        return fields.some(f => String(f || '').trim().toLowerCase() === needle);
+      }) || null;
+    }
 
-      if (error) {
-        console.error('Supabase certificate error:', error);
-        alert('فشل حفظ الشهادة: ' + error.message);
+    async function saveCertificateType(payload) {
+      const { id, name, issuer, description, price, isActive } = payload;
+      const trimmedName = (name || '').trim();
+      if (!trimmedName) {
+        alert('اسم الشهادة مطلوب');
         return false;
       }
 
-      alert('تم حفظ الشهادة بنجاح');
+      const numericPrice = Number(price) || 0;
+      const desc = (description || '').trim();
+      const active = isActive !== false;
+
+      let targetId = id || null;
+      if (!targetId) {
+        const existing = findExistingCertificateType(trimmedName);
+        if (existing?.id) {
+          targetId = existing.id;
+        }
+      }
+
+      const record = {
+        certificate_name: trimmedName,
+        name: trimmedName,
+        issuer_name: (issuer || '').trim(),
+        description: desc,
+        short_description: desc,
+        price: numericPrice,
+        default_price: numericPrice,
+        is_active: active,
+        status: active ? 'active' : 'inactive'
+      };
+
+      if (targetId) {
+        const { error } = await saveRecordWithColumnFallback('certificate_types', record, { id: targetId });
+        if (error) {
+          console.error('Supabase certificate update error:', error);
+          alert('فشل تحديث الشهادة: ' + error.message);
+          return false;
+        }
+        return true;
+      }
+
+      const typeKey = generateCertificateTypeKey(trimmedName);
+      record.key = typeKey;
+      record.certificate_type = typeKey;
+
+      const { error } = await saveRecordWithColumnFallback('certificate_types', record, { id: null });
+      if (error) {
+        console.error('Supabase certificate error:', error);
+        const duplicate = error.code === '23505' || /duplicate key/i.test(error.message || '');
+        alert(
+          duplicate
+            ? 'يوجد نوع شهادة مسجّل مسبقاً. عدّل النوع الموجود من جدول الشهادات.'
+            : ('فشل حفظ الشهادة: ' + error.message)
+        );
+        return false;
+      }
+
       return true;
     }
+
+    function openCertificateTypeModal(typeRow) {
+      const titleEl = document.getElementById('certTypeModalTitle');
+      const idEl = document.getElementById('certificateTypeId');
+      const nameEl = document.getElementById('certificateName');
+      const issuerEl = document.getElementById('certificateIssuerName');
+      const descEl = document.getElementById('certificateShortDesc');
+      const priceEl = document.getElementById('certificateTypePrice');
+      const activeEl = document.getElementById('certificateTypeActive');
+
+      certTypeForm?.reset();
+      if (typeRow) {
+        if (titleEl) titleEl.textContent = 'تعديل نوع شهادة';
+        if (idEl) idEl.value = typeRow.id || '';
+        if (nameEl) nameEl.value = typeRow.certificate_name || typeRow.name || '';
+        if (issuerEl) issuerEl.value = typeRow.issuer_name || '';
+        if (descEl) descEl.value = typeRow.description || typeRow.short_description || '';
+        if (priceEl) priceEl.value = Number(typeRow.price ?? typeRow.default_price) || 0;
+        if (activeEl) activeEl.checked = typeRow.is_active !== false && (typeRow.status || 'active') === 'active';
+      } else {
+        if (titleEl) titleEl.textContent = 'إضافة نوع شهادة';
+        if (idEl) idEl.value = '';
+        if (activeEl) activeEl.checked = true;
+        if (priceEl) priceEl.value = 0;
+      }
+      openModal('certTypeModal');
+    }
+
+    async function toggleCertificateTypeActive(typeId, nextActive) {
+      const { error } = await saveRecordWithColumnFallback(
+        'certificate_types',
+        {
+          is_active: nextActive,
+          status: nextActive ? 'active' : 'inactive'
+        },
+        { id: typeId }
+      );
+
+      if (error) {
+        alert('فشل تحديث الحالة: ' + error.message);
+        return false;
+      }
+      return true;
+    }
+
+    function renderCertificateTypesAdmin() {
+      const tbody = document.getElementById('certificateTypesTableBody');
+      const countChip = document.getElementById('certTypesCountChip');
+      if (!tbody) return;
+
+      const types = (certificateTypesCache || []).map(t =>
+        window.InexcCertificateSystem
+          ? InexcCertificateSystem.normalizeCertificateType(t)
+          : t
+      );
+
+      if (countChip) countChip.textContent = types.length + ' نوع';
+
+      if (!types.length) {
+        tbody.innerHTML = `
+          <div class="table-empty cert-accordion-empty">
+            <div class="empty-icon">📜</div>
+            <p>لا توجد أنواع شهادات. اضغط «نوع شهادة جديد».</p>
+          </div>`;
+        return;
+      }
+
+      tbody.innerHTML = types.map(t => {
+        const active = t.is_active !== false;
+        const price = Number(t.price) || 0;
+        const priceLabel = price > 0 ? price.toLocaleString('ar-SA') + ' د.إ' : '—';
+        const name = escapeHtml(t.certificate_name || t.name);
+        const issuer = escapeHtml(t.issuer_name || '—');
+        return `
+          <details class="cert-accordion-item${active ? '' : ' is-inactive'}" role="listitem">
+            <summary class="cert-accordion-summary">
+              <span class="cert-accordion-summary-icon" aria-hidden="true">+</span>
+              <span class="cert-accordion-summary-main">
+                <span class="cert-accordion-summary-title">${name}</span>
+                <span class="cert-accordion-summary-hint">مزيد من المعلومات — اضغط للتفاصيل</span>
+              </span>
+              <span class="cert-accordion-summary-meta">
+                <span class="status-badge ${active ? 'status-active' : 'status-inactive'}">${active ? 'نشطة' : 'معطّلة'}</span>
+                ${price > 0 ? `<span class="cert-accordion-summary-price">${priceLabel}</span>` : ''}
+              </span>
+              <span class="cert-accordion-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="cert-accordion-body">
+              <div class="cert-accordion-details-grid">
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">اسم الشهادة</span>
+                  <span class="cert-accordion-detail-value">${name}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">الجهة المصدرة</span>
+                  <span class="cert-accordion-detail-value">${issuer}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">السعر الافتراضي</span>
+                  <span class="cert-accordion-detail-value">${priceLabel}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">الحالة</span>
+                  <span class="cert-accordion-detail-value"><span class="status-badge ${active ? 'status-active' : 'status-inactive'}">${active ? 'نشطة' : 'معطّلة'}</span></span>
+                </div>
+              </div>
+              <div class="cert-accordion-actions actions-cell">
+                <button type="button" class="btn btn-navy btn-sm" onclick="editCertificateType('${t.id}')">تعديل</button>
+                <button type="button" class="btn btn-sm ${active ? 'btn-danger' : 'btn-gold'}" onclick="toggleCertificateTypeStatus('${t.id}', ${!active})">
+                  ${active ? 'تعطيل' : 'تفعيل'}
+                </button>
+              </div>
+            </div>
+          </details>`;
+      }).join('');
+    }
+
+    window.editCertificateType = function(typeId) {
+      const row = (certificateTypesCache || []).find(t => String(t.id) === String(typeId));
+      if (!row) return;
+      openCertificateTypeModal(row);
+    };
+
+    window.toggleCertificateTypeStatus = async function(typeId, nextActive) {
+      const ok = await toggleCertificateTypeActive(typeId, nextActive);
+      if (!ok) return;
+      try {
+        await loadCertificateTypes();
+        renderCertificateTypesAdmin();
+        await refreshCertificateTypesUI(true);
+      } catch (err) {
+        showSupabaseError(err, 'toggle certificate type');
+      }
+    };
 
     /* ========== Certificates ========== */
     function renderCertificates() {
@@ -5681,31 +8038,74 @@
 
       if (!activeTrainees.length) {
         tbody.innerHTML = `
-      <tr>
-        <td colspan="6">
-          <div class="table-empty">
+          <div class="table-empty cert-accordion-empty">
             <div class="empty-icon">🎓</div>
             <p>لا يوجد متدربون مؤهلون لإصدار الشهادات</p>
-          </div>
-        </td>
-      </tr>`;
+          </div>`;
         return;
       }
 
-      tbody.innerHTML = activeTrainees.map(t => `
-    <tr>
-      <td>${escapeHtml(t.name)}</td>
-      <td>${escapeHtml(t.course)}</td>
-      <td>يُنشأ تلقائيًا</td>
-      <td>${new Date().toLocaleDateString('ar-SA')}</td>
-      <td><span class="status-badge status-active">جاهز للإصدار</span></td>
-      <td class="actions-cell">
-        <button type="button" class="btn btn-gold btn-sm" onclick="issueCertificate('${t.id}')">
-          إصدار شهادة
-        </button>
-      </td>
-    </tr>
-  `).join('');
+      tbody.innerHTML = activeTrainees.map(t => {
+        const att = window.InexcAttendance?.computeAttendancePercent(
+          InexcAttendance.getRecords(),
+          InexcAttendance.getSessions(),
+          { registrationId: t.id, courseId: t.courseId, courseName: t.course }
+        ) || { percent: 100, eligible: true, total: 0, minRequired: 75 };
+        const blocked = att.total > 0 && !att.eligible;
+        const attLabel = att.total ? att.percent + '%' : '—';
+        const statusClass = blocked ? 'status-inactive' : 'status-active';
+        const statusText = blocked ? 'الحضور غير كافٍ' : 'جاهز للإصدار';
+        const issueDate = new Date().toLocaleDateString('ar-SA');
+        const traineeName = escapeHtml(t.name);
+        const courseName = escapeHtml(t.course);
+        return `
+          <details class="cert-accordion-item${blocked ? ' is-inactive' : ''}" role="listitem">
+            <summary class="cert-accordion-summary">
+              <span class="cert-accordion-summary-icon" aria-hidden="true">+</span>
+              <span class="cert-accordion-summary-main">
+                <span class="cert-accordion-summary-title">${traineeName}</span>
+                <span class="cert-accordion-summary-hint">${courseName} — مزيد من المعلومات</span>
+              </span>
+              <span class="cert-accordion-summary-meta">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+              </span>
+              <span class="cert-accordion-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="cert-accordion-body">
+              <div class="cert-accordion-details-grid">
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">اسم المتدرب</span>
+                  <span class="cert-accordion-detail-value">${traineeName}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">الدورة</span>
+                  <span class="cert-accordion-detail-value">${courseName}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">نسبة الحضور</span>
+                  <span class="cert-accordion-detail-value">${attLabel}${blocked ? ' <span class="att-rate-bad" title="أقل من ' + att.minRequired + '%">⚠</span>' : ''}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">رقم الشهادة</span>
+                  <span class="cert-accordion-detail-value">يُنشأ تلقائيًا</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">تاريخ الإصدار</span>
+                  <span class="cert-accordion-detail-value">${issueDate}</span>
+                </div>
+                <div class="cert-accordion-detail">
+                  <span class="cert-accordion-detail-label">الحالة</span>
+                  <span class="cert-accordion-detail-value"><span class="status-badge ${statusClass}">${statusText}</span></span>
+                </div>
+              </div>
+              <div class="cert-accordion-actions actions-cell">
+                <button type="button" class="btn btn-gold btn-sm" onclick="issueCertificate('${t.id}')" ${blocked ? 'disabled title="نسبة الحضور ' + att.percent + '% أقل من ' + att.minRequired + '%"' : ''}>
+                  إصدار شهادة
+                </button>
+              </div>
+            </div>
+          </details>`;
+      }).join('');
     }
 
     window.issueCertificate = async function(traineeId) {
@@ -5714,6 +8114,14 @@
       if (!trainee) {
         alert('لم يتم العثور على المتدرب');
         return;
+      }
+
+      if (window.InexcAttendance?.canIssueCertificate) {
+        const check = await InexcAttendance.canIssueCertificate(trainee.id, trainee.courseId, trainee.course);
+        if (!check.ok) {
+          alert(check.message);
+          return;
+        }
       }
 
       const certNumber =
@@ -5893,15 +8301,19 @@
     window.downloadCourseTraineesExcel = window.downloadCourseExcel;
 
     function bindCourseExportButtons() {
-      const container = document.getElementById('traineesExportByCourse');
-      if (!container || container.dataset.exportBound === '1') return;
-      container.dataset.exportBound = '1';
-      container.addEventListener('click', (event) => {
-        const btn = event.target.closest('[data-course-export]');
-        if (!btn || btn.disabled) return;
-        event.preventDefault();
-        downloadCourseExcel(btn.getAttribute('data-course-export') || '', btn);
-      });
+      function attachExportHandler(container) {
+        if (!container || container.dataset.exportBound === '1') return;
+        container.dataset.exportBound = '1';
+        container.addEventListener('click', (event) => {
+          const btn = event.target.closest('[data-course-export]');
+          if (!btn || btn.disabled) return;
+          event.preventDefault();
+          downloadCourseExcel(btn.getAttribute('data-course-export') || '', btn);
+        });
+      }
+
+      attachExportHandler(document.getElementById('traineesExportByCourse'));
+      attachExportHandler(document.getElementById('coursesGrid'));
     }
 
     function getTraineeCountsByCourse() {
@@ -5970,45 +8382,143 @@
       bindCourseExportButtons();
     }
 
+    function getFilteredTrainees() {
+      const q = traineesTableQuery.trim().toLowerCase();
+      if (!q) return traineesCache;
+      return traineesCache.filter(t => {
+        const haystack = [
+          t.name,
+          t.phone,
+          t.email,
+          t.course,
+          t.registrationType,
+          statusLabel(t.status),
+          regTypeLabel(t.regType)
+        ].join(' ').toLowerCase();
+        return haystack.includes(q);
+      });
+    }
+
+    function formatMoneyAmount(value) {
+      const amount = Number(value) || 0;
+      return amount > 0 ? amount.toLocaleString('ar-SA') + ' د.إ' : '—';
+    }
+
+    function renderTraineeIdentityCell(trainee) {
+      const initial = (trainee.name || '?').trim().charAt(0).toUpperCase() || '?';
+      return `
+        <div class="trainee-identity">
+          <div class="trainee-avatar">${escapeHtml(initial)}</div>
+          <div class="trainee-identity-text">
+            <div class="trainee-name" title="${escapeHtml(trainee.name)}">${escapeHtml(trainee.name)}</div>
+            <div class="trainee-phone" title="${escapeHtml(trainee.phone)}">${escapeHtml(trainee.phone || '—')}</div>
+            <div class="trainee-email" title="${escapeHtml(trainee.email)}">${escapeHtml(trainee.email || '—')}</div>
+          </div>
+        </div>`;
+    }
+
+    function updateTraineesBulkToolbar() {
+      const deleteBtn = document.getElementById('traineesBulkDeleteBtn');
+      const chip = document.getElementById('traineesSelectedChip');
+      const count = selectedTraineeIds.size;
+
+      if (deleteBtn) deleteBtn.disabled = count === 0;
+      if (chip) {
+        chip.textContent = 'محدّد: ' + count;
+        chip.classList.toggle('hidden', count === 0);
+      }
+
+      const selectAll = document.getElementById('traineesSelectAll');
+      const filtered = getFilteredTrainees();
+      if (selectAll) {
+        if (!filtered.length) {
+          selectAll.checked = false;
+          selectAll.indeterminate = false;
+        } else {
+          const allSelected = filtered.every(t => selectedTraineeIds.has(String(t.id)));
+          const someSelected = filtered.some(t => selectedTraineeIds.has(String(t.id)));
+          selectAll.checked = allSelected;
+          selectAll.indeterminate = !allSelected && someSelected;
+        }
+      }
+    }
+
     function renderTrainees() {
-      const trainees = traineesCache;
+      const trainees = getFilteredTrainees();
       const tbody = document.getElementById('traineesTableBody');
       const chip = document.getElementById('traineesCountChip');
-      if (chip) chip.textContent = trainees.length + ' متدرب';
+      const totalCount = traineesCache.length;
+      const filteredCount = trainees.length;
+
+      if (chip) {
+        chip.textContent = traineesTableQuery.trim()
+          ? (filteredCount + ' من ' + totalCount + ' متدرب')
+          : (totalCount + ' متدرب');
+      }
 
       if (!trainees.length) {
         tbody.innerHTML = `
-          <tr><td colspan="11">
+          <tr><td colspan="12">
             <div class="table-empty">
               <div class="empty-icon">👥</div>
-              <p>لا يوجد متدربون مسجّلون حالياً</p>
+              <p>${totalCount ? 'لا توجد نتائج مطابقة للبحث' : 'لا يوجد متدربون مسجّلون حالياً'}</p>
             </div>
           </td></tr>`;
+        updateTraineesBulkToolbar();
         renderTraineesCourseExports();
         return;
       }
 
-      tbody.innerHTML = trainees.map(t => `
-        <tr>
-          <td>${escapeHtml(t.name)}</td>
-          <td dir="ltr" style="text-align: right; font-size:0.72rem;">${escapeHtml(t.phone)}</td>
-          <td class="cell-email" dir="ltr" style="text-align: right;">${escapeHtml(t.email)}</td>
-          <td class="cell-course">${escapeHtml(t.course)}</td>
-          <td class="cell-amount">${t.coursePrice > 0 ? t.coursePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
-          <td class="cell-certs">${renderCertificateTypesHtml(t.certificateItems)}</td>
-          <td class="cell-amount">${t.certificatePrice > 0 ? t.certificatePrice.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
-          <td class="cell-amount">${t.totalAmount > 0 ? t.totalAmount.toLocaleString('ar-SA') + ' د.إ' : '—'}</td>
-          <td><span class="status-badge ${t.regType === 'paid' ? 'type-paid' : 'type-free'}">${escapeHtml(t.registrationType || regTypeLabel(t.regType))}</span></td>
-          <td><span class="status-badge ${statusClass(t.status)}">${statusLabel(t.status)}</span></td>
-          <td class="actions-cell">
-            <button type="button" class="btn btn-navy btn-sm" onclick="viewTrainee('${t.id}')">عرض</button>
-            <button type="button" class="btn btn-danger btn-sm" onclick="deleteTraineePermanently('${t.id}')">حذف</button>
+      tbody.innerHTML = trainees.map((t, index) => {
+        const isSelected = selectedTraineeIds.has(String(t.id));
+        return `
+        <tr data-trainee-id="${escapeHtml(t.id)}" class="${isSelected ? 'row-selected' : ''}">
+          <td class="col-num grp-select">${index + 1}</td>
+          <td class="col-check grp-select">
+            <input type="checkbox" class="trainee-row-check" data-id="${escapeHtml(t.id)}" ${isSelected ? 'checked' : ''} aria-label="تحديد ${escapeHtml(t.name)}">
           </td>
-        </tr>
-      `).join('');
+          <td class="grp-identity">${renderTraineeIdentityCell(t)}</td>
+          <td class="grp-course"><div class="course-name-cell" title="${escapeHtml(t.course)}">${escapeHtml(t.course)}</div></td>
+          <td class="grp-enroll">
+            <span class="status-badge ${t.regType === 'paid' ? 'type-paid' : 'type-free'}">${escapeHtml(t.registrationType || regTypeLabel(t.regType))}</span>
+          </td>
+          <td class="grp-enroll">
+            <span class="status-badge ${statusClass(t.status)}">${statusLabel(t.status)}</span>
+          </td>
+          <td class="grp-certs cell-certs">${renderCertificateTypesHtml(t.certificateItems) || '<span class="money-value muted">—</span>'}</td>
+          <td class="grp-money"><span class="money-value ${t.coursePrice > 0 ? '' : 'muted'}">${formatMoneyAmount(t.coursePrice)}</span></td>
+          <td class="grp-money"><span class="money-value ${t.certificatePrice > 0 ? '' : 'muted'}">${formatMoneyAmount(t.certificatePrice)}</span></td>
+          <td class="grp-money"><span class="money-value total">${formatMoneyAmount(t.totalAmount)}</span></td>
+          <td class="col-date grp-meta">${formatDate(t.registeredAt)}</td>
+          <td class="grp-actions actions-cell">
+            <button type="button" class="btn btn-navy btn-sm" data-trainee-action="view" data-id="${escapeHtml(t.id)}">عرض</button>
+            <button type="button" class="btn btn-danger btn-sm" data-trainee-action="delete" data-id="${escapeHtml(t.id)}">حذف</button>
+          </td>
+        </tr>`;
+      }).join('');
 
+      updateTraineesBulkToolbar();
       renderTraineesCourseExports();
     }
+
+    window.toggleTraineeSelect = function(id, checked) {
+      const key = String(id);
+      if (checked) selectedTraineeIds.add(key);
+      else selectedTraineeIds.delete(key);
+
+      const row = document.querySelector('tr[data-trainee-id="' + key + '"]');
+      if (row) row.classList.toggle('row-selected', checked);
+      updateTraineesBulkToolbar();
+    };
+
+    window.toggleTraineesSelectAll = function(checked) {
+      getFilteredTrainees().forEach(t => {
+        const key = String(t.id);
+        if (checked) selectedTraineeIds.add(key);
+        else selectedTraineeIds.delete(key);
+      });
+      renderTrainees();
+    };
 
     window.viewTrainee = function(id) {
       const trainees = traineesCache;
@@ -6092,14 +8602,14 @@
     async function deleteRelatedByRegistrationId(registrationId) {
       const regId = normalizeRegistrationId(registrationId);
       const relatedTables = [
-        { table: 'payments', column: 'registration_id' },
-        { table: 'trainee_enrollments', column: 'registration_id' },
-        { table: 'coupon_redemptions', column: 'registration_id' },
-        { table: 'trainee_messages', column: 'registration_id' },
-        { table: 'certificates', column: 'registration_id' }
+        { table: 'payments', column: 'registration_id', critical: true },
+        { table: 'trainee_enrollments', column: 'registration_id', critical: false },
+        { table: 'coupon_redemptions', column: 'registration_id', critical: false },
+        { table: 'trainee_messages', column: 'registration_id', critical: false },
+        { table: 'certificates', column: 'registration_id', critical: false }
       ];
 
-      for (const { table, column } of relatedTables) {
+      for (const { table, column, critical } of relatedTables) {
         const { error } = await supabaseClient
           .from(table)
           .delete()
@@ -6107,18 +8617,134 @@
 
         if (error && !isMissingTableError(error)) {
           console.warn('delete related (' + table + '):', error.message);
+          if (critical) {
+            throw new Error('تعذّر حذف السجلات المرتبطة (' + table + '): ' + error.message);
+          }
         }
       }
     }
 
-    async function hideTraineeRegistration(registrationId) {
+    function removeTraineeFromLocalCache(id) {
+      const key = String(id);
+      visibleRegistrations = visibleRegistrations.filter(r => String(r.id) !== key);
+      traineesCache = traineesCache.filter(t => String(t.id) !== key);
+      selectedTraineeIds.delete(key);
+    }
+
+    async function verifyTraineeRemoved(registrationId) {
       const regId = normalizeRegistrationId(registrationId);
-      const { error } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('registrations')
-        .update({ admin_hidden: true, status: 'inactive' })
-        .eq('id', regId);
+        .select('id, admin_hidden')
+        .eq('id', regId)
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return { removed: true, hidden: false };
+      if (data.admin_hidden === true) return { removed: true, hidden: true };
+      return { removed: false, hidden: false };
+    }
+
+    async function hideTraineeRegistration(registrationId) {
+      const regId = normalizeRegistrationId(registrationId);
+      const { data, error } = await supabaseClient
+        .from('registrations')
+        .update({ admin_hidden: true, status: 'inactive' })
+        .eq('id', regId)
+        .select('id, admin_hidden');
+
+      if (error) throw error;
+      if (!data?.length) {
+        throw new Error('تعذّر إخفاء المتدرب — تحقّق من صلاحيات UPDATE في Supabase (نفّذ admin-delete-fix.sql).');
+      }
+      return { ok: true, hidden: true };
+    }
+
+    async function deleteTraineeViaEdge(registrationId) {
+      const supabaseUrl = window.SUPABASE_URL;
+      const supabaseKey = window.SUPABASE_ANON_KEY;
+      if (!supabaseUrl || !supabaseKey) return null;
+
+      try {
+        const res = await fetch(supabaseUrl + '/functions/v1/swift-action', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + supabaseKey
+          },
+          body: JSON.stringify({
+            action: 'delete_registration',
+            registration_id: registrationId,
+            admin_user: ADMIN_USER,
+            admin_pass: ADMIN_PASS
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          return {
+            ok: true,
+            hidden: !!data.hidden,
+            deleted: !!data.deleted
+          };
+        }
+
+        if (res.status === 404 || res.status === 403 || res.status === 500) {
+          console.warn('edge delete_registration:', data.error || res.status);
+        }
+      } catch (err) {
+        console.warn('edge delete_registration error:', err);
+      }
+
+      return null;
+    }
+
+    async function deleteTraineeRecordById(id) {
+      const regId = normalizeRegistrationId(id);
+
+      const edgeResult = await deleteTraineeViaEdge(regId);
+      if (edgeResult?.ok) {
+        const verified = await verifyTraineeRemoved(regId);
+        if (verified.removed) {
+          return { ok: true, hidden: edgeResult.hidden || verified.hidden };
+        }
+      }
+
+      await deleteRelatedByRegistrationId(regId);
+
+      const { data, error } = await supabaseClient
+        .from('registrations')
+        .delete()
+        .eq('id', regId)
+        .select('id');
+
+      if (error) {
+        if (isPermissionError(error)) {
+          await hideTraineeRegistration(regId);
+          const verified = await verifyTraineeRemoved(regId);
+          if (!verified.removed) {
+            throw new Error('لا توجد صلاحية حذف — نفّذ ملف admin-delete-fix.sql في Supabase SQL Editor.');
+          }
+          return { ok: true, hidden: true };
+        }
+        throw error;
+      }
+
+      if (!data?.length) {
+        await hideTraineeRegistration(regId);
+        const verified = await verifyTraineeRemoved(regId);
+        if (!verified.removed) {
+          throw new Error('لم يتم حذف المتدرب — تحقّق من صلاحيات DELETE/UPDATE في Supabase.');
+        }
+        return { ok: true, hidden: true };
+      }
+
+      const verified = await verifyTraineeRemoved(regId);
+      if (!verified.removed) {
+        throw new Error('لم يتم تأكيد حذف المتدرب من قاعدة البيانات.');
+      }
+
+      return { ok: true, hidden: false };
     }
 
     window.deleteTraineePermanently = async function(id) {
@@ -6136,80 +8762,321 @@
       if (!confirm(confirmMsg)) return;
 
       hideActionError();
-      const regId = normalizeRegistrationId(id);
 
       try {
-        await deleteRelatedByRegistrationId(regId);
-
-        const { data, error } = await supabaseClient
-          .from('registrations')
-          .delete()
-          .eq('id', regId)
-          .select('id');
-
-        if (error) {
-          if (isPermissionError(error)) {
-            await hideTraineeRegistration(regId);
-            closeModal('traineeModal');
-            await reloadFromSupabase();
-            showActionError('لا توجد صلاحية حذف نهائي — تم إخفاء المتدرب من القائمة. نفّذ سكربت الصلاحيات في Supabase للحذف الكامل.');
-            return;
-          }
-          showSupabaseError(error, 'delete trainee');
-          return;
-        }
-
-        if (!data || !data.length) {
-          await hideTraineeRegistration(regId);
-          closeModal('traineeModal');
-          await reloadFromSupabase();
-          showActionError('لم يُحذف السجل نهائياً — تم إخفاء المتدرب. تحقّق من صلاحيات DELETE في Supabase.');
-          return;
-        }
-
+        const result = await deleteTraineeRecordById(id);
+        removeTraineeFromLocalCache(id);
         closeModal('traineeModal');
+        renderTrainees();
+        renderStats();
         await reloadFromSupabase();
+
+        if (result.hidden) {
+          showActionSuccess('تم إخفاء المتدرب «' + trainee.name + '» من القائمة.');
+        } else {
+          showActionSuccess('تم حذف المتدرب «' + trainee.name + '» بنجاح.');
+        }
       } catch (err) {
         showSupabaseError(err, 'delete trainee permanently');
       }
     };
 
+    window.deleteSelectedTrainees = async function() {
+      const ids = [...selectedTraineeIds];
+      if (!ids.length) return;
+
+      const previewNames = ids
+        .slice(0, 4)
+        .map(id => traineesCache.find(t => String(t.id) === String(id))?.name)
+        .filter(Boolean);
+
+      let confirmMsg = 'هل تريد حذف ' + ids.length + ' متدرب/متدربين نهائياً؟\n\n';
+      if (previewNames.length) {
+        confirmMsg += previewNames.join('\n');
+        if (ids.length > previewNames.length) {
+          confirmMsg += '\n... و' + (ids.length - previewNames.length) + ' آخرين';
+        }
+      }
+      confirmMsg += '\n\nسيتم حذف سجلات التسجيل والمدفوعات والرسائل المرتبطة.\nلا يمكن التراجع عن هذا الإجراء.';
+
+      if (!confirm(confirmMsg)) return;
+
+      hideActionError();
+      let deleted = 0;
+      let hidden = 0;
+      let failed = 0;
+
+      for (const id of ids) {
+        try {
+          const result = await deleteTraineeRecordById(id);
+          removeTraineeFromLocalCache(id);
+          if (result.hidden) hidden += 1;
+          else deleted += 1;
+        } catch (err) {
+          console.error('bulk delete trainee:', id, err);
+          failed += 1;
+        }
+      }
+
+      closeModal('traineeModal');
+      renderTrainees();
+      renderStats();
+      await reloadFromSupabase();
+
+      if (failed) {
+        showActionError('تمت معالجة ' + (deleted + hidden) + ' متدرب، وفشل حذف ' + failed + '.');
+      } else if (hidden && !deleted) {
+        showActionSuccess('تم إخفاء ' + hidden + ' متدرب/متدربين من القائمة.');
+      } else {
+        showActionSuccess('تم حذف ' + deleted + ' متدرب/متدربين بنجاح.');
+      }
+    };
+
+    function bindTraineesTableEvents() {
+      const wrap = document.getElementById('traineesTableWrap');
+      if (!wrap || wrap.dataset.bound === '1') return;
+      wrap.dataset.bound = '1';
+
+      wrap.addEventListener('change', (e) => {
+        if (e.target.id === 'traineesSelectAll') {
+          toggleTraineesSelectAll(e.target.checked);
+          return;
+        }
+        if (e.target.classList.contains('trainee-row-check')) {
+          toggleTraineeSelect(e.target.dataset.id, e.target.checked);
+        }
+      });
+
+      wrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-trainee-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const action = btn.dataset.traineeAction;
+        if (!id) return;
+        if (action === 'view') viewTrainee(id);
+        if (action === 'delete') deleteTraineePermanently(id);
+      });
+    }
+
     /* ========== Courses ========== */
+    function truncateCourseText(text, maxLen) {
+      const s = String(text || '').trim();
+      if (!s) return '—';
+      if (s.length <= maxLen) return s;
+      return s.slice(0, maxLen).trim() + '…';
+    }
+
+    function getCourseTraineeCount(courseName) {
+      return getTraineeCountsByCourse().get((courseName || '').trim()) || 0;
+    }
+
+    function getCourseRegisterUrl(courseId) {
+      const base = window.location.href.replace(/[^/]*$/, '');
+      return base + 'register.html?courseId=' + encodeURIComponent(courseId);
+    }
+
+    function getFilteredSortedCourses() {
+      const q = coursesFilterQuery.trim().toLowerCase();
+      let list = [...coursesCache];
+
+      if (q) {
+        list = list.filter(c => {
+          const hay = [c.name, c.description, c.type, c.status].join(' ').toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      if (coursesFilterType !== 'all') {
+        list = list.filter(c => c.type === coursesFilterType);
+      }
+
+      if (coursesFilterStatus !== 'all') {
+        list = list.filter(c => (c.status || 'active') === coursesFilterStatus);
+      }
+
+      if (coursesSortBy === 'registrations') {
+        list.sort((a, b) => getCourseTraineeCount(b.name) - getCourseTraineeCount(a.name));
+      } else if (coursesSortBy === 'name') {
+        list.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+      } else {
+        list.sort((a, b) => {
+          const da = new Date(a.updated_at || a.created_at || 0).getTime();
+          const db = new Date(b.updated_at || b.created_at || 0).getTime();
+          return db - da;
+        });
+      }
+
+      return list;
+    }
+
+    function renderCoursesStats() {
+      const total = coursesCache.length;
+      const active = coursesCache.filter(c => c.status === 'active').length;
+      const free = coursesCache.filter(c => c.type === 'free').length;
+      const paid = coursesCache.filter(c => c.type === 'paid').length;
+      const traineeTotal = visibleRegistrations.length;
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = String(val);
+      };
+
+      set('courseStatTotal', total);
+      set('courseStatActive', active);
+      set('courseStatFree', free);
+      set('courseStatPaid', paid);
+      set('courseStatTrainees', traineeTotal);
+    }
+
+    window.viewCourseTrainees = function(courseName) {
+      const input = document.getElementById('traineesSearchInput');
+      traineesTableQuery = courseName || '';
+      if (input) input.value = courseName || '';
+      navigateTo('trainees', 'المتدربون');
+      renderTrainees();
+    };
+
+    window.manageCourseCertificates = function(courseId) {
+      editCourse(courseId);
+    };
+
+    window.previewCourse = function(courseId) {
+      window.open(getCourseRegisterUrl(courseId), '_blank', 'noopener');
+    };
+
+    window.copyCourseRegisterLink = async function(courseId) {
+      const link = getCourseRegisterUrl(courseId);
+      try {
+        await navigator.clipboard.writeText(link);
+        showActionSuccess('تم نسخ رابط التسجيل');
+      } catch {
+        prompt('انسخ رابط التسجيل:', link);
+      }
+    };
+
     function renderCourses() {
-      const courses = coursesCache;
-      const tbody = document.getElementById('coursesTableBody');
+      renderCoursesStats();
+
+      const grid = document.getElementById('coursesGrid');
+      const meta = document.getElementById('coursesResultsMeta');
+      if (!grid) return;
+
+      const courses = getFilteredSortedCourses();
+
+      if (meta) {
+        meta.textContent = courses.length === 1
+          ? 'دورة واحدة'
+          : (courses.length + ' دورة');
+      }
 
       if (!courses.length) {
-        tbody.innerHTML = `
-          <tr><td colspan="6">
-            <div class="table-empty">
-              <div class="empty-icon">📚</div>
-              <p>لا توجد دورات — أضف دورة جديدة</p>
-            </div>
-          </td></tr>`;
+        grid.innerHTML = `
+          <div class="courses-empty" style="grid-column:1/-1;">
+            <div class="empty-icon">📚</div>
+            <p>${coursesCache.length ? 'لا توجد دورات مطابقة للبحث أو الفلتر' : 'لا توجد دورات — أضف دورة جديدة'}</p>
+          </div>`;
         renderTraineesCourseExports();
         return;
       }
 
-      tbody.innerHTML = courses.map(c => `
-        <tr${c.status === 'inactive' ? ' style="opacity:0.65;"' : ''}>
-          <td><strong>${escapeHtml(c.name)}</strong></td>
-          <td style="max-width: 280px;">${escapeHtml(c.description)}</td>
-          <td>${c.type === 'free' ? '<span style="color: #9a7d4a; font-weight: 600;">مجانية</span>' : c.price.toLocaleString('ar-SA') + ' د.إ'}</td>
-          <td><span class="status-badge ${c.type === 'paid' ? 'type-paid' : 'type-free'}">${c.type === 'paid' ? 'مدفوع' : 'مجاني'}</span></td>
-          <td><span class="status-badge ${courseStatusClass(c.status)}">${courseStatusLabel(c.status)}</span></td>
-          <td>
-            <div class="actions-cell">
-              <button type="button" class="btn btn-navy btn-sm" onclick="editCourse('${c.id}')">تعديل</button>
-              ${c.status === 'inactive'
-                ? `<button type="button" class="btn btn-gold btn-sm" onclick="reactivateCourse('${c.id}')">تفعيل</button>`
-                : `<button type="button" class="btn btn-danger btn-sm" onclick="deleteCourse('${c.id}')">تعطيل</button>`}
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      grid.innerHTML = courses.map(c => {
+        const isInactive = c.status === 'inactive';
+        const traineeCount = getCourseTraineeCount(c.name);
+        const certCount = courseCertCountsByCourseId[c.id] || 0;
+        const priceHtml = c.type === 'free'
+          ? '<span class="course-meta-value price-gold">مجانية</span>'
+          : `<span class="course-meta-value price-gold">${c.price.toLocaleString('ar-SA')} د.إ</span>`;
+        const updatedLabel = formatDate(c.updated_at || c.created_at);
 
+        return `
+          <article class="course-card${isInactive ? ' inactive' : ''}" data-course-id="${escapeHtml(c.id)}">
+            <div class="course-card-head">
+              <h3 class="course-card-title">${escapeHtml(c.name)}</h3>
+              <p class="course-card-desc">${escapeHtml(truncateCourseText(c.description, 120))}</p>
+              <div class="course-card-badges">
+                <span class="status-badge ${c.type === 'paid' ? 'type-paid' : 'type-free'}">${c.type === 'paid' ? 'مدفوعة' : 'مجانية'}</span>
+                <span class="status-badge ${courseStatusClass(c.status)}">${courseStatusLabel(c.status)}</span>
+              </div>
+            </div>
+            <div class="course-card-body">
+              <div class="course-meta-grid">
+                <div class="course-meta-item">
+                  <span class="course-meta-label">السعر</span>
+                  ${priceHtml}
+                </div>
+                <div class="course-meta-item">
+                  <span class="course-meta-label">المتدربون</span>
+                  <span class="course-meta-value">${traineeCount}</span>
+                </div>
+                <div class="course-meta-item">
+                  <span class="course-meta-label">الشهادات المرتبطة</span>
+                  <span class="course-meta-value">${certCount}</span>
+                </div>
+                <div class="course-meta-item">
+                  <span class="course-meta-label">آخر تحديث</span>
+                  <span class="course-meta-value" style="font-size:0.8rem;font-weight:600;">${escapeHtml(updatedLabel)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="course-card-foot">
+              <div class="course-actions-grid">
+                <button type="button" class="course-action-btn primary" onclick="editCourse('${c.id}')" title="تعديل">
+                  <span class="action-icon">✏️</span><span>تعديل</span>
+                </button>
+                ${isInactive
+                  ? `<button type="button" class="course-action-btn gold" onclick="reactivateCourse('${c.id}')" title="تفعيل"><span class="action-icon">✅</span><span>تفعيل</span></button>`
+                  : `<button type="button" class="course-action-btn danger" onclick="deleteCourse('${c.id}')" title="تعطيل"><span class="action-icon">⏸</span><span>تعطيل</span></button>`}
+                <button type="button" class="course-action-btn" onclick="manageCourseCertificates('${c.id}')" title="إدارة الشهادات">
+                  <span class="action-icon">🎓</span><span>الشهادات</span>
+                </button>
+                <button type="button" class="course-action-btn" onclick="viewCourseTrainees(${JSON.stringify(c.name)})" title="عرض المتدربين">
+                  <span class="action-icon">👥</span><span>المتدربون</span>
+                </button>
+                <button type="button" class="course-action-btn" data-course-export="${escapeHtml(c.name)}" title="تحميل Excel">
+                  <span class="action-icon">⬇</span><span>Excel</span>
+                </button>
+                <button type="button" class="course-action-btn" onclick="copyCourseRegisterLink('${c.id}')" title="نسخ رابط التسجيل">
+                  <span class="action-icon">🔗</span><span>نسخ الرابط</span>
+                </button>
+                <button type="button" class="course-action-btn" onclick="previewCourse('${c.id}')" title="معاينة">
+                  <span class="action-icon">👁</span><span>معاينة</span>
+                </button>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+
+      bindCourseExportButtons();
       renderTraineesCourseExports();
+    }
+
+    function bindCoursesPageEvents() {
+      const search = document.getElementById('coursesSearchInput');
+      const typeFilter = document.getElementById('coursesTypeFilter');
+      const statusFilter = document.getElementById('coursesStatusFilter');
+      const sortBy = document.getElementById('coursesSortBy');
+      if (search?.dataset.bound === '1') return;
+
+      const refresh = () => renderCourses();
+
+      search?.addEventListener('input', (e) => {
+        coursesFilterQuery = e.target.value || '';
+        refresh();
+      });
+      typeFilter?.addEventListener('change', (e) => {
+        coursesFilterType = e.target.value || 'all';
+        refresh();
+      });
+      statusFilter?.addEventListener('change', (e) => {
+        coursesFilterStatus = e.target.value || 'all';
+        refresh();
+      });
+      sortBy?.addEventListener('change', (e) => {
+        coursesSortBy = e.target.value || 'newest';
+        refresh();
+      });
+
+      if (search) search.dataset.bound = '1';
     }
 
     const courseModal = document.getElementById('courseModal');
@@ -6239,12 +9106,15 @@
     ];
 
     function resolveCertificateTypeKey(type) {
-      return type.key || type.type_key || type.certificate_type || type.code || '';
+      if (!type) return '';
+      return type.key || type.type_key || type.certificate_type || type.code
+        || (type.id ? String(type.id) : '');
     }
 
     function resolveCertificateTypeName(type) {
       const key = resolveCertificateTypeKey(type);
-      return type.name || type.label || type.title || CERTIFICATE_TYPE_LABELS[key] || key;
+      return type.certificate_name || type.name || type.label || type.title
+        || CERTIFICATE_TYPE_LABELS[key] || key || '';
     }
 
     function getActiveCertificateTypes() {
@@ -6254,62 +9124,101 @@
     function getAllCertificateTypesForAdmin() {
       const fromDb = certificateTypesCache || [];
       if (fromDb.length) {
-        return fromDb.map(t => ({
-          id: t.id || null,
-          key: resolveCertificateTypeKey(t),
-          name: resolveCertificateTypeName(t),
-          status: t.status || 'active',
-          subtitle: t.short_description || t.subtitle || t.description || ''
-        })).filter(t => t.key);
+        return fromDb.map(t => {
+          const normalized = window.InexcCertificateSystem
+            ? InexcCertificateSystem.normalizeCertificateType(t)
+            : t;
+          return {
+            id: normalized.id || t.id || null,
+            key: resolveCertificateTypeKey(normalized) || resolveCertificateTypeKey(t) || String(t.id || normalized.id || ''),
+            name: resolveCertificateTypeName(normalized) || resolveCertificateTypeName(t) || '',
+            issuer_name: normalized.issuer_name || t.issuer_name || '',
+            description: normalized.description || normalized.short_description || t.description || '',
+            price: Number(normalized.price ?? t.price ?? t.default_price) || 0,
+            status: normalized.is_active === false ? 'inactive' : (normalized.status || t.status || 'active'),
+            subtitle: normalized.description || t.short_description || t.subtitle || ''
+          };
+        }).filter(t => t.id);
       }
       return CERTIFICATE_TYPE_FALLBACKS.map(t => ({
         id: null,
         key: t.key,
         name: t.name,
+        issuer_name: '',
+        description: '',
+        price: 0,
         status: 'active'
       }));
     }
 
-    let currentCourseCertPrices = {};
-    let currentCourseCertEnabled = {};
+    let currentCourseCertSettings = {};
 
-    function readCurrentCertificatePricesFromForm() {
-      const prices = { ...currentCourseCertPrices };
-      if (!certificatesList) return prices;
-      certificatesList.querySelectorAll('input[type="number"][data-cert-price]').forEach(input => {
-        const key = input.dataset.certPrice;
-        if (!key) return;
-        prices[key] = input.value;
-      });
-      return prices;
+    function defaultCourseCertSetting(type) {
+      return {
+        is_enabled: false,
+        name: type?.name || '',
+        price: Number(type?.price) || 0,
+        show_to_student: true,
+        included_in_paid_course: true,
+        allow_purchase_in_free_course: true
+      };
     }
 
-    function readCurrentCertificateEnabledFromForm() {
-      const enabled = { ...currentCourseCertEnabled };
-      if (!certificatesList) return enabled;
-      certificatesList.querySelectorAll('input[data-cert-enabled]').forEach(input => {
-        const key = input.dataset.certEnabled;
+    function readCourseCertSettingsFromForm() {
+      const settings = { ...currentCourseCertSettings };
+      if (!certificatesList) return settings;
+
+      certificatesList.querySelectorAll('.cert-price-row').forEach(row => {
+        const key = row.dataset.certKey;
         if (!key) return;
-        enabled[key] = input.checked;
+        const enableInput = row.querySelector('input[data-cert-enabled]');
+        const nameInput = row.querySelector('input[data-cert-name]');
+        const priceInput = row.querySelector('input[data-cert-price]');
+        const showInput = row.querySelector('input[data-cert-show]');
+        const includedInput = row.querySelector('input[data-cert-included]');
+        const purchaseInput = row.querySelector('input[data-cert-purchase]');
+
+        settings[key] = {
+          is_enabled: !!enableInput?.checked,
+          name: nameInput?.value ?? settings[key]?.name ?? '',
+          price: priceInput?.value ?? settings[key]?.price ?? 0,
+          show_to_student: showInput ? showInput.checked : true,
+          included_in_paid_course: includedInput ? includedInput.checked : true,
+          allow_purchase_in_free_course: purchaseInput ? purchaseInput.checked : true
+        };
       });
-      return enabled;
+      return settings;
     }
 
     function readCertificatePricesFromForm() {
+      return readCourseCertificatesFromForm();
+    }
+
+    function readCourseCertificatesFromForm() {
+      const settings = readCourseCertSettingsFromForm();
+      const types = getAllCertificateTypesForAdmin();
       const certificates = [];
-      if (!certificatesList) return certificates;
-      certificatesList.querySelectorAll('.cert-price-row').forEach(row => {
-        const enableInput = row.querySelector('input[data-cert-enabled]');
-        const priceInput = row.querySelector('input[type="number"][data-cert-price]');
-        const key = priceInput?.dataset.certPrice;
-        if (!key || !enableInput?.checked) return;
-        const price = Number(priceInput.value);
-        if (!Number.isFinite(price) || price <= 0) return;
+
+      types.forEach(type => {
+        if (!type.id) return;
+
+        const cfg = settings[type.key] || defaultCourseCertSetting(type);
+        const price = Number(cfg.price) || 0;
+        const certName = (cfg.name || type.name || '').trim();
+
         certificates.push({
-          certificate_type: key,
-          certificate_price: price
+          certificate_type_id: type.id,
+          certificate_type: type.key,
+          certificate_name: certName,
+          certificate_price: price,
+          price_override: price > 0 ? price : null,
+          is_enabled: !!cfg.is_enabled,
+          show_to_student: cfg.show_to_student !== false,
+          included_in_paid_course: cfg.included_in_paid_course !== false,
+          allow_purchase_in_free_course: cfg.allow_purchase_in_free_course !== false
         });
       });
+
       return certificates;
     }
 
@@ -6318,11 +9227,15 @@
       const priceInput = row.querySelector('input[type="number"][data-cert-price]');
       const toggleBtn = row.querySelector('[data-cert-toggle]');
       const statusEl = row.querySelector('.cert-course-status');
+      const optionInputs = row.querySelectorAll('.cert-row-options input[type="checkbox"]');
+      const isFreeCourse = courseType?.value !== 'paid';
+
       if (enableInput) enableInput.checked = enabled;
       if (priceInput) {
-        priceInput.disabled = !enabled;
-        if (enabled) priceInput.focus();
+        priceInput.disabled = !enabled || !isFreeCourse;
+        if (enabled && isFreeCourse) priceInput.focus();
       }
+      optionInputs.forEach(input => { input.disabled = !enabled; });
       row.classList.toggle('cert-row-inactive', !enabled);
       if (toggleBtn) {
         toggleBtn.textContent = enabled ? 'تعطيل للدورة' : 'تفعيل للدورة';
@@ -6333,29 +9246,21 @@
       }
     }
 
-    function renderCertificatePriceRows(pricesByType = {}, enabledByType = {}) {
+    function renderCertificatePriceRows(settingsByType = {}) {
       if (!certificatesList) return;
 
-      const mergedPrices = {
-        ...currentCourseCertPrices,
-        ...pricesByType
-      };
-      const mergedEnabled = {
-        ...currentCourseCertEnabled,
-        ...enabledByType
-      };
-
-      Object.keys(pricesByType).forEach(key => {
-        if (pricesByType[key] != null && pricesByType[key] !== '') {
-          mergedEnabled[key] = true;
-        }
+      const merged = { ...currentCourseCertSettings };
+      Object.entries(settingsByType).forEach(([key, val]) => {
+        merged[key] = { ...defaultCourseCertSetting({ price: val?.price, name: val?.name }), ...(merged[key] || {}), ...val };
+        if (val?.is_enabled != null) merged[key].is_enabled = val.is_enabled;
+        if (val?.price != null && val.price !== '') merged[key].price = val.price;
+        if (val?.name != null) merged[key].name = val.name;
       });
 
-      currentCourseCertPrices = mergedPrices;
-      currentCourseCertEnabled = mergedEnabled;
-
+      currentCourseCertSettings = merged;
       certificatesList.innerHTML = '';
-      const types = getAllCertificateTypesForAdmin();
+      const types = getActiveCertificateTypes();
+      const isFreeCourse = courseType?.value !== 'paid';
 
       if (!types.length) {
         certificatesList.innerHTML = '<p style="font-size:0.88rem;color:var(--text-muted);padding:8px 0;">لا توجد أنواع شهادات. اضغط «إضافة شهادة».</p>';
@@ -6363,22 +9268,76 @@
       }
 
       types.forEach(type => {
-        const isEnabledForCourse = !!mergedEnabled[type.key];
+        const cfg = merged[type.key] || defaultCourseCertSetting(type);
+        const isEnabledForCourse = !!cfg.is_enabled;
         const row = document.createElement('div');
         row.className = 'cert-price-row' + (isEnabledForCourse ? '' : ' cert-row-inactive');
+        row.dataset.certKey = type.key;
+        row.dataset.certId = type.id || '';
 
         const labelWrap = document.createElement('div');
         labelWrap.style.flex = '1';
 
-        const label = document.createElement('span');
-        label.className = 'cert-type-label';
-        label.textContent = type.name;
+        const nameField = document.createElement('label');
+        nameField.className = 'cert-name-field';
+
+        const nameFieldLabel = document.createElement('span');
+        nameFieldLabel.className = 'cert-price-label';
+        nameFieldLabel.textContent = 'اسم الشهادة';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'cert-name-input';
+        nameInput.dataset.certName = type.key;
+        nameInput.placeholder = 'اكتب اسم الشهادة';
+        nameInput.value = cfg.name || type.name || '';
+        nameInput.setAttribute('aria-label', 'اسم الشهادة');
+        nameInput.addEventListener('input', () => {
+          if (!currentCourseCertSettings[type.key]) {
+            currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
+          }
+          currentCourseCertSettings[type.key].name = nameInput.value;
+        });
+
+        nameField.append(nameFieldLabel, nameInput);
+
+        const issuer = document.createElement('span');
+        issuer.style.cssText = 'display:block;font-size:0.75rem;color:var(--text-muted);margin-top:2px;';
+        issuer.textContent = type.issuer_name ? ('الجهة: ' + type.issuer_name) : '';
 
         const statusEl = document.createElement('span');
         statusEl.className = 'cert-course-status';
         statusEl.textContent = isEnabledForCourse ? 'مفعّلة لهذه الدورة' : 'غير مفعّلة لهذه الدورة';
 
-        labelWrap.append(label, document.createElement('br'), statusEl);
+        const optionsWrap = document.createElement('div');
+        optionsWrap.className = 'cert-row-options';
+
+        const showLabel = document.createElement('label');
+        const showInput = document.createElement('input');
+        showInput.type = 'checkbox';
+        showInput.dataset.certShow = '1';
+        showInput.checked = cfg.show_to_student !== false;
+        showInput.disabled = !isEnabledForCourse;
+        showLabel.append(showInput, document.createTextNode('تظهر للمتدرب'));
+
+        const includedLabel = document.createElement('label');
+        const includedInput = document.createElement('input');
+        includedInput.type = 'checkbox';
+        includedInput.dataset.certIncluded = '1';
+        includedInput.checked = cfg.included_in_paid_course !== false;
+        includedInput.disabled = !isEnabledForCourse;
+        includedLabel.append(includedInput, document.createTextNode('مشمولة مع الدورة المدفوعة'));
+
+        const purchaseLabel = document.createElement('label');
+        const purchaseInput = document.createElement('input');
+        purchaseInput.type = 'checkbox';
+        purchaseInput.dataset.certPurchase = '1';
+        purchaseInput.checked = cfg.allow_purchase_in_free_course !== false;
+        purchaseInput.disabled = !isEnabledForCourse;
+        purchaseLabel.append(purchaseInput, document.createTextNode('قابلة للشراء في الدورة المجانية'));
+
+        optionsWrap.append(showLabel, includedLabel, purchaseLabel);
+        labelWrap.append(nameField, issuer, document.createElement('br'), statusEl, optionsWrap);
 
         const enableInput = document.createElement('input');
         enableInput.type = 'checkbox';
@@ -6386,25 +9345,37 @@
         enableInput.dataset.certEnabled = type.key;
         enableInput.checked = isEnabledForCourse;
 
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.step = '1';
-        input.dataset.certPrice = type.key;
-        input.placeholder = 'السعر';
-        input.disabled = !isEnabledForCourse;
-        input.setAttribute('aria-label', 'سعر ' + type.name);
-        if (mergedPrices[type.key] != null && mergedPrices[type.key] !== '') {
-          input.value = mergedPrices[type.key];
+        const priceWrap = document.createElement('div');
+        priceWrap.className = 'cert-price-field-wrap';
+        if (isFreeCourse) {
+          const priceLabel = document.createElement('span');
+          priceLabel.className = 'cert-price-label';
+          priceLabel.textContent = 'السعر (د.إ)';
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = '0';
+          input.step = '1';
+          input.dataset.certPrice = type.key;
+          input.placeholder = '0';
+          input.disabled = !isEnabledForCourse;
+          input.setAttribute('aria-label', 'سعر ' + type.name);
+          if (cfg.price != null && cfg.price !== '') input.value = cfg.price;
+          input.addEventListener('input', () => {
+            if (!currentCourseCertSettings[type.key]) {
+              currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
+            }
+            currentCourseCertSettings[type.key].price = input.value;
+          });
+          priceWrap.append(priceLabel, input);
+        } else {
+          const paidHint = document.createElement('span');
+          paidHint.className = 'cert-price-label';
+          paidHint.textContent = 'مدفوعة — بدون سعر منفصل';
+          priceWrap.append(paidHint);
         }
-
-        input.addEventListener('input', () => {
-          currentCourseCertPrices[type.key] = input.value;
-        });
 
         const actions = document.createElement('div');
         actions.className = 'cert-row-actions';
-
         const toggleBtn = document.createElement('button');
         toggleBtn.type = 'button';
         toggleBtn.dataset.certToggle = '1';
@@ -6412,12 +9383,25 @@
         toggleBtn.textContent = isEnabledForCourse ? 'تعطيل للدورة' : 'تفعيل للدورة';
         toggleBtn.addEventListener('click', () => {
           const nextEnabled = !enableInput.checked;
-          currentCourseCertEnabled[type.key] = nextEnabled;
+          if (!currentCourseCertSettings[type.key]) {
+            currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
+          }
+          currentCourseCertSettings[type.key].is_enabled = nextEnabled;
           setCourseCertificateRowState(row, nextEnabled);
         });
 
+        [showInput, includedInput, purchaseInput].forEach((input, idx) => {
+          input.addEventListener('change', () => {
+            if (!currentCourseCertSettings[type.key]) {
+              currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
+            }
+            const map = ['show_to_student', 'included_in_paid_course', 'allow_purchase_in_free_course'];
+            currentCourseCertSettings[type.key][map[idx]] = input.checked;
+          });
+        });
+
         actions.append(toggleBtn);
-        row.append(labelWrap, enableInput, input, actions);
+        row.append(labelWrap, enableInput, priceWrap, actions);
         certificatesList.appendChild(row);
       });
     }
@@ -6433,59 +9417,206 @@
     }
 
     async function refreshCertificateTypesUI(preserveState = true) {
-      const prices = preserveState ? readCurrentCertificatePricesFromForm() : {};
-      const enabled = preserveState ? readCurrentCertificateEnabledFromForm() : {};
+      const settings = preserveState ? readCourseCertSettingsFromForm() : {};
       await loadCertificateTypes();
-      renderCertificatePriceRows(prices, enabled);
+      renderCertificatePriceRows(settings);
     }
 
     async function loadCourseCertificates(courseId) {
       if (!courseId) {
-        currentCourseCertPrices = {};
-        currentCourseCertEnabled = {};
-        renderCertificatePriceRows({}, {});
+        currentCourseCertSettings = {};
+        renderCertificatePriceRows({});
         return;
       }
+
       const { data, error } = await supabaseClient
         .from('course_certificates')
-        .select('certificate_type, certificate_price')
-        .eq('course_id', courseId)
-        .eq('status', 'active');
+        .select('*')
+        .eq('course_id', courseId);
 
       if (error) {
         console.warn('load certificates:', error.message);
-        renderCertificatePriceRows({}, {});
+        renderCertificatePriceRows({});
         return;
       }
 
-      const pricesByType = {};
-      const enabledByType = {};
+      const typeCatalog = window.InexcCertificateSystem
+        ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
+        : {};
+
+      const settingsByType = {};
       (data || []).forEach(r => {
-        pricesByType[r.certificate_type] = r.certificate_price;
-        enabledByType[r.certificate_type] = true;
+        const normalized = window.InexcCertificateSystem
+          ? InexcCertificateSystem.normalizeCourseCertificate(r, typeCatalog)
+          : r;
+        const key = normalized?.key || r.certificate_type;
+        if (!key) return;
+
+        const typeFromId = r.certificate_type_id
+          ? getAllCertificateTypesForAdmin().find(t => String(t.id) === String(r.certificate_type_id))
+          : null;
+        const mapKey = typeFromId?.key || key;
+
+        const enabled = normalized?.is_enabled != null
+          ? normalized.is_enabled
+          : (r.status === 'active');
+
+        settingsByType[mapKey] = {
+          is_enabled: enabled,
+          price: normalized?.price ?? r.certificate_price ?? r.price_override ?? 0,
+          show_to_student: normalized?.show_to_student !== false,
+          included_in_paid_course: normalized?.included_in_paid_course !== false,
+          allow_purchase_in_free_course: normalized?.allow_purchase_in_free_course !== false
+        };
       });
-      renderCertificatePriceRows(pricesByType, enabledByType);
+
+      renderCertificatePriceRows(settingsByType);
+    }
+
+    async function updateCertificateTypeForCourseLink(certificateId, cert, isFreeCourse) {
+      if (!certificateId) return;
+
+      const certName = (cert.certificate_name || '').trim();
+      const updatePayload = {};
+
+      if (cert.is_enabled) {
+        updatePayload.is_active = true;
+        updatePayload.status = 'active';
+      }
+
+      if (certName) {
+        updatePayload.certificate_name = certName;
+        updatePayload.name = certName;
+      }
+
+      const price = Number(cert.certificate_price) || 0;
+      if (cert.is_enabled && isFreeCourse && price > 0) {
+        updatePayload.price = price;
+        updatePayload.default_price = price;
+      }
+
+      if (!Object.keys(updatePayload).length) return;
+
+      const { error } = await saveRecordWithColumnFallback(
+        'certificate_types',
+        updatePayload,
+        { id: certificateId }
+      );
+      if (error) throw error;
+    }
+
+    async function upsertCourseCertificateLink(courseId, courseName, cert) {
+      const certificateId = cert.certificate_type_id;
+      if (!certificateId) return;
+
+      let existingQuery = supabaseClient
+        .from('course_certificates')
+        .select('id')
+        .eq('course_id', courseId);
+
+      const { data: byTypeId, error: findErr } = await existingQuery
+        .eq('certificate_type_id', certificateId)
+        .maybeSingle();
+
+      if (findErr && isMissingColumnError(findErr, 'certificate_type_id')) {
+        const { data: byLegacyKey } = await supabaseClient
+          .from('course_certificates')
+          .select('id')
+          .eq('course_id', courseId)
+          .eq('certificate_type', cert.certificate_type)
+          .maybeSingle();
+        await writeCourseCertificateRow(courseId, courseName, cert, byLegacyKey?.id || null);
+        return;
+      }
+
+      if (findErr) throw findErr;
+
+      let existingId = byTypeId?.id || null;
+      if (!existingId) {
+        const { data: byLegacyKey } = await supabaseClient
+          .from('course_certificates')
+          .select('id')
+          .eq('course_id', courseId)
+          .eq('certificate_type', cert.certificate_type)
+          .maybeSingle();
+        existingId = byLegacyKey?.id || null;
+      }
+
+      await writeCourseCertificateRow(courseId, courseName, cert, existingId);
+    }
+
+    async function writeCourseCertificateRow(courseId, courseName, cert, existingId) {
+      const row = {
+        course_id: courseId,
+        course_name: courseName,
+        certificate_type_id: cert.certificate_type_id,
+        certificate_type: cert.certificate_type,
+        certificate_price: Number(cert.certificate_price) || 0,
+        price_override: cert.price_override != null ? Number(cert.price_override) : null,
+        is_enabled: cert.is_enabled === true,
+        show_to_student: cert.show_to_student !== false,
+        included_in_paid_course: cert.included_in_paid_course !== false,
+        allow_purchase_in_free_course: cert.allow_purchase_in_free_course !== false,
+        status: cert.is_enabled ? 'active' : 'inactive'
+      };
+
+      if (existingId) {
+        let { error } = await supabaseClient
+          .from('course_certificates')
+          .update(row)
+          .eq('id', existingId);
+
+        if (error && (
+          isMissingColumnError(error, 'is_enabled') ||
+          isMissingColumnError(error, 'certificate_type_id')
+        )) {
+          ({ error } = await supabaseClient
+            .from('course_certificates')
+            .update({
+              course_id: courseId,
+              course_name: courseName,
+              certificate_type: cert.certificate_type,
+              certificate_price: Number(cert.certificate_price) || 0,
+              status: cert.is_enabled ? 'active' : 'inactive'
+            })
+            .eq('id', existingId));
+        }
+        if (error) throw error;
+        return;
+      }
+
+      if (!cert.is_enabled) return;
+
+      let { error } = await supabaseClient
+        .from('course_certificates')
+        .insert([row]);
+
+      if (error && (
+        isMissingColumnError(error, 'is_enabled') ||
+        isMissingColumnError(error, 'certificate_type_id')
+      )) {
+        ({ error } = await supabaseClient
+          .from('course_certificates')
+          .insert([{
+            course_id: courseId,
+            course_name: courseName,
+            certificate_type: cert.certificate_type,
+            certificate_price: Number(cert.certificate_price) || 0,
+            status: 'active'
+          }]));
+      }
+      if (error) throw error;
     }
 
     async function saveCourseCertificates(courseId, courseName, certificates) {
-      const { error: delError } = await supabaseClient
-        .from('course_certificates')
-        .delete()
-        .eq('course_id', courseId);
-      if (delError) throw delError;
+      const isFreeCourse = courseType?.value !== 'paid';
 
-      if (!certificates.length) return;
+      for (const cert of certificates) {
+        if (!cert.certificate_type_id) continue;
 
-      const { error: insError } = await supabaseClient
-        .from('course_certificates')
-        .insert(certificates.map(c => ({
-          course_id: courseId,
-          course_name: courseName,
-          certificate_type: c.certificate_type,
-          certificate_price: c.certificate_price,
-          status: 'active'
-        })));
-      if (insError) throw insError;
+        await updateCertificateTypeForCourseLink(cert.certificate_type_id, cert, isFreeCourse);
+        await upsertCourseCertificateLink(courseId, courseName, cert);
+      }
     }
 
     function togglePriceField() {
@@ -6493,6 +9624,7 @@
       priceGroup.style.display = isPaid ? 'block' : 'none';
       certificatesGroup.style.display = 'block';
       if (!isPaid) document.getElementById('coursePrice').value = 0;
+      renderCertificatePriceRows(readCourseCertSettingsFromForm());
     }
 
     courseType.addEventListener('change', async () => {
@@ -6502,30 +9634,35 @@
       }
     });
 
-    const addCertificateTypeBtn = document.getElementById('addCertificateTypeBtn');
     const certTypeForm = document.getElementById('certTypeForm');
 
-    addCertificateTypeBtn?.addEventListener('click', () => {
-      certTypeForm?.reset();
-      openModal('certTypeModal');
+    document.getElementById('addCertTypeFromPageBtn')?.addEventListener('click', () => {
+      openCertificateTypeModal(null);
     });
 
     certTypeForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const ok = await saveCertificateType(
-        document.getElementById('certificateName').value,
-        document.getElementById('certificateShortDesc').value
-      );
+      const ok = await saveCertificateType({
+        id: document.getElementById('certificateTypeId')?.value || null,
+        name: document.getElementById('certificateName').value,
+        issuer: document.getElementById('certificateIssuerName').value,
+        description: document.getElementById('certificateShortDesc').value,
+        price: document.getElementById('certificateTypePrice').value,
+        isActive: document.getElementById('certificateTypeActive')?.checked !== false
+      });
 
       if (ok) {
         try {
+          await loadCertificateTypes();
+          renderCertificateTypesAdmin();
           await refreshCertificateTypesUI(true);
         } catch (err) {
-          showSupabaseError(err, 'reload after add certificate type');
+          showSupabaseError(err, 'reload after save certificate type');
         }
         closeModal('certTypeModal');
         certTypeForm.reset();
+        alert('تم حفظ نوع الشهادة بنجاح');
       }
     });
 
@@ -6533,11 +9670,9 @@
       document.getElementById('courseModalTitle').textContent = 'إضافة دورة جديدة';
       document.getElementById('courseId').value = '';
       courseForm.reset();
-      setCareerPathsOnForm([]);
       courseType.value = 'free';
       togglePriceField();
-      currentCourseCertPrices = {};
-      currentCourseCertEnabled = {};
+      currentCourseCertSettings = {};
       await loadCourseCertificates('');
       openModal('courseModal');
     });
@@ -6559,7 +9694,6 @@
       document.getElementById('courseMethod').value = course.course_method || '';
       document.getElementById('courseAudience').value = course.target_audience || '';
       document.getElementById('courseRequirements').value = course.requirements || '';
-      setCareerPathsOnForm(parseStoredCareerPaths(course.career_paths));
       togglePriceField();
       await loadCourseCertificates(course.id);
       openModal('courseModal');
@@ -6621,11 +9755,10 @@
         what_you_learn: document.getElementById('courseLearn').value.trim(),
         course_method: document.getElementById('courseMethod').value.trim(),
         target_audience: document.getElementById('courseAudience').value.trim(),
-        requirements: document.getElementById('courseRequirements').value.trim(),
-        career_paths: readCareerPathsFromForm()
+        requirements: document.getElementById('courseRequirements').value.trim()
       });
       const payload = id ? basePayload : { ...basePayload, status: 'active' };
-      const certificates = readCertificatePricesFromForm();
+      const certificates = readCourseCertificatesFromForm();
 
       let courseId = id;
       let error;
@@ -6637,11 +9770,7 @@
       }
 
       if (error) {
-        if (isMissingColumnError(error, 'career_paths')) {
-          showActionError('عمود career_paths غير موجود في Supabase. نفّذ courses-career-paths-fix.sql ثم أعد المحاولة.');
-        } else {
-          showSupabaseError(error, 'save course');
-        }
+        showSupabaseError(error, 'save course');
         return;
       }
 
@@ -7189,9 +10318,12 @@
       renderMessages();
       renderSentMessages();
       renderPayments();
+      renderCertificateTypesAdmin();
       renderCertificates();
       renderAnalytics();
       renderCoupons();
+      if (window.InexcCertAuthAdmin) InexcCertAuthAdmin.renderCertAuthPage();
+      if (window.InexcAttendanceAdmin) InexcAttendanceAdmin.renderAttendancePage();
     }
 
     document.querySelectorAll('input[name="recipientMode"]').forEach(radio => {
@@ -7267,8 +10399,16 @@
     toggleBulkBatchSettings();
     toggleBulkCustomBatchSize();
     initInboxMobileLayout();
-    renderCourseCareerPathOptions();
     bindCourseExportButtons();
+    bindTraineesTableEvents();
+    bindCoursesPageEvents();
+    window.InexcCertAuthAdmin?.bindEvents?.();
+    window.InexcAttendanceAdmin?.bindEvents?.();
+    document.getElementById('traineesSearchInput')?.addEventListener('input', (e) => {
+      traineesTableQuery = e.target.value || '';
+      renderTrainees();
+    });
+    document.getElementById('traineesBulkDeleteBtn')?.addEventListener('click', deleteSelectedTrainees);
     checkSession();
   </script>
 

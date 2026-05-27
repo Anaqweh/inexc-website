@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>INEXC — شركة التميز الابتكاري</title>
 <link rel="icon" type="image/png" href="assets/inexc-icon.png">
+<link rel="stylesheet" href="css/inexc-logo.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -21,16 +22,7 @@ html{scroll-behavior:smooth;}
 
 /* HEADER */
 header{background:var(--navy);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
-.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
-.logo-img{
-  height:auto;
-  max-height:52px;
-  width:auto;
-  max-width:min(100%,280px);
-  object-fit:contain;
-  display:block;
-  border-radius:4px;
-}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;background:transparent;}
 nav{display:flex;gap:8px;align-items:center;}
 nav a{color:rgba(255,255,255,0.8);text-decoration:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;transition:all 0.2s;}
 nav a:hover{background:rgba(255,255,255,0.1);color:var(--white);}
@@ -511,7 +503,7 @@ footer span{color:var(--gold);}
     font-size:15px;
   }
   .menu-toggle{display:block;}
-  .logo-img{max-height:44px;max-width:200px;}
+  .logo-img{max-height:48px;max-width:min(100%,200px);}
   .fg-row{grid-template-columns:1fr;}
   .card-bottom{flex-wrap:wrap;}
   .meta-pill{min-width:calc(33% - 6px);}
@@ -522,7 +514,7 @@ footer span{color:var(--gold);}
 
 <header>
   <a href="index.html" class="logo">
-    <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence — التميز الابتكاري" class="logo-img">
+    <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
   </a>
   <nav id="nav">
     <a href="index.html" class="active">الرئيسية</a>

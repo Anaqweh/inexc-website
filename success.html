@@ -7,6 +7,7 @@
   <title>تأكيد الدفع | INEXC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/inexc-logo.css">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -48,14 +49,7 @@
       justify-content: space-between;
       height: 72px;
     }
-    .logo-wrap { display: flex; align-items: center; gap: 12px; }
-    .logo-img {
-      height: 48px;
-      width: auto;
-      max-width: 220px;
-      object-fit: contain;
-      display: block;
-    }
+    .logo-wrap { display: flex; align-items: center; gap: 12px; background: transparent; }
     .page-hero {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
       padding: 48px 20px 40px;
@@ -151,7 +145,7 @@
   <header>
     <div class="container header-inner">
       <a href="index.html" class="logo-wrap">
-        <img src="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence — التميز الابتكاري" class="logo-img">
+        <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
       </a>
     </div>
   </header>

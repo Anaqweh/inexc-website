@@ -7,6 +7,7 @@
   <title>البطاقة الرقمية | INEXC</title>
   <link rel="icon" type="image/png" href="assets/inexc-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/inexc-logo.css">
   <link rel="stylesheet" href="css/trainee-portal.css">
   <style>
     body.public-id-body {
@@ -65,7 +66,7 @@
 
 <div class="public-id-shell" id="publicIdRoot">
   <div class="public-id-header">
-    <img src="assets/inexc-logo-white.png" alt="INEXC">
+    <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
     <h1>التحقق من البطاقة الرقمية</h1>
     <p>INEXC Innovative Excellence — Digital Trainee ID</p>
   </div>
@@ -88,7 +89,7 @@
     if (!profileId) {
       root.innerHTML = `
         <div class="public-id-header">
-          <img src="assets/inexc-logo-white.png" alt="INEXC">
+          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
           <h1>رابط غير صالح</h1>
         </div>
         <div class="public-id-error">
@@ -122,7 +123,7 @@
 
       root.innerHTML = `
         <div class="public-id-header">
-          <img src="assets/inexc-logo-white.png" alt="INEXC">
+          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
           <h1>بطاقة رقمية معتمدة ✓</h1>
           <p>تم التحقق من هوية المتدرب في منصة INEXC</p>
         </div>
@@ -130,7 +131,7 @@
           <div class="digital-id-card">
             <div class="did-visual">
               <div class="did-top">
-                <img src="assets/inexc-logo-white.png" alt="INEXC" class="did-logo">
+                <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo did-logo" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
                 <span class="did-badge">Digital ID · Verified</span>
               </div>
               <div class="did-body">
@@ -180,7 +181,7 @@
     } catch (err) {
       root.innerHTML = `
         <div class="public-id-header">
-          <img src="assets/inexc-logo-white.png" alt="INEXC">
+          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
           <h1>تعذّر التحقق</h1>
         </div>
         <div class="public-id-error">

@@ -10,6 +10,8 @@ ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'p
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS notes TEXT;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS admin_read BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS admin_hidden BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS course_id UUID;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS trainee_profile_id UUID;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS access_token TEXT UNIQUE;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS country TEXT;
