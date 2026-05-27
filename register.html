@@ -924,6 +924,27 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script>
+    // تهيئة Supabase مباشرة — ضمان عمل الاتصال دائماً
+    (function () {
+      if (window.supabaseClient) return;
+      var SUPA_URL = 'https://mhrrktcrbpvaxqltdtgo.supabase.co';
+      var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ocnJrdGNyYnB2YXhxbHRkdGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzUxNjYsImV4cCI6MjA5NTMxMTE2Nn0.v9KS8UEXiGBrLz-LOmtVaNa1DxrweVZM8OY4FP52x-s';
+      function tryInit() {
+        if (window.supabaseClient) return;
+        if (window.supabase && window.supabase.createClient) {
+          try {
+            window.supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+            window.SUPABASE_URL = SUPA_URL;
+            window.SUPABASE_ANON_KEY = SUPA_KEY;
+          } catch(e) { setTimeout(tryInit, 100); }
+        } else {
+          setTimeout(tryInit, 100);
+        }
+      }
+      tryInit();
+    })();
+  </script>
   <!-- كود الشهادات مدمج مباشرة -->
   <script>
     (function () {
@@ -1107,6 +1128,9 @@ NOTIFY pgrst, 'reload schema';`;
 
     function cacheCourseRow(row, certsByCourse) {
       let certs = (certsByCourse && certsByCourse[row.id]) || [];
+      if (window.InexcCertificateSystem) {
+        certs = InexcCertificateSystem.dedupeCourseCertificates(certs);
+      }
       coursesById[row.id] = buildRegisterCourseEntry(row, certs);
       return coursesById[row.id];
     }
@@ -1485,7 +1509,7 @@ NOTIFY pgrst, 'reload schema';`;
             if (!courseCerts.length) {
               try {
                 const certResult = window.InexcCourseCertificatesApi
-                  ? await supabaseClient.from('course_certificates').select('*').eq('course_id', data.id).eq('is_enabled', true).then(r => ({ data: r.data || [], error: r.error }))
+                  ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId: data.id })
                   : { data: [], error: null };
                 courseCerts = certResult.data || [];
               } catch (certErr) {
