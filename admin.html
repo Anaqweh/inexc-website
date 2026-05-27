@@ -5919,28 +5919,36 @@
 
     async function saveCoursePayload(id, payload) {
       if (id) {
-        const { error } = await supabaseClient.from('courses').update(payload).eq('id', id);
+        const { error } = await saveRecordWithColumnFallback('courses', payload, { id });
         if (error && isMissingColumnError(error, 'career_paths') && 'career_paths' in payload) {
           const { career_paths, ...rest } = payload;
           console.warn('career_paths column missing — saved course without career paths');
-          return supabaseClient.from('courses').update(rest).eq('id', id);
+          return saveRecordWithColumnFallback('courses', rest, { id });
         }
         return { error };
       }
 
-      const { data, error } = await supabaseClient
-        .from('courses')
-        .insert([payload])
-        .select('id')
-        .single();
-
+      const { error } = await saveRecordWithColumnFallback('courses', payload);
       if (error && isMissingColumnError(error, 'career_paths') && 'career_paths' in payload) {
         const { career_paths, ...rest } = payload;
         console.warn('career_paths column missing — saved course without career paths');
-        return supabaseClient.from('courses').insert([rest]).select('id').single();
+        const retry = await saveRecordWithColumnFallback('courses', rest);
+        if (retry.error) return { error: retry.error };
+        const { data } = await supabaseClient.from('courses').select('id').eq('name', payload.name).order('created_at', { ascending: false }).limit(1).maybeSingle();
+        return { data, error: null };
       }
 
-      return { data, error };
+      if (error) return { error };
+
+      const { data } = await supabaseClient
+        .from('courses')
+        .select('id')
+        .eq('name', payload.name)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      return { data, error: null };
     }
 
     function mapCourseFromDb(row) {
