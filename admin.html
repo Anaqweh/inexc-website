@@ -4410,7 +4410,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-brand">
       <div class="login-brand-inner">
-        <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
+        <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.svg" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
         <h1>INEXC Command Center</h1>
         <p class="tagline">نظام إدارة متكامل لمنصة التميز الابتكاري — راقب التسجيلات، الدورات، المدفوعات، والتحليلات من مركز قيادة واحد مدعوم بالذكاء الاصطناعي.</p>
         <div class="login-features">
@@ -4459,7 +4459,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="logo-wrap">
-          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.png" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
+          <img src="assets/images/inexc-logo-white.png" data-fallback="assets/inexc-logo-white.svg" alt="INEXC — Innovative Excellence" class="inexc-logo logo-img inexc-logo--lg" onerror="if(!this.dataset.fallbackTried&&this.dataset.fallback){this.dataset.fallbackTried='1';this.src=this.dataset.fallback}else{this.style.display='none'}">
         </div>
         <div class="sidebar-platform-tag">
           <span class="status-dot"></span>
@@ -5871,6 +5871,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/course-certificates-api.js"></script>
   <script src="supabase-config.js"></script>
   <script src="js/course-load-utils.js"></script>
   <script src="js/certificate-system.js"></script>
@@ -5889,7 +5890,12 @@
       window.EMAILJS_TEMPLATE_ID_FALLBACK || 'template_o9jfkzn'
     ].filter((id, index, list) => id && list.indexOf(id) === index);
 
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    try {
+      if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
+    } catch (emailJsInitErr) {
+      console.error('EmailJS init failed (non-fatal):', emailJsInitErr);
+    }
+
     const STORAGE_KEYS = {
       session: 'inexc_admin_session'
     };
@@ -6263,22 +6269,24 @@
 
     async function loadCourseCertificateCounts() {
       courseCertCountsByCourseId = {};
-      const { data, error } = await supabaseClient
-        .from('course_certificates')
-        .select('course_id, is_enabled, status');
+      try {
+        const result = window.InexcCourseCertificatesApi
+          ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, {})
+          : await supabaseClient.from('course_certificates').select('course_id, is_enabled').then(r => ({ data: r.data, error: r.error }));
 
-      if (error) {
-        console.warn('course_certificates counts:', error.message);
-        return;
+        if (result.error) {
+          console.error('course_certificates counts:', result.error.message || result.error);
+          return;
+        }
+
+        (result.data || []).forEach(row => {
+          const cid = row.course_id;
+          if (!cid || row.is_enabled === false) return;
+          courseCertCountsByCourseId[cid] = (courseCertCountsByCourseId[cid] || 0) + 1;
+        });
+      } catch (err) {
+        console.error('loadCourseCertificateCounts:', err);
       }
-
-      (data || []).forEach(row => {
-        const cid = row.course_id;
-        if (!cid) return;
-        const enabled = row.is_enabled != null ? row.is_enabled : (row.status === 'active');
-        if (!enabled) return;
-        courseCertCountsByCourseId[cid] = (courseCertCountsByCourseId[cid] || 0) + 1;
-      });
     }
 
     async function loadRegistrationsFromSupabase() {
@@ -9383,17 +9391,19 @@
     }
 
     function buildCourseCertDbRecord(cert, courseId) {
+      if (window.InexcCourseCertificatesApi?.buildCourseCertRecord) {
+        return InexcCourseCertificatesApi.buildCourseCertRecord(cert, courseId);
+      }
       return {
         course_id: courseId,
-        certificate_name: (cert.certificate_name || '').trim(),
-        issuer_name: (cert.issuer_name || '').trim(),
-        description: (cert.description || '').trim(),
+        certificate_name: String(cert.certificate_name || '').trim(),
+        issuer_name: String(cert.issuer_name || '').trim(),
+        description: String(cert.description || '').trim(),
         price: Number(cert.price) || 0,
-        included_in_course: !!cert.included_in_course,
-        is_optional_purchase: !!cert.is_optional_purchase,
         is_enabled: !!cert.is_enabled,
         show_to_student: !!cert.show_to_student,
-        updated_at: new Date().toISOString()
+        included_in_course: !!cert.included_in_course,
+        is_optional_purchase: !!cert.is_optional_purchase
       };
     }
 
@@ -9412,67 +9422,75 @@
         return;
       }
 
-      const { data, error } = await supabaseClient
-        .from('course_certificates')
-        .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student, created_at, updated_at')
-        .eq('course_id', courseId)
-        .order('created_at', { ascending: true });
+      try {
+        const result = window.InexcCourseCertificatesApi
+          ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId, orderCreated: true })
+          : { data: [], error: new Error('InexcCourseCertificatesApi missing') };
 
-      if (error) {
-        console.warn('load certificates:', error.message);
+        if (result.error) {
+          console.error('load certificates:', result.error.message || result.error);
+          currentCourseCerts = [];
+          renderCourseCertificatesEditor([]);
+          return;
+        }
+
+        currentCourseCerts = (result.data || []).map(mapDbCourseCertRow);
+        renderCourseCertificatesEditor(currentCourseCerts);
+      } catch (err) {
+        console.error('loadCourseCertificates:', err);
         currentCourseCerts = [];
         renderCourseCertificatesEditor([]);
-        return;
       }
-
-      const mapped = (data || []).map(mapDbCourseCertRow);
-      const deduped = window.InexcCertificateSystem
-        ? InexcCertificateSystem.dedupeCourseCertificates(mapped)
-        : mapped;
-      currentCourseCerts = deduped;
-      renderCourseCertificatesEditor(currentCourseCerts);
     }
 
     async function saveCourseCertificates(courseId, courseName, certificates) {
-      const { data: existingRows, error: loadErr } = await supabaseClient
-        .from('course_certificates')
-        .select('id')
-        .eq('course_id', courseId);
+      try {
+        const { data: existingRows, error: loadErr } = await supabaseClient
+          .from('course_certificates')
+          .select('id')
+          .eq('course_id', courseId);
 
-      if (loadErr) throw loadErr;
+        if (loadErr) throw loadErr;
 
-      const existingIds = new Set((existingRows || []).map(r => String(r.id)));
-      const keptIds = new Set();
+        const existingIds = new Set((existingRows || []).map(r => String(r.id)));
+        const keptIds = new Set();
+        const saveFn = window.InexcCourseCertificatesApi?.saveCourseCertificateRecord;
 
-      for (const cert of certificates) {
-        const record = buildCourseCertDbRecord(cert, courseId);
+        for (const cert of certificates) {
+          const record = buildCourseCertDbRecord(cert, courseId);
 
-        if (cert.id) {
-          const { error } = await supabaseClient
-            .from('course_certificates')
-            .update(record)
-            .eq('id', cert.id);
+          if (cert.id && saveFn) {
+            const savedId = await saveFn(supabaseClient, record, cert.id);
+            keptIds.add(String(savedId || cert.id));
+            continue;
+          }
+
+          if (cert.id) {
+            const { error } = await supabaseClient.from('course_certificates').update(record).eq('id', cert.id);
+            if (error) throw error;
+            keptIds.add(String(cert.id));
+            continue;
+          }
+
+          if (saveFn) {
+            const savedId = await saveFn(supabaseClient, record, null);
+            if (savedId) keptIds.add(String(savedId));
+            continue;
+          }
+
+          const { data, error } = await supabaseClient.from('course_certificates').insert([record]).select('id').single();
           if (error) throw error;
-          keptIds.add(String(cert.id));
-          continue;
+          if (data?.id) keptIds.add(String(data.id));
         }
 
-        const { data, error } = await supabaseClient
-          .from('course_certificates')
-          .insert([record])
-          .select('id')
-          .single();
-        if (error) throw error;
-        if (data?.id) keptIds.add(String(data.id));
-      }
-
-      for (const id of existingIds) {
-        if (keptIds.has(id)) continue;
-        const { error } = await supabaseClient
-          .from('course_certificates')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
+        for (const id of existingIds) {
+          if (keptIds.has(id)) continue;
+          const { error } = await supabaseClient.from('course_certificates').delete().eq('id', id);
+          if (error) throw error;
+        }
+      } catch (err) {
+        console.error('saveCourseCertificates:', err);
+        throw err;
       }
     }
 

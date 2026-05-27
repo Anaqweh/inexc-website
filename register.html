@@ -923,6 +923,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/course-certificates-api.js"></script>
   <script src="supabase-config.js"></script>
   <script src="js/course-load-utils.js"></script>
   <script src="js/certificate-system.js"></script>
@@ -1362,37 +1363,25 @@ NOTIFY pgrst, 'reload schema';`;
 
         let certsByCourse = {};
         try {
-          const { data: certs, error: certError } = await supabaseClient
-            .from('course_certificates')
-            .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student');
+          const certResult = window.InexcCourseCertificatesApi
+            ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, {})
+            : { data: [], error: null };
 
-          if (!certError && certs) {
-            certs.forEach(c => {
-              const cid = c.course_id;
+          if (certResult.error) {
+            console.error('course_certificates load warning:', certResult.error.message || certResult.error);
+          } else {
+            (certResult.data || []).forEach(normalized => {
+              const cid = normalized.course_id;
               if (!cid) return;
-
-              const normalized = window.InexcCertificateSystem
-                ? InexcCertificateSystem.normalizeCourseCertificate(c)
-                : c;
-              if (!normalized) return;
-
               if (!certsByCourse[cid]) certsByCourse[cid] = [];
               const duplicate = normalized.id
                 && certsByCourse[cid].some(item => String(item.id) === String(normalized.id));
               if (duplicate) return;
               certsByCourse[cid].push(normalized);
             });
-
-            Object.keys(certsByCourse).forEach(cid => {
-              if (window.InexcCertificateSystem) {
-                certsByCourse[cid] = InexcCertificateSystem.dedupeCourseCertificates(certsByCourse[cid]);
-              }
-            });
-          } else if (certError) {
-            console.warn('course_certificates load warning:', certError);
           }
         } catch (certLoadErr) {
-          console.warn('course_certificates load failed (non-fatal):', certLoadErr);
+          console.error('course_certificates load failed (non-fatal):', certLoadErr);
         }
 
         if (note) note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
@@ -1448,20 +1437,12 @@ NOTIFY pgrst, 'reload schema';`;
             let courseCerts = coursesById[data.id]?.certificates || [];
             if (!courseCerts.length) {
               try {
-                const { data: certs } = await supabaseClient
-                  .from('course_certificates')
-                  .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student')
-                  .eq('course_id', data.id);
-                courseCerts = (certs || [])
-                  .map(c => window.InexcCertificateSystem
-                    ? InexcCertificateSystem.normalizeCourseCertificate(c)
-                    : c)
-                  .filter(Boolean);
-                if (window.InexcCertificateSystem) {
-                  courseCerts = InexcCertificateSystem.dedupeCourseCertificates(courseCerts);
-                }
+                const certResult = window.InexcCourseCertificatesApi
+                  ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId: data.id })
+                  : { data: [], error: null };
+                courseCerts = certResult.data || [];
               } catch (certErr) {
-                console.warn('resolveCourseFromUrl certs:', certErr);
+                console.error('resolveCourseFromUrl certs:', certErr);
               }
             }
             cacheCourseRow(data, { [data.id]: courseCerts });

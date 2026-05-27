@@ -710,6 +710,7 @@ footer span{color:var(--gold);}
 <footer><p>© 2026 <span>شركة التميز الابتكاري INEXC</span> — جميع الحقوق محفوظة</p></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/course-certificates-api.js"></script>
 <script src="supabase-config.js"></script>
 <script src="js/course-load-utils.js"></script>
 <script src="js/certificate-system.js"></script>
@@ -981,32 +982,27 @@ async function loadCoursesForHome() {
 
   let certsByCourse = {};
   try {
-    const { data: certs, error: certError } = await supabaseClient
-      .from('course_certificates')
-      .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student');
-    if (certError) {
-      console.warn('course_certificates load warning:', certError);
+    const certResult = window.InexcCourseCertificatesApi
+      ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, {})
+      : { data: [], error: null };
+
+    if (certResult.error) {
+      console.error('course_certificates load warning:', certResult.error.message || certResult.error);
     } else {
-      (certs || []).forEach(c => {
-        const normalized = window.InexcCertificateSystem
-          ? InexcCertificateSystem.normalizeCourseCertificate(c)
-          : c;
-        if (!isCertVisibleForStudent(normalized || c)) return;
-        const cid = (normalized || c).course_id || c.course_id;
+      (certResult.data || []).forEach(row => {
+        const visible = window.InexcCertificateSystem?.isVisibleToStudent
+          ? InexcCertificateSystem.isVisibleToStudent(row)
+          : (row.is_enabled !== false && row.show_to_student !== false);
+        if (!visible) return;
+        const cid = row.course_id;
         if (!cid) return;
         if (!certsByCourse[cid]) certsByCourse[cid] = [];
-        const row = normalized || c;
         if (row.id && certsByCourse[cid].some(item => String(item.id) === String(row.id))) return;
         certsByCourse[cid].push(row);
       });
-      Object.keys(certsByCourse).forEach(cid => {
-        if (window.InexcCertificateSystem) {
-          certsByCourse[cid] = InexcCertificateSystem.dedupeCourseCertificates(certsByCourse[cid]);
-        }
-      });
     }
   } catch (certErr) {
-    console.warn('course_certificates load failed (non-fatal):', certErr);
+    console.error('course_certificates load failed (non-fatal):', certErr);
   }
 
   const rows = window.InexcCourseLoad
