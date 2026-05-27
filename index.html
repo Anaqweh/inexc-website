@@ -785,7 +785,15 @@ function buildCourseCertificatesHtml(course) {
 }
 
 function buildCourseInfoHtml(course) {
-  return `<div class="card-info">${buildCourseInfoBody(course)}</div>`;
+  return `<div class="card-info">
+    <details class="card-info-details">
+      <summary>
+        <span class="card-info-summary-icon" aria-hidden="true">i</span>
+        <span class="card-info-summary-text">مزيد من المعلومات — اضغط للتفاصيل</span>
+      </summary>
+      <div class="card-info-body">${buildCourseInfoBody(course)}</div>
+    </details>
+  </div>`;
 }
 
 function wireCourseAccordions(root) {

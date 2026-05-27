@@ -967,7 +967,7 @@ NOTIFY pgrst, 'reload schema';`;
       });
     }
 
-    let coursesById = {};
+    const REGISTRATION_SUCCESS_TEXT = 'تم تسجيلك بنجاح، وسيتواصل معك فريقنا قريبًا.';
     let certificateTypesCache = [];
 
     const CERTIFICATE_TYPE_FALLBACKS = [
@@ -1875,20 +1875,16 @@ NOTIFY pgrst, 'reload schema';`;
           phone
         };
 
-        let emailSent = true;
         try {
           await sendAutoWelcomeEmail(welcomeParams);
         } catch (emailErr) {
-          emailSent = false;
-          console.error('Welcome email failed:', emailErr);
+          console.error('Welcome email failed (service_58hjcoc):', emailErr);
         }
 
         if (!needsPayment) {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: emailSent
-              ? 'تم تسجيلك في الدورة المجانية بنجاح. تحقّق من بريدك الإلكتروني — ستجد رسالة ترحيب بتفاصيل تسجيلك.'
-              : 'تم تسجيلك في الدورة المجانية بنجاح. لم نتمكن من إرسال رسالة الترحيب إلى بريدك — تحقّق من صحة البريد أو راجع مجلد Spam، أو تواصل مع الدعم.',
+            text: REGISTRATION_SUCCESS_TEXT,
             accountToken: accessToken
           });
           return;
@@ -1944,7 +1940,7 @@ NOTIFY pgrst, 'reload schema';`;
         } else {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: 'تم حفظ تسجيلك، لكن تعذّر إرسال رسالة الترحيب إلى بريدك. يرجى التحقق من صحة البريد أو التواصل مع الدعم.',
+            text: REGISTRATION_SUCCESS_TEXT,
             accountToken: accessToken
           });
         }
