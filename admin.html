@@ -375,6 +375,63 @@
       filter: brightness(0.95);
     }
 
+    .course-cert-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .course-cert-card.cert-row-inactive {
+      opacity: 0.72;
+      background: var(--bg);
+    }
+
+    .course-cert-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .course-cert-card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .course-cert-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .course-cert-fields .form-group {
+      margin-bottom: 0;
+    }
+
+    .course-cert-fields input[type="text"],
+    .course-cert-fields input[type="number"],
+    .course-cert-fields textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+    }
+
+    .course-cert-fields textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    #addCourseCertBtn {
+      margin-top: 8px;
+    }
+
     .login-error {
       display: none;
       background: rgba(196, 92, 92, 0.1);
@@ -5754,15 +5811,13 @@
             <label for="courseRequirements">المتطلبات</label>
             <textarea id="courseRequirements" placeholder="متطلبات قبل التسجيل..."></textarea>
           </div>
-          <div class="form-group" id="certificatesGroup" style="display:none;">
-            <label>الشهادات المرتبطة بالدورة</label>
+          <div class="form-group" id="certificatesGroup">
+            <label>الشهادات المرتبطة بهذه الدورة</label>
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.7;">
-              فعّل الشهادات لهذه الدورة وحدّد إعدادات العرض. في الدورات المجانية: يظهر للمتدرب ما فُعّل مع السعر. في الدورات المدفوعة: تُعرض الشهادات المشمولة للمعرفة فقط دون سعر منفصل.
+              أضف شهادات خاصة بهذه الدورة فقط. لن تظهر في أي دورة أخرى. يتحكم الأدمن في الاسم، الجهة، السعر، التفعيل، وظهورها للمتدرب.
             </p>
-            <div class="cert-types-toolbar">
-              <span style="font-size:0.82rem;color:var(--text-muted);">اختر من أنواع الشهادات الموجودة — لإضافة نوع جديد استخدم صفحة «الشهادات».</span>
-            </div>
             <div id="certificatesList"></div>
+            <button type="button" class="btn btn-sm btn-gold" id="addCourseCertBtn">+ إضافة شهادة</button>
           </div>
         </div>
         <div class="modal-footer">
@@ -7854,6 +7909,16 @@
       }) || null;
     }
 
+    function generateCertificateTypeKey(name) {
+      const base = (name || 'cert')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\u0600-\u06FF]+/g, '')
+        .slice(0, 40);
+      return (base || 'cert') + '_' + Date.now().toString(36).slice(-4);
+    }
+
     async function saveCertificateType(payload) {
       const { id, name, issuer, description, price, isActive } = payload;
       const trimmedName = (name || '').trim();
@@ -9172,481 +9237,259 @@
       }));
     }
 
-    let currentCourseCertSettings = {};
+    let currentCourseCerts = [];
 
-    function defaultCourseCertSetting(type) {
+    function createEmptyCourseCert() {
       return {
-        is_enabled: false,
-        name: type?.name || '',
-        price: Number(type?.price) || 0,
+        id: null,
+        localId: 'new_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        certificate_name: '',
+        issuer_name: '',
+        description: '',
+        price: 0,
+        is_enabled: true,
         show_to_student: true,
-        included_in_paid_course: true,
-        allow_purchase_in_free_course: true
+        included_in_course: false,
+        is_optional_purchase: true
       };
     }
 
-    function readCourseCertSettingsFromForm() {
-      const settings = { ...currentCourseCertSettings };
-      if (!certificatesList) return settings;
+    function getCourseCertRowToken(cert) {
+      return String(cert?.id || cert?.localId || '');
+    }
 
-      certificatesList.querySelectorAll('.cert-price-row').forEach(row => {
-        const key = row.dataset.certKey;
-        if (!key) return;
-        const enableInput = row.querySelector('input[data-cert-enabled]');
-        const nameInput = row.querySelector('input[data-cert-name]');
-        const priceInput = row.querySelector('input[data-cert-price]');
-        const showInput = row.querySelector('input[data-cert-show]');
-        const includedInput = row.querySelector('input[data-cert-included]');
-        const purchaseInput = row.querySelector('input[data-cert-purchase]');
+    function mapDbCourseCertRow(row) {
+      const normalized = window.InexcCertificateSystem
+        ? InexcCertificateSystem.normalizeCourseCertificate(row)
+        : null;
 
-        settings[key] = {
-          is_enabled: !!enableInput?.checked,
-          name: nameInput?.value ?? settings[key]?.name ?? '',
-          price: priceInput?.value ?? settings[key]?.price ?? 0,
-          show_to_student: showInput ? showInput.checked : true,
-          included_in_paid_course: includedInput ? includedInput.checked : true,
-          allow_purchase_in_free_course: purchaseInput ? purchaseInput.checked : true
+      if (normalized) {
+        return {
+          id: normalized.id,
+          localId: normalized.id ? String(normalized.id) : getCourseCertRowToken(row),
+          certificate_name: normalized.certificate_name,
+          issuer_name: normalized.issuer_name,
+          description: normalized.description,
+          price: normalized.price,
+          is_enabled: normalized.is_enabled,
+          show_to_student: normalized.show_to_student,
+          included_in_course: normalized.included_in_course,
+          is_optional_purchase: normalized.is_optional_purchase
         };
-      });
-      return settings;
+      }
+
+      return {
+        id: row?.id || null,
+        localId: row?.id ? String(row.id) : getCourseCertRowToken(row),
+        certificate_name: row?.certificate_name || '',
+        issuer_name: row?.issuer_name || '',
+        description: row?.description || '',
+        price: Number(row?.price) || 0,
+        is_enabled: row?.is_enabled !== false,
+        show_to_student: row?.show_to_student !== false,
+        included_in_course: !!row?.included_in_course,
+        is_optional_purchase: !!row?.is_optional_purchase
+      };
+    }
+
+    function syncCourseCertFromCard(card) {
+      const token = card.dataset.certToken;
+      const cert = currentCourseCerts.find(c => getCourseCertRowToken(c) === token);
+      if (!cert) return null;
+
+      cert.certificate_name = card.querySelector('[data-field="certificate_name"]')?.value?.trim() || '';
+      cert.issuer_name = card.querySelector('[data-field="issuer_name"]')?.value?.trim() || '';
+      cert.description = card.querySelector('[data-field="description"]')?.value?.trim() || '';
+      cert.price = Number(card.querySelector('[data-field="price"]')?.value) || 0;
+      cert.is_enabled = !!card.querySelector('[data-field="is_enabled"]')?.checked;
+      cert.show_to_student = !!card.querySelector('[data-field="show_to_student"]')?.checked;
+      cert.included_in_course = !!card.querySelector('[data-field="included_in_course"]')?.checked;
+      cert.is_optional_purchase = !!card.querySelector('[data-field="is_optional_purchase"]')?.checked;
+      return cert;
+    }
+
+    function readCourseCertificatesFromForm() {
+      if (!certificatesList) return [...currentCourseCerts];
+      certificatesList.querySelectorAll('.course-cert-card').forEach(card => syncCourseCertFromCard(card));
+      return currentCourseCerts
+        .filter(c => (c.certificate_name || '').trim())
+        .map(c => ({ ...c }));
     }
 
     function readCertificatePricesFromForm() {
       return readCourseCertificatesFromForm();
     }
 
-    function readCourseCertificatesFromForm() {
-      const settings = readCourseCertSettingsFromForm();
-      const types = getAllCertificateTypesForAdmin();
-      const certificates = [];
-
-      types.forEach(type => {
-        if (!type.id) return;
-
-        const cfg = settings[type.key] || defaultCourseCertSetting(type);
-        const price = Number(cfg.price) || 0;
-        const certName = (cfg.name || type.name || '').trim();
-
-        certificates.push({
-          certificate_type_id: type.id,
-          certificate_type: type.key,
-          certificate_name: certName,
-          certificate_price: price,
-          price_override: price > 0 ? price : null,
-          is_enabled: !!cfg.is_enabled,
-          show_to_student: cfg.show_to_student !== false,
-          included_in_paid_course: cfg.included_in_paid_course !== false,
-          allow_purchase_in_free_course: cfg.allow_purchase_in_free_course !== false
-        });
-      });
-
-      return certificates;
-    }
-
-    function setCourseCertificateRowState(row, enabled) {
-      const enableInput = row.querySelector('input[data-cert-enabled]');
-      const priceInput = row.querySelector('input[type="number"][data-cert-price]');
-      const toggleBtn = row.querySelector('[data-cert-toggle]');
-      const statusEl = row.querySelector('.cert-course-status');
-      const optionInputs = row.querySelectorAll('.cert-row-options input[type="checkbox"]');
-      const isFreeCourse = courseType?.value !== 'paid';
-
-      if (enableInput) enableInput.checked = enabled;
-      if (priceInput) {
-        priceInput.disabled = !enabled || !isFreeCourse;
-        if (enabled && isFreeCourse) priceInput.focus();
-      }
-      optionInputs.forEach(input => { input.disabled = !enabled; });
-      row.classList.toggle('cert-row-inactive', !enabled);
-      if (toggleBtn) {
-        toggleBtn.textContent = enabled ? 'تعطيل للدورة' : 'تفعيل للدورة';
-        toggleBtn.className = 'btn-cert-action ' + (enabled ? 'btn-cert-disable' : 'btn-cert-enable');
-      }
-      if (statusEl) {
-        statusEl.textContent = enabled ? 'مفعّلة لهذه الدورة' : 'غير مفعّلة لهذه الدورة';
-      }
-    }
-
-    function renderCertificatePriceRows(settingsByType = {}) {
+    function renderCourseCertificatesEditor(certs) {
       if (!certificatesList) return;
+      currentCourseCerts = (certs || []).map(c => ({ ...c }));
 
-      const merged = { ...currentCourseCertSettings };
-      Object.entries(settingsByType).forEach(([key, val]) => {
-        merged[key] = { ...defaultCourseCertSetting({ price: val?.price, name: val?.name }), ...(merged[key] || {}), ...val };
-        if (val?.is_enabled != null) merged[key].is_enabled = val.is_enabled;
-        if (val?.price != null && val.price !== '') merged[key].price = val.price;
-        if (val?.name != null) merged[key].name = val.name;
-      });
-
-      currentCourseCertSettings = merged;
-      certificatesList.innerHTML = '';
-      const types = getActiveCertificateTypes();
-      const isFreeCourse = courseType?.value !== 'paid';
-
-      if (!types.length) {
-        certificatesList.innerHTML = '<p style="font-size:0.88rem;color:var(--text-muted);padding:8px 0;">لا توجد أنواع شهادات. اضغط «إضافة شهادة».</p>';
+      if (!currentCourseCerts.length) {
+        certificatesList.innerHTML = '<p style="font-size:0.88rem;color:var(--text-muted);padding:8px 0;">لا توجد شهادات لهذه الدورة. اضغط «إضافة شهادة».</p>';
         return;
       }
 
-      types.forEach(type => {
-        const cfg = merged[type.key] || defaultCourseCertSetting(type);
-        const isEnabledForCourse = !!cfg.is_enabled;
-        const row = document.createElement('div');
-        row.className = 'cert-price-row' + (isEnabledForCourse ? '' : ' cert-row-inactive');
-        row.dataset.certKey = type.key;
-        row.dataset.certId = type.id || '';
+      certificatesList.innerHTML = currentCourseCerts.map((cert, index) => {
+        const token = escapeHtml(getCourseCertRowToken(cert));
+        const inactiveClass = cert.is_enabled ? '' : ' cert-row-inactive';
+        return `
+          <div class="course-cert-card${inactiveClass}" data-cert-token="${token}">
+            <div class="course-cert-card-head">
+              <span class="course-cert-card-title">شهادة ${index + 1}</span>
+              <button type="button" class="btn-cert-action btn-cert-delete" data-remove-cert="${token}">حذف</button>
+            </div>
+            <div class="course-cert-fields">
+              <div class="form-group">
+                <label>اسم الشهادة</label>
+                <input type="text" data-field="certificate_name" value="${escapeHtml(cert.certificate_name || '')}" placeholder="مثال: شهادة حضور" required>
+              </div>
+              <div class="form-group">
+                <label>الجهة المصدرة</label>
+                <input type="text" data-field="issuer_name" value="${escapeHtml(cert.issuer_name || '')}" placeholder="مثال: INEXC">
+              </div>
+              <div class="form-group">
+                <label>السعر (د.إ)</label>
+                <input type="number" min="0" step="1" data-field="price" value="${Number(cert.price) || 0}">
+              </div>
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>الوصف (اختياري)</label>
+                <textarea data-field="description" placeholder="وصف يظهر للمتدرب">${escapeHtml(cert.description || '')}</textarea>
+              </div>
+            </div>
+            <div class="cert-row-options" style="margin-top:12px;">
+              <label><input type="checkbox" data-field="is_enabled" ${cert.is_enabled ? 'checked' : ''}> مفعّلة لهذه الدورة</label>
+              <label><input type="checkbox" data-field="show_to_student" ${cert.show_to_student ? 'checked' : ''}> تظهر للمتدرب</label>
+              <label><input type="checkbox" data-field="included_in_course" ${cert.included_in_course ? 'checked' : ''}> مشمولة مع الدورة</label>
+              <label><input type="checkbox" data-field="is_optional_purchase" ${cert.is_optional_purchase ? 'checked' : ''}> اختيارية للشراء</label>
+            </div>
+          </div>`;
+      }).join('');
 
-        const labelWrap = document.createElement('div');
-        labelWrap.style.flex = '1';
-
-        const nameField = document.createElement('label');
-        nameField.className = 'cert-name-field';
-
-        const nameFieldLabel = document.createElement('span');
-        nameFieldLabel.className = 'cert-price-label';
-        nameFieldLabel.textContent = 'اسم الشهادة';
-
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'cert-name-input';
-        nameInput.dataset.certName = type.key;
-        nameInput.placeholder = 'اكتب اسم الشهادة';
-        nameInput.value = cfg.name || type.name || '';
-        nameInput.setAttribute('aria-label', 'اسم الشهادة');
-        nameInput.addEventListener('input', () => {
-          if (!currentCourseCertSettings[type.key]) {
-            currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
-          }
-          currentCourseCertSettings[type.key].name = nameInput.value;
-        });
-
-        nameField.append(nameFieldLabel, nameInput);
-
-        const issuer = document.createElement('span');
-        issuer.style.cssText = 'display:block;font-size:0.75rem;color:var(--text-muted);margin-top:2px;';
-        issuer.textContent = type.issuer_name ? ('الجهة: ' + type.issuer_name) : '';
-
-        const statusEl = document.createElement('span');
-        statusEl.className = 'cert-course-status';
-        statusEl.textContent = isEnabledForCourse ? 'مفعّلة لهذه الدورة' : 'غير مفعّلة لهذه الدورة';
-
-        const optionsWrap = document.createElement('div');
-        optionsWrap.className = 'cert-row-options';
-
-        const showLabel = document.createElement('label');
-        const showInput = document.createElement('input');
-        showInput.type = 'checkbox';
-        showInput.dataset.certShow = '1';
-        showInput.checked = cfg.show_to_student !== false;
-        showInput.disabled = !isEnabledForCourse;
-        showLabel.append(showInput, document.createTextNode('تظهر للمتدرب'));
-
-        const includedLabel = document.createElement('label');
-        const includedInput = document.createElement('input');
-        includedInput.type = 'checkbox';
-        includedInput.dataset.certIncluded = '1';
-        includedInput.checked = cfg.included_in_paid_course !== false;
-        includedInput.disabled = !isEnabledForCourse;
-        includedLabel.append(includedInput, document.createTextNode('مشمولة مع الدورة المدفوعة'));
-
-        const purchaseLabel = document.createElement('label');
-        const purchaseInput = document.createElement('input');
-        purchaseInput.type = 'checkbox';
-        purchaseInput.dataset.certPurchase = '1';
-        purchaseInput.checked = cfg.allow_purchase_in_free_course !== false;
-        purchaseInput.disabled = !isEnabledForCourse;
-        purchaseLabel.append(purchaseInput, document.createTextNode('قابلة للشراء في الدورة المجانية'));
-
-        optionsWrap.append(showLabel, includedLabel, purchaseLabel);
-        labelWrap.append(nameField, issuer, document.createElement('br'), statusEl, optionsWrap);
-
-        const enableInput = document.createElement('input');
-        enableInput.type = 'checkbox';
-        enableInput.hidden = true;
-        enableInput.dataset.certEnabled = type.key;
-        enableInput.checked = isEnabledForCourse;
-
-        const priceWrap = document.createElement('div');
-        priceWrap.className = 'cert-price-field-wrap';
-        if (isFreeCourse) {
-          const priceLabel = document.createElement('span');
-          priceLabel.className = 'cert-price-label';
-          priceLabel.textContent = 'السعر (د.إ)';
-          const input = document.createElement('input');
-          input.type = 'number';
-          input.min = '0';
-          input.step = '1';
-          input.dataset.certPrice = type.key;
-          input.placeholder = '0';
-          input.disabled = !isEnabledForCourse;
-          input.setAttribute('aria-label', 'سعر ' + type.name);
-          if (cfg.price != null && cfg.price !== '') input.value = cfg.price;
-          input.addEventListener('input', () => {
-            if (!currentCourseCertSettings[type.key]) {
-              currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
-            }
-            currentCourseCertSettings[type.key].price = input.value;
-          });
-          priceWrap.append(priceLabel, input);
-        } else {
-          const paidHint = document.createElement('span');
-          paidHint.className = 'cert-price-label';
-          paidHint.textContent = 'مدفوعة — بدون سعر منفصل';
-          priceWrap.append(paidHint);
-        }
-
-        const actions = document.createElement('div');
-        actions.className = 'cert-row-actions';
-        const toggleBtn = document.createElement('button');
-        toggleBtn.type = 'button';
-        toggleBtn.dataset.certToggle = '1';
-        toggleBtn.className = 'btn-cert-action ' + (isEnabledForCourse ? 'btn-cert-disable' : 'btn-cert-enable');
-        toggleBtn.textContent = isEnabledForCourse ? 'تعطيل للدورة' : 'تفعيل للدورة';
-        toggleBtn.addEventListener('click', () => {
-          const nextEnabled = !enableInput.checked;
-          if (!currentCourseCertSettings[type.key]) {
-            currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
-          }
-          currentCourseCertSettings[type.key].is_enabled = nextEnabled;
-          setCourseCertificateRowState(row, nextEnabled);
-        });
-
-        [showInput, includedInput, purchaseInput].forEach((input, idx) => {
+      certificatesList.querySelectorAll('.course-cert-card').forEach(card => {
+        card.querySelectorAll('input, textarea').forEach(input => {
+          input.addEventListener('input', () => syncCourseCertFromCard(card));
           input.addEventListener('change', () => {
-            if (!currentCourseCertSettings[type.key]) {
-              currentCourseCertSettings[type.key] = defaultCourseCertSetting(type);
-            }
-            const map = ['show_to_student', 'included_in_paid_course', 'allow_purchase_in_free_course'];
-            currentCourseCertSettings[type.key][map[idx]] = input.checked;
+            syncCourseCertFromCard(card);
+            const cert = currentCourseCerts.find(c => getCourseCertRowToken(c) === card.dataset.certToken);
+            card.classList.toggle('cert-row-inactive', !cert?.is_enabled);
           });
         });
-
-        actions.append(toggleBtn);
-        row.append(labelWrap, enableInput, priceWrap, actions);
-        certificatesList.appendChild(row);
+        card.querySelector('[data-remove-cert]')?.addEventListener('click', () => {
+          const token = card.dataset.certToken;
+          currentCourseCerts = currentCourseCerts.filter(c => getCourseCertRowToken(c) !== token);
+          renderCourseCertificatesEditor(currentCourseCerts);
+        });
       });
     }
 
-    function generateCertificateTypeKey(name) {
-      const base = (name || 'cert')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, '_')
-        .replace(/[^\w\u0600-\u06FF]+/g, '')
-        .slice(0, 40);
-      return (base || 'cert') + '_' + Date.now().toString(36).slice(-4);
+    function buildCourseCertDbRecord(cert, courseId) {
+      return {
+        course_id: courseId,
+        certificate_name: (cert.certificate_name || '').trim(),
+        issuer_name: (cert.issuer_name || '').trim(),
+        description: (cert.description || '').trim(),
+        price: Number(cert.price) || 0,
+        included_in_course: !!cert.included_in_course,
+        is_optional_purchase: !!cert.is_optional_purchase,
+        is_enabled: !!cert.is_enabled,
+        show_to_student: !!cert.show_to_student,
+        updated_at: new Date().toISOString()
+      };
     }
 
     async function refreshCertificateTypesUI(preserveState = true) {
-      const settings = preserveState ? readCourseCertSettingsFromForm() : {};
       await loadCertificateTypes();
-      renderCertificatePriceRows(settings);
+      if (preserveState && certificatesList) {
+        readCourseCertificatesFromForm();
+        renderCourseCertificatesEditor(currentCourseCerts);
+      }
     }
 
     async function loadCourseCertificates(courseId) {
       if (!courseId) {
-        currentCourseCertSettings = {};
-        renderCertificatePriceRows({});
+        currentCourseCerts = [];
+        renderCourseCertificatesEditor([]);
         return;
       }
 
       const { data, error } = await supabaseClient
         .from('course_certificates')
-        .select('*')
-        .eq('course_id', courseId);
+        .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student, created_at, updated_at')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.warn('load certificates:', error.message);
-        renderCertificatePriceRows({});
+        currentCourseCerts = [];
+        renderCourseCertificatesEditor([]);
         return;
       }
 
-      const typeCatalog = window.InexcCertificateSystem
-        ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
-        : {};
-
-      const settingsByType = {};
-      (data || []).forEach(r => {
-        const normalized = window.InexcCertificateSystem
-          ? InexcCertificateSystem.normalizeCourseCertificate(r, typeCatalog)
-          : r;
-        const key = normalized?.key || r.certificate_type;
-        if (!key) return;
-
-        const typeFromId = r.certificate_type_id
-          ? getAllCertificateTypesForAdmin().find(t => String(t.id) === String(r.certificate_type_id))
-          : null;
-        const mapKey = typeFromId?.key || key;
-
-        const enabled = normalized?.is_enabled != null
-          ? normalized.is_enabled
-          : (r.status === 'active');
-
-        settingsByType[mapKey] = {
-          is_enabled: enabled,
-          price: normalized?.price ?? r.certificate_price ?? r.price_override ?? 0,
-          show_to_student: normalized?.show_to_student !== false,
-          included_in_paid_course: normalized?.included_in_paid_course !== false,
-          allow_purchase_in_free_course: normalized?.allow_purchase_in_free_course !== false
-        };
-      });
-
-      renderCertificatePriceRows(settingsByType);
+      const mapped = (data || []).map(mapDbCourseCertRow);
+      const deduped = window.InexcCertificateSystem
+        ? InexcCertificateSystem.dedupeCourseCertificates(mapped)
+        : mapped;
+      currentCourseCerts = deduped;
+      renderCourseCertificatesEditor(currentCourseCerts);
     }
 
-    async function updateCertificateTypeForCourseLink(certificateId, cert, isFreeCourse) {
-      if (!certificateId) return;
-
-      const certName = (cert.certificate_name || '').trim();
-      const updatePayload = {};
-
-      if (cert.is_enabled) {
-        updatePayload.is_active = true;
-        updatePayload.status = 'active';
-      }
-
-      if (certName) {
-        updatePayload.certificate_name = certName;
-        updatePayload.name = certName;
-      }
-
-      const price = Number(cert.certificate_price) || 0;
-      if (cert.is_enabled && isFreeCourse && price > 0) {
-        updatePayload.price = price;
-        updatePayload.default_price = price;
-      }
-
-      if (!Object.keys(updatePayload).length) return;
-
-      const { error } = await saveRecordWithColumnFallback(
-        'certificate_types',
-        updatePayload,
-        { id: certificateId }
-      );
-      if (error) throw error;
-    }
-
-    async function upsertCourseCertificateLink(courseId, courseName, cert) {
-      const certificateId = cert.certificate_type_id;
-      if (!certificateId) return;
-
-      let existingQuery = supabaseClient
+    async function saveCourseCertificates(courseId, courseName, certificates) {
+      const { data: existingRows, error: loadErr } = await supabaseClient
         .from('course_certificates')
         .select('id')
         .eq('course_id', courseId);
 
-      const { data: byTypeId, error: findErr } = await existingQuery
-        .eq('certificate_type_id', certificateId)
-        .maybeSingle();
+      if (loadErr) throw loadErr;
 
-      if (findErr && isMissingColumnError(findErr, 'certificate_type_id')) {
-        const { data: byLegacyKey } = await supabaseClient
-          .from('course_certificates')
-          .select('id')
-          .eq('course_id', courseId)
-          .eq('certificate_type', cert.certificate_type)
-          .maybeSingle();
-        await writeCourseCertificateRow(courseId, courseName, cert, byLegacyKey?.id || null);
-        return;
-      }
-
-      if (findErr) throw findErr;
-
-      let existingId = byTypeId?.id || null;
-      if (!existingId) {
-        const { data: byLegacyKey } = await supabaseClient
-          .from('course_certificates')
-          .select('id')
-          .eq('course_id', courseId)
-          .eq('certificate_type', cert.certificate_type)
-          .maybeSingle();
-        existingId = byLegacyKey?.id || null;
-      }
-
-      await writeCourseCertificateRow(courseId, courseName, cert, existingId);
-    }
-
-    async function writeCourseCertificateRow(courseId, courseName, cert, existingId) {
-      const row = {
-        course_id: courseId,
-        course_name: courseName,
-        certificate_type_id: cert.certificate_type_id,
-        certificate_type: cert.certificate_type,
-        certificate_price: Number(cert.certificate_price) || 0,
-        price_override: cert.price_override != null ? Number(cert.price_override) : null,
-        is_enabled: cert.is_enabled === true,
-        show_to_student: cert.show_to_student !== false,
-        included_in_paid_course: cert.included_in_paid_course !== false,
-        allow_purchase_in_free_course: cert.allow_purchase_in_free_course !== false,
-        status: cert.is_enabled ? 'active' : 'inactive'
-      };
-
-      if (existingId) {
-        let { error } = await supabaseClient
-          .from('course_certificates')
-          .update(row)
-          .eq('id', existingId);
-
-        if (error && (
-          isMissingColumnError(error, 'is_enabled') ||
-          isMissingColumnError(error, 'certificate_type_id')
-        )) {
-          ({ error } = await supabaseClient
-            .from('course_certificates')
-            .update({
-              course_id: courseId,
-              course_name: courseName,
-              certificate_type: cert.certificate_type,
-              certificate_price: Number(cert.certificate_price) || 0,
-              status: cert.is_enabled ? 'active' : 'inactive'
-            })
-            .eq('id', existingId));
-        }
-        if (error) throw error;
-        return;
-      }
-
-      if (!cert.is_enabled) return;
-
-      let { error } = await supabaseClient
-        .from('course_certificates')
-        .insert([row]);
-
-      if (error && (
-        isMissingColumnError(error, 'is_enabled') ||
-        isMissingColumnError(error, 'certificate_type_id')
-      )) {
-        ({ error } = await supabaseClient
-          .from('course_certificates')
-          .insert([{
-            course_id: courseId,
-            course_name: courseName,
-            certificate_type: cert.certificate_type,
-            certificate_price: Number(cert.certificate_price) || 0,
-            status: 'active'
-          }]));
-      }
-      if (error) throw error;
-    }
-
-    async function saveCourseCertificates(courseId, courseName, certificates) {
-      const isFreeCourse = courseType?.value !== 'paid';
+      const existingIds = new Set((existingRows || []).map(r => String(r.id)));
+      const keptIds = new Set();
 
       for (const cert of certificates) {
-        if (!cert.certificate_type_id) continue;
+        const record = buildCourseCertDbRecord(cert, courseId);
 
-        await updateCertificateTypeForCourseLink(cert.certificate_type_id, cert, isFreeCourse);
-        await upsertCourseCertificateLink(courseId, courseName, cert);
+        if (cert.id) {
+          const { error } = await supabaseClient
+            .from('course_certificates')
+            .update(record)
+            .eq('id', cert.id);
+          if (error) throw error;
+          keptIds.add(String(cert.id));
+          continue;
+        }
+
+        const { data, error } = await supabaseClient
+          .from('course_certificates')
+          .insert([record])
+          .select('id')
+          .single();
+        if (error) throw error;
+        if (data?.id) keptIds.add(String(data.id));
+      }
+
+      for (const id of existingIds) {
+        if (keptIds.has(id)) continue;
+        const { error } = await supabaseClient
+          .from('course_certificates')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
       }
     }
 
     function togglePriceField() {
       const isPaid = courseType.value === 'paid';
       priceGroup.style.display = isPaid ? 'block' : 'none';
-      certificatesGroup.style.display = 'block';
+      if (certificatesGroup) certificatesGroup.style.display = 'block';
       if (!isPaid) document.getElementById('coursePrice').value = 0;
-      renderCertificatePriceRows(readCourseCertSettingsFromForm());
+      readCourseCertificatesFromForm();
+      renderCourseCertificatesEditor(currentCourseCerts);
     }
+
+    document.getElementById('addCourseCertBtn')?.addEventListener('click', () => {
+      readCourseCertificatesFromForm();
+      currentCourseCerts.push(createEmptyCourseCert());
+      renderCourseCertificatesEditor(currentCourseCerts);
+    });
 
     courseType.addEventListener('change', async () => {
       togglePriceField();
@@ -9693,7 +9536,7 @@
       courseForm.reset();
       courseType.value = 'free';
       togglePriceField();
-      currentCourseCertSettings = {};
+      currentCourseCerts = [];
       await loadCourseCertificates('');
       openModal('courseModal');
     });

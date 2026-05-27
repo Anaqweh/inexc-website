@@ -797,11 +797,16 @@ function buildCourseCertificatesContent(course) {
   const cards = certs.map(cert => {
     const name = escapeHtml(cert.certificate_name || cert.name || cert.label || 'شهادة');
     const issuer = cert.issuer_name ? escapeHtml(cert.issuer_name) : '';
-    const price = Number(cert.price ?? cert.certificate_price ?? cert.price_override) || 0;
-    const included = cert.included_in_paid_course !== false;
+    const price = Number(cert.price) || 0;
+    const included = window.InexcCertificateSystem
+      ? InexcCertificateSystem.isIncludedInCourse(cert)
+      : !!cert.included_in_course;
+    const optional = window.InexcCertificateSystem
+      ? InexcCertificateSystem.isOptionalPurchase(cert)
+      : !!cert.is_optional_purchase;
     const typeLabel = isPaid
-      ? (included ? 'مشمولة في الدورة' : 'اختيارية')
-      : (price > 0 ? 'اختيارية — مدفوعة' : 'اختيارية');
+      ? (included ? 'مشمولة في الدورة' : (optional && price > 0 ? 'اختيارية — مدفوعة' : (optional ? 'اختيارية' : '—')))
+      : (optional && price > 0 ? 'اختيارية — مدفوعة' : 'اختيارية');
     const showPrice = !isPaid && price > 0;
     const priceHtml = showPrice
       ? `<p><strong>السعر:</strong> ${price.toLocaleString('ar-SA')} د.إ</p>`
@@ -974,33 +979,30 @@ async function loadCoursesForHome() {
 
   if (error) throw error;
 
-  let typeCatalog = {};
-  try {
-    const { data: types } = await supabaseClient.from('certificate_types').select('*');
-    if (types?.length && window.InexcCertificateSystem) {
-      typeCatalog = InexcCertificateSystem.buildTypeCatalog(types);
-    }
-  } catch (typeErr) {
-    console.warn('certificate_types load warning:', typeErr);
-  }
-
   let certsByCourse = {};
   try {
     const { data: certs, error: certError } = await supabaseClient
       .from('course_certificates')
-      .select('*');
+      .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student');
     if (certError) {
       console.warn('course_certificates load warning:', certError);
     } else {
       (certs || []).forEach(c => {
         const normalized = window.InexcCertificateSystem
-          ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
+          ? InexcCertificateSystem.normalizeCourseCertificate(c)
           : c;
         if (!isCertVisibleForStudent(normalized || c)) return;
         const cid = (normalized || c).course_id || c.course_id;
         if (!cid) return;
         if (!certsByCourse[cid]) certsByCourse[cid] = [];
-        certsByCourse[cid].push(normalized || c);
+        const row = normalized || c;
+        if (row.id && certsByCourse[cid].some(item => String(item.id) === String(row.id))) return;
+        certsByCourse[cid].push(row);
+      });
+      Object.keys(certsByCourse).forEach(cid => {
+        if (window.InexcCertificateSystem) {
+          certsByCourse[cid] = InexcCertificateSystem.dedupeCourseCertificates(certsByCourse[cid]);
+        }
       });
     }
   } catch (certErr) {

@@ -1038,7 +1038,10 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function cacheCourseRow(row, certsByCourse) {
-      const certs = (certsByCourse && certsByCourse[row.id]) || [];
+      let certs = (certsByCourse && certsByCourse[row.id]) || [];
+      if (window.InexcCertificateSystem) {
+        certs = InexcCertificateSystem.dedupeCourseCertificates(certs);
+      }
       coursesById[row.id] = buildRegisterCourseEntry(row, certs);
       return coursesById[row.id];
     }
@@ -1104,6 +1107,10 @@ NOTIFY pgrst, 'reload schema';`;
       return (courseCertificates || []).filter(c => c && c.is_enabled !== false && c.show_to_student !== false);
     }
 
+    function getCourseCertUiKey(cert) {
+      return String(cert?.id || '');
+    }
+
     function getVisibleCertificates(courseCertificates) {
       return getConfiguredCourseCertificates(courseCertificates);
     }
@@ -1133,11 +1140,18 @@ NOTIFY pgrst, 'reload schema';`;
           const name = escapeHtml(cert.certificate_name || cert.name);
           const issuer = escapeHtml(cert.issuer_name || '');
           const desc = escapeHtml(cert.description || '');
-          const included = cert.included_in_paid_course !== false;
-          const price = Number(cert.price ?? cert.certificate_price) || 0;
+          const included = window.InexcCertificateSystem
+            ? InexcCertificateSystem.isIncludedInCourse(cert)
+            : !!cert.included_in_course;
+          const optional = window.InexcCertificateSystem
+            ? InexcCertificateSystem.isOptionalPurchase(cert)
+            : !!cert.is_optional_purchase;
+          const price = Number(cert.price) || 0;
           const badge = included
-            ? 'مشمولة'
-            : (price > 0 ? price.toLocaleString('ar-SA') + ' د.إ (اختيارية)' : 'للمعرفة');
+            ? 'الشهادة مشمولة مع الدورة'
+            : (optional && price > 0
+              ? price.toLocaleString('ar-SA') + ' د.إ (اختيارية)'
+              : (optional ? 'اختيارية' : '—'));
           return `
             <div class="certificate-option included-cert readonly-cert">
               <div class="certificate-content">
@@ -1184,13 +1198,13 @@ NOTIFY pgrst, 'reload schema';`;
         </label>`;
 
       const typeOptions = typesToShow.map(type => {
-        const key = escapeHtml(type.key || type.certificate_type);
+        const key = escapeHtml(getCourseCertUiKey(type));
         const name = escapeHtml(type.certificate_name || type.name);
         const issuer = escapeHtml(type.issuer_name || '');
         const desc = escapeHtml(type.description || type.subtitle || '');
-        const price = Number(type.price ?? type.certificate_price) || 0;
+        const price = Number(type.price) || 0;
         return `
-          <label class="certificate-option" data-cert-key="${key}" data-cert-id="${escapeHtml(type.certificate_type_id || '')}">
+          <label class="certificate-option" data-cert-key="${key}" data-cert-id="${key}">
             <input type="checkbox" class="cert-type-checkbox" value="${name}">
             <div class="certificate-content">
               <div class="certificate-title">${name}</div>
@@ -1258,13 +1272,15 @@ NOTIFY pgrst, 'reload schema';`;
         const certKey = label?.dataset.certKey;
         if (!certKey) return;
 
-        const match = (info.certificates || []).find(c => (c.key || c.certificate_type) === certKey);
-        const price = Number(match?.price ?? match?.certificate_price) || 0;
+        const match = (info.certificates || []).find(c => getCourseCertUiKey(c) === String(certKey));
+        const price = Number(match?.price) || 0;
 
         selected.push({
-          certificate_type: certKey,
-          certificate_type_id: match?.certificate_type_id || label?.dataset.certId || null,
+          id: match?.id || null,
+          certificate_type: match?.certificate_name || input.value,
+          certificate_type_id: match?.id || null,
           certificate_price: price,
+          price,
           label: input.value,
           issuer_name: match?.issuer_name || '',
           name: match?.certificate_name || match?.name || input.value
@@ -1275,7 +1291,7 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function getCertificatesTotalPrice(certs) {
-      return (certs || []).reduce((sum, cert) => sum + (Number(cert.certificate_price) || 0), 0);
+      return (certs || []).reduce((sum, cert) => sum + (Number(cert.price ?? cert.certificate_price) || 0), 0);
     }
 
     function updateCertificateTotalBox() {
@@ -1348,24 +1364,29 @@ NOTIFY pgrst, 'reload schema';`;
         try {
           const { data: certs, error: certError } = await supabaseClient
             .from('course_certificates')
-            .select('*');
-
-          const typeCatalog = window.InexcCertificateSystem
-            ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
-            : {};
+            .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student');
 
           if (!certError && certs) {
             certs.forEach(c => {
-              const normalized = window.InexcCertificateSystem
-                ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
-                : c;
-              if (!normalized || !(window.InexcCertificateSystem
-                ? InexcCertificateSystem.isVisibleToStudent(normalized)
-                : (normalized.is_enabled !== false && normalized.show_to_student !== false))) return;
-              const cid = normalized.course_id || c.course_id;
+              const cid = c.course_id;
               if (!cid) return;
+
+              const normalized = window.InexcCertificateSystem
+                ? InexcCertificateSystem.normalizeCourseCertificate(c)
+                : c;
+              if (!normalized) return;
+
               if (!certsByCourse[cid]) certsByCourse[cid] = [];
+              const duplicate = normalized.id
+                && certsByCourse[cid].some(item => String(item.id) === String(normalized.id));
+              if (duplicate) return;
               certsByCourse[cid].push(normalized);
+            });
+
+            Object.keys(certsByCourse).forEach(cid => {
+              if (window.InexcCertificateSystem) {
+                certsByCourse[cid] = InexcCertificateSystem.dedupeCourseCertificates(certsByCourse[cid]);
+              }
             });
           } else if (certError) {
             console.warn('course_certificates load warning:', certError);
@@ -1429,18 +1450,16 @@ NOTIFY pgrst, 'reload schema';`;
               try {
                 const { data: certs } = await supabaseClient
                   .from('course_certificates')
-                  .select('*')
+                  .select('id, course_id, certificate_name, issuer_name, description, price, included_in_course, is_optional_purchase, is_enabled, show_to_student')
                   .eq('course_id', data.id);
-                const typeCatalog = window.InexcCertificateSystem
-                  ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
-                  : {};
                 courseCerts = (certs || [])
                   .map(c => window.InexcCertificateSystem
-                    ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
+                    ? InexcCertificateSystem.normalizeCourseCertificate(c)
                     : c)
-                  .filter(c => c && (window.InexcCertificateSystem
-                    ? InexcCertificateSystem.isVisibleToStudent(c)
-                    : (c.is_enabled !== false && c.show_to_student !== false)));
+                  .filter(Boolean);
+                if (window.InexcCertificateSystem) {
+                  courseCerts = InexcCertificateSystem.dedupeCourseCertificates(courseCerts);
+                }
               } catch (certErr) {
                 console.warn('resolveCourseFromUrl certs:', certErr);
               }
@@ -1808,10 +1827,12 @@ NOTIFY pgrst, 'reload schema';`;
         ? (window.InexcCertificateSystem
           ? InexcCertificateSystem.buildIncludedRegistrationPayload(courseInfo.certificates || [])
           : getIncludedCertificates(courseInfo.certificates || []).map(c => ({
-              certificate_type: c.key || c.certificate_type,
-              certificate_type_id: c.certificate_type_id,
+              id: c.id,
+              certificate_type: c.certificate_name || c.name,
+              certificate_type_id: c.id,
               label: c.certificate_name || c.name,
               certificate_price: 0,
+              price: 0,
               issuer_name: c.issuer_name || ''
             })))
         : getSelectedCertificates();
@@ -1842,11 +1863,11 @@ NOTIFY pgrst, 'reload schema';`;
 
       const accessToken = generateAccessToken();
       const certificateTypesPayload = selectedCerts.map(c => ({
-        key: c.certificate_type,
-        certificate_type_id: c.certificate_type_id || null,
-        label: c.label,
+        key: String(c.id || c.certificate_type_id || ''),
+        certificate_type_id: c.id || c.certificate_type_id || null,
+        label: c.label || c.certificate_type,
         issuer_name: c.issuer_name || '',
-        price: c.certificate_price,
+        price: Number(c.price ?? c.certificate_price) || 0,
         included: isPaid || c.included === true
       }));
       const supabaseRecord = {
