@@ -5871,14 +5871,67 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/course-certificates-api.js"></script>
   <script src="supabase-config.js"></script>
+  <script>
+    (function () {
+      if (!window.InexcCourseLoad) {
+        window.InexcCourseLoad = {
+          dedupeCoursesByName: function (rows) {
+            const byName = new Map();
+            (rows || []).forEach(function (row) {
+              var name = String(row && row.name || '').trim();
+              if (name) byName.set(name, row);
+            });
+            return Array.from(byName.values());
+          },
+          normalizeCourseFields: function (row) { return row || {}; },
+          EMPTY_INFO_TEXT: 'لم تتم إضافة معلومات بعد'
+        };
+      }
+      if (!window.InexcCourseCertificatesApi) {
+        window.InexcCourseCertificatesApi = {
+          buildCourseCertRecord: function (cert, courseId) {
+            return {
+              course_id: courseId,
+              certificate_name: String(cert.certificate_name || '').trim(),
+              issuer_name: String(cert.issuer_name || '').trim(),
+              description: String(cert.description || '').trim(),
+              price: Number(cert.price) || 0,
+              is_enabled: !!cert.is_enabled,
+              show_to_student: !!cert.show_to_student,
+              included_in_course: !!cert.included_in_course,
+              is_optional_purchase: !!cert.is_optional_purchase
+            };
+          },
+          fetchCourseCertificates: function () { return Promise.resolve({ data: [], error: null }); },
+          saveCourseCertificateRecord: function () { return Promise.reject(new Error('course-certificates-api.js not loaded')); },
+          normalizeCourseCertificateRow: function (row) { return row; }
+        };
+      }
+      window.loadOptionalScript = function (src) {
+        return new Promise(function (resolve) {
+          if (document.querySelector('script[data-dynamic-src="' + src + '"]')) {
+            resolve();
+            return;
+          }
+          var el = document.createElement('script');
+          el.src = src;
+          el.dataset.dynamicSrc = src;
+          el.onload = function () { resolve(); };
+          el.onerror = function () {
+            console.error('Optional script failed to load:', src);
+            resolve();
+          };
+          document.head.appendChild(el);
+        });
+      };
+    })();
+  </script>
+  <script src="js/course-certificates-api.js"></script>
   <script src="js/course-load-utils.js"></script>
   <script src="js/certificate-system.js"></script>
   <script src="js/cert-auth-requests.js"></script>
   <script src="js/cert-auth-admin.js"></script>
-  <script src="js/attendance-api.js"></script>
-  <script src="js/attendance-admin.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/registration-email.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -6545,9 +6598,13 @@
         await InexcCertAuthAdmin.loadEligibleTraineesCount();
       }
       if (window.InexcAttendanceAdmin) {
-        await InexcAttendance.loadAll();
-        await InexcAttendanceAdmin.loadCoursesAndRegs();
-        await InexcAttendanceAdmin.ensureReady?.();
+        try {
+          await InexcAttendance.loadAll();
+          await InexcAttendanceAdmin.loadCoursesAndRegs();
+          await InexcAttendanceAdmin.ensureReady?.();
+        } catch (attErr) {
+          console.error('Attendance load failed (non-fatal):', attErr);
+        }
       }
       const linked = await syncUnlinkedSupabaseData();
       if (linked > 0) {
@@ -6730,7 +6787,20 @@
       if (page === 'coupons') renderCoupons();
       if (page === 'trainees') renderTraineesCourseExports();
       if (page === 'cert-auth' && window.InexcCertAuthAdmin) InexcCertAuthAdmin.renderCertAuthPage();
-      if (page === 'attendance' && window.InexcAttendanceAdmin) InexcAttendanceAdmin.renderAttendancePage();
+      if (page === 'attendance') {
+        (async function () {
+          try {
+            if (window.loadOptionalScript) {
+              await loadOptionalScript('js/attendance-api.js');
+              await loadOptionalScript('js/attendance-admin.js');
+              window.InexcAttendanceAdmin?.bindEvents?.();
+            }
+            if (window.InexcAttendanceAdmin) InexcAttendanceAdmin.renderAttendancePage();
+          } catch (attNavErr) {
+            console.error('Attendance page load failed:', attNavErr);
+          }
+        })();
+      }
     }
 
     sidebarLinks.forEach(link => {
@@ -9267,36 +9337,21 @@
     }
 
     function mapDbCourseCertRow(row) {
-      const normalized = window.InexcCertificateSystem
-        ? InexcCertificateSystem.normalizeCourseCertificate(row)
-        : null;
-
-      if (normalized) {
-        return {
-          id: normalized.id,
-          localId: normalized.id ? String(normalized.id) : getCourseCertRowToken(row),
-          certificate_name: normalized.certificate_name,
-          issuer_name: normalized.issuer_name,
-          description: normalized.description,
-          price: normalized.price,
-          is_enabled: normalized.is_enabled,
-          show_to_student: normalized.show_to_student,
-          included_in_course: normalized.included_in_course,
-          is_optional_purchase: normalized.is_optional_purchase
-        };
-      }
+      const normalized = window.InexcCourseCertificatesApi
+        ? InexcCourseCertificatesApi.normalizeCourseCertificateRow(row)
+        : row;
 
       return {
-        id: row?.id || null,
-        localId: row?.id ? String(row.id) : getCourseCertRowToken(row),
-        certificate_name: row?.certificate_name || '',
-        issuer_name: row?.issuer_name || '',
-        description: row?.description || '',
-        price: Number(row?.price) || 0,
-        is_enabled: row?.is_enabled !== false,
-        show_to_student: row?.show_to_student !== false,
-        included_in_course: !!row?.included_in_course,
-        is_optional_purchase: !!row?.is_optional_purchase
+        id: normalized?.id || row?.id || null,
+        localId: (normalized?.id || row?.id) ? String(normalized?.id || row?.id) : getCourseCertRowToken(row),
+        certificate_name: normalized?.certificate_name || row?.certificate_name || '',
+        issuer_name: normalized?.issuer_name || row?.issuer_name || '',
+        description: normalized?.description || row?.description || '',
+        price: Number(normalized?.price ?? row?.price) || 0,
+        is_enabled: normalized?.is_enabled !== false,
+        show_to_student: normalized?.show_to_student !== false,
+        included_in_course: !!(normalized?.included_in_course ?? row?.included_in_course),
+        is_optional_purchase: !!(normalized?.is_optional_purchase ?? row?.is_optional_purchase)
       };
     }
 
@@ -9424,7 +9479,7 @@
 
       try {
         const result = window.InexcCourseCertificatesApi
-          ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId, orderCreated: true })
+          ? await InexcCourseCertificatesApi.fetchCourseCertificates(supabaseClient, { courseId })
           : { data: [], error: new Error('InexcCourseCertificatesApi missing') };
 
         if (result.error) {
@@ -9443,7 +9498,14 @@
       }
     }
 
-    async function saveCourseCertificates(courseId, courseName, certificates) {
+    async function saveCertificates(courseId, certificatesData) {
+      console.log('certificatesData', certificatesData);
+
+      if (!courseId) {
+        console.error('saveCertificates: missing courseId');
+        return { ok: false };
+      }
+
       try {
         const { data: existingRows, error: loadErr } = await supabaseClient
           .from('course_certificates')
@@ -9456,31 +9518,23 @@
         const keptIds = new Set();
         const saveFn = window.InexcCourseCertificatesApi?.saveCourseCertificateRecord;
 
-        for (const cert of certificates) {
+        for (const cert of certificatesData) {
           const record = buildCourseCertDbRecord(cert, courseId);
-
-          if (cert.id && saveFn) {
-            const savedId = await saveFn(supabaseClient, record, cert.id);
-            keptIds.add(String(savedId || cert.id));
-            continue;
-          }
-
-          if (cert.id) {
-            const { error } = await supabaseClient.from('course_certificates').update(record).eq('id', cert.id);
-            if (error) throw error;
-            keptIds.add(String(cert.id));
-            continue;
-          }
+          let savedId = null;
 
           if (saveFn) {
-            const savedId = await saveFn(supabaseClient, record, null);
-            if (savedId) keptIds.add(String(savedId));
-            continue;
+            savedId = await saveFn(supabaseClient, record, cert.id || null);
+          } else if (cert.id) {
+            const { error } = await supabaseClient.from('course_certificates').update(record).eq('id', cert.id);
+            if (error) throw error;
+            savedId = cert.id;
+          } else {
+            const { data, error } = await supabaseClient.from('course_certificates').insert([record]).select('id').single();
+            if (error) throw error;
+            savedId = data?.id;
           }
 
-          const { data, error } = await supabaseClient.from('course_certificates').insert([record]).select('id').single();
-          if (error) throw error;
-          if (data?.id) keptIds.add(String(data.id));
+          if (savedId) keptIds.add(String(savedId));
         }
 
         for (const id of existingIds) {
@@ -9488,10 +9542,16 @@
           const { error } = await supabaseClient.from('course_certificates').delete().eq('id', id);
           if (error) throw error;
         }
+
+        return { ok: true };
       } catch (err) {
-        console.error('saveCourseCertificates:', err);
+        console.error('saveCertificates failed:', err);
         throw err;
       }
+    }
+
+    async function saveCourseCertificates(courseId, _courseName, certificates) {
+      return saveCertificates(courseId, certificates);
     }
 
     function togglePriceField() {
@@ -9708,7 +9768,8 @@
         requirements: document.getElementById('courseRequirements').value.trim()
       });
       const payload = id ? basePayload : { ...basePayload, status: 'active' };
-      const certificates = readCourseCertificatesFromForm();
+      const certificatesData = readCourseCertificatesFromForm();
+      console.log('certificatesData', certificatesData);
 
       let courseId = id;
       let error;
@@ -9724,20 +9785,28 @@
         return;
       }
 
-      if (courseId) {
+      let certSaveFailed = false;
+      if (courseId && certificatesData.length) {
         try {
-          await saveCourseCertificates(courseId, courseName, certificates);
+          await saveCertificates(courseId, certificatesData);
         } catch (certErr) {
-          showSupabaseError(certErr, 'save certificates');
-          return;
+          certSaveFailed = true;
+          console.error('saveCertificates error (course already saved):', certErr);
         }
       }
 
       try {
         await reloadFromSupabase();
         closeModal('courseModal');
+        if (certSaveFailed) {
+          showActionError('تم حفظ الدورة. تعذّر حفظ الشهادات — راجع Console.');
+        } else {
+          showActionSuccess('تم حفظ الدورة بنجاح.');
+        }
       } catch (err) {
-        showSupabaseError(err, 'reload after save course');
+        console.error('reload after save course:', err);
+        closeModal('courseModal');
+        showActionSuccess('تم حفظ الدورة.');
       }
     });
 
