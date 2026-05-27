@@ -255,200 +255,6 @@
       color: #15803d;
     }
 
-    .course-info-box {
-      display: none;
-      margin-top: 14px;
-      border: 1px solid rgba(27, 42, 74, 0.12);
-      border-radius: 14px;
-      background: var(--surface);
-      overflow: hidden;
-      box-shadow: 0 4px 14px rgba(27, 42, 74, 0.06);
-    }
-
-    .course-info-box.visible {
-      display: block;
-    }
-
-    .course-info-box summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 16px;
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.9rem;
-      background: linear-gradient(135deg, #1B2A4A 0%, #243B5E 100%);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .course-info-box summary::-webkit-details-marker { display: none; }
-
-    .course-info-summary-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 9px;
-      background: rgba(200, 169, 110, 0.14);
-      border: 1.5px solid var(--gold);
-      color: #E8D4A8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
-    .course-info-box summary::after {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-right: 2px solid var(--gold);
-      border-bottom: 2px solid var(--gold);
-      transform: rotate(45deg);
-      margin-right: auto;
-      transition: transform 0.2s;
-    }
-
-    .course-info-box[open] summary::after {
-      transform: rotate(225deg);
-      margin-top: 4px;
-    }
-
-    .course-info-box-body {
-      padding: 12px 16px 14px;
-      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-      border-top: 2px solid rgba(200, 169, 110, 0.35);
-    }
-
-    .course-info-block {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(27, 42, 74, 0.07);
-    }
-
-    .course-info-block:last-child { border-bottom: none; }
-
-    .course-info-block-head {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .course-info-section-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: var(--navy);
-      border: 1px solid rgba(200, 169, 110, 0.5);
-      color: var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
-    .course-info-block-title {
-      font-size: 0.82rem;
-      font-weight: 800;
-      color: var(--navy);
-    }
-
-    .course-info-block ul {
-      list-style: none;
-      margin: 0;
-      padding: 0 4px 0 0;
-    }
-
-    .course-info-block li {
-      position: relative;
-      font-size: 0.85rem;
-      color: var(--text);
-      padding: 4px 16px 4px 0;
-      line-height: 1.7;
-    }
-
-    .course-info-block li::before {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 11px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--navy);
-      box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.35);
-    }
-
-    .course-info-block p,
-    .course-info-block-text {
-      font-size: 0.85rem;
-      color: var(--text);
-      line-height: 1.75;
-      margin: 0;
-      white-space: pre-line;
-    }
-
-    .course-info-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .course-info-meta-item {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 6px;
-      text-align: center;
-    }
-
-    .course-info-meta-icon {
-      width: 26px;
-      height: 26px;
-      margin: 0 auto 5px;
-      border-radius: 7px;
-      background: var(--navy);
-      color: var(--gold);
-      border: 1px solid rgba(200, 169, 110, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .course-info-meta-label {
-      display: block;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .course-info-meta-val {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1.35;
-    }
-
-    .course-info-empty,
-    .course-info-block-empty {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .course-info-block li.info-block-empty-item {
-      color: var(--text-muted);
-    }
-
-    .course-info-block li.info-block-empty-item::before {
-      display: none;
-    }
-
     .reg-type-note {
       font-size: 0.88rem;
       color: var(--text-muted);
@@ -1056,13 +862,6 @@
               <option value="" disabled selected>— جاري تحميل الدورات —</option>
             </select>
             <div class="course-price-box" id="coursePriceBox"></div>
-            <details class="course-info-box" id="courseInfoBox">
-              <summary>
-                <span class="course-info-summary-icon" aria-hidden="true">i</span>
-                <span>معلومات الدورة المختارة</span>
-              </summary>
-              <div class="course-info-box-body" id="courseInfoBody"></div>
-            </details>
           </div>
 
           <div class="form-group" id="regTypeGroup" style="display:none;">
@@ -1148,7 +947,25 @@ GRANT ALL ON public.registrations TO anon;
 GRANT ALL ON SEQUENCE registrations_id_seq TO anon;
 NOTIFY pgrst, 'reload schema';`;
 
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    try {
+      if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+      } else {
+        console.warn('EmailJS غير محمّل — التسجيل يعمل لكن رسالة الترحيب قد لا تُرسل');
+      }
+    } catch (emailInitErr) {
+      console.warn('EmailJS init failed:', emailInitErr);
+    }
+
+    if (!window.supabaseClient) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const errEl = document.getElementById('formError');
+        if (errEl) {
+          errEl.textContent = 'تعذّر الاتصال بقاعدة البيانات. تأكد من تحميل supabase-config.js واتصال الإنترنت.';
+          errEl.classList.add('visible');
+        }
+      });
+    }
 
     let coursesById = {};
     let certificateTypesCache = [];
@@ -1426,91 +1243,6 @@ NOTIFY pgrst, 'reload schema';`;
       }
     }
 
-    function parseCourseLines(text) {
-      if (!text || !String(text).trim()) return [];
-      const lines = String(text).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      if (lines.length) return lines;
-      return [String(text).trim()];
-    }
-
-    const COURSE_DETAIL_SECTIONS = [
-      { key: 'objectives', label: 'الأهداف', icon: '◎', list: true },
-      { key: 'outcomes', label: 'المخرجات', icon: '◈', list: true },
-      { key: 'what_you_learn', label: 'ماذا ستتعلم؟', icon: '★', list: true },
-      { key: 'course_method', label: 'طريقة التقديم', icon: '▣', list: false },
-      { key: 'target_audience', label: 'الفئة المستهدفة', icon: '◆', list: true },
-      { key: 'requirements', label: 'المتطلبات', icon: '◐', list: true }
-    ];
-
-    function buildRegisterSectionBlock(section, info) {
-      const lines = parseCourseLines(info[section.key]);
-      const head = `<div class="course-info-block-head">
-        <span class="course-info-section-icon" aria-hidden="true">${section.icon}</span>
-        <span class="course-info-block-title">${section.label}</span>
-      </div>`;
-      if (section.list) {
-        const items = lines.length
-          ? lines.map(l => `<li>${escapeHtml(l)}</li>`).join('')
-          : '<li class="info-block-empty-item">—</li>';
-        return `<div class="course-info-block">${head}<ul>${items}</ul></div>`;
-      }
-      const text = lines.length
-        ? escapeHtml(lines.join('\n'))
-        : '<span class="course-info-block-empty">—</span>';
-      return `<div class="course-info-block">${head}<p class="course-info-block-text">${text}</p></div>`;
-    }
-
-    function buildRegisterMetaBlock(info) {
-      const items = [
-        { icon: '⏱', label: 'المدة', val: info.hours || '20 ساعة' },
-        { icon: '◆', label: 'المستوى', val: info.level || 'متوسط' },
-        { icon: '✓', label: 'الشهادة', val: info.cert || 'شهادة INEXC' }
-      ];
-      return `<div class="course-info-block">
-        <div class="course-info-block-head">
-          <span class="course-info-section-icon" aria-hidden="true">ℹ</span>
-          <span class="course-info-block-title">بيانات الدورة</span>
-        </div>
-        <div class="course-info-meta-grid">
-          ${items.map(item => `<div class="course-info-meta-item">
-            <span class="course-info-meta-icon">${item.icon}</span>
-            <span class="course-info-meta-label">${item.label}</span>
-            <span class="course-info-meta-val">${escapeHtml(item.val)}</span>
-          </div>`).join('')}
-        </div>
-      </div>`;
-    }
-
-    function buildRegisterCourseInfoBody(info) {
-      const descBlock = `<div class="course-info-block">
-        <div class="course-info-block-head">
-          <span class="course-info-section-icon" aria-hidden="true">≡</span>
-          <span class="course-info-block-title">نبذة عن الدورة</span>
-        </div>
-        <p class="course-info-block-text">${info.description ? escapeHtml(info.description) : '<span class="course-info-block-empty">—</span>'}</p>
-      </div>`;
-      const detailBlocks = COURSE_DETAIL_SECTIONS.map(s => buildRegisterSectionBlock(s, info)).join('');
-      const metaBlock = buildRegisterMetaBlock(info);
-      return descBlock + detailBlocks + metaBlock;
-    }
-
-    function renderCourseInfoBox(info) {
-      const box = document.getElementById('courseInfoBox');
-      const body = document.getElementById('courseInfoBody');
-      if (!box || !body) return;
-
-      if (!info?.name) {
-        box.classList.remove('visible');
-        box.removeAttribute('open');
-        body.innerHTML = '';
-        return;
-      }
-
-      body.innerHTML = buildRegisterCourseInfoBody(info);
-      box.classList.add('visible');
-      box.removeAttribute('open');
-    }
-
     async function loadCoursesIntoSelect() {
       const courseSelect = document.getElementById('course');
       const note = document.getElementById('regTypeNote');
@@ -1676,12 +1408,9 @@ NOTIFY pgrst, 'reload schema';`;
         note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
         submitBtnDefaultText = 'إرسال التسجيل';
         document.getElementById('certificateGroup')?.classList.add('hidden');
-        renderCourseInfoBox(null);
         if (submitButton) submitButton.textContent = submitBtnDefaultText;
         return;
       }
-
-      renderCourseInfoBox(info);
 
       if (isPaidCourse(info)) {
         renderCertificateOptionsForCourse(info.certificates || [], !!fromCertChange, true);
@@ -1737,23 +1466,31 @@ NOTIFY pgrst, 'reload schema';`;
     const submitBtn = document.getElementById('submitBtn');
     const courseSelect = document.getElementById('course');
 
-    menuToggle.addEventListener('click', () => {
-      nav.classList.toggle('open');
-    });
+    if (menuToggle && nav) {
+      menuToggle.addEventListener('click', () => {
+        nav.classList.toggle('open');
+      });
+    }
 
-    nav.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => nav.classList.remove('open'));
-    });
+    if (nav) {
+      nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => nav.classList.remove('open'));
+      });
+    }
 
-    courseSelect.addEventListener('change', () => updateCourseSelectionUI(false));
+    if (courseSelect) {
+      courseSelect.addEventListener('change', () => updateCourseSelectionUI(false));
+    }
 
-    sqlScript.value = SUPABASE_FIX_SQL;
+    if (sqlScript) sqlScript.value = SUPABASE_FIX_SQL;
 
-    copySqlBtn.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(SUPABASE_FIX_SQL);
-      copySqlBtn.textContent = 'تم النسخ ✓';
-      setTimeout(() => { copySqlBtn.textContent = 'نسخ السكربت'; }, 2000);
-    });
+    if (copySqlBtn && sqlScript) {
+      copySqlBtn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(SUPABASE_FIX_SQL);
+        copySqlBtn.textContent = 'تم النسخ ✓';
+        setTimeout(() => { copySqlBtn.textContent = 'نسخ السكربت'; }, 2000);
+      });
+    }
 
     function showFormError(message, showSqlHelp) {
       formError.textContent = message;
@@ -1884,7 +1621,8 @@ NOTIFY pgrst, 'reload schema';`;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    registerForm.addEventListener('submit', async (e) => {
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideFormError();
 
@@ -2059,9 +1797,13 @@ NOTIFY pgrst, 'reload schema';`;
       } finally {
         setSubmitting(false);
       }
-    });
+      });
+    } else {
+      console.error('registerForm not found');
+    }
 
     (async function initRegisterPage() {
+      try {
       await loadCertificateTypes();
       await loadCoursesIntoSelect();
 
@@ -2069,14 +1811,18 @@ NOTIFY pgrst, 'reload schema';`;
       const courseIdParam = params.get('courseId');
       const courseParam = params.get('course');
 
-      if (courseIdParam && coursesById[courseIdParam]) {
+      if (courseIdParam && coursesById[courseIdParam] && courseSelect) {
         courseSelect.value = courseIdParam;
-      } else if (courseParam) {
+      } else if (courseParam && courseSelect) {
         const match = Object.values(coursesById).find(c => c.name === courseParam);
         if (match) courseSelect.value = match.id;
       }
       updateCourseSelectionUI();
       highlightCertificateOption();
+      } catch (initErr) {
+        console.error('Register page init error:', initErr);
+        showFormError('تعذّر تحميل صفحة التسجيل. يرجى تحديث الصفحة أو التحقق من اتصال الإنترنت.');
+      }
     })();
   </script>
 
