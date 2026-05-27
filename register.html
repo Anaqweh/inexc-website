@@ -980,6 +980,11 @@ NOTIFY pgrst, 'reload schema';`;
     ];
 
     async function loadCertificateTypes() {
+      if (!window.supabaseClient) {
+        console.error('loadCertificateTypes: supabaseClient missing');
+        certificateTypesCache = [];
+        return;
+      }
       const { data, error } = await supabaseClient
         .from('certificate_types')
         .select('*')
@@ -992,6 +997,45 @@ NOTIFY pgrst, 'reload schema';`;
       }
 
       certificateTypesCache = data || [];
+    }
+
+    function getUrlCourseParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        courseId: (params.get('course_id') || params.get('courseId') || '').trim(),
+        courseName: decodeURIComponent((params.get('course_name') || params.get('courseName') || params.get('course') || '').trim())
+      };
+    }
+
+    function buildRegisterCourseEntry(row, courseCerts) {
+      const normalized = window.InexcCourseLoad
+        ? InexcCourseLoad.normalizeCourseFields(row)
+        : row;
+      const paid = normalized.type === 'paid';
+      const price = paid ? (Number(normalized.price) || 0) : 0;
+      return {
+        id: normalized.id,
+        name: normalized.name,
+        description: normalized.description || '',
+        price,
+        paid,
+        hours: normalized.hours || '',
+        level: normalized.level || '',
+        cert: normalized.cert || '',
+        objectives: normalized.objectives || '',
+        outcomes: normalized.outcomes || '',
+        what_you_learn: normalized.what_you_learn || '',
+        course_method: normalized.course_method || '',
+        target_audience: normalized.target_audience || '',
+        requirements: normalized.requirements || '',
+        certificates: courseCerts || []
+      };
+    }
+
+    function cacheCourseRow(row, certsByCourse) {
+      const certs = (certsByCourse && certsByCourse[row.id]) || [];
+      coursesById[row.id] = buildRegisterCourseEntry(row, certs);
+      return coursesById[row.id];
     }
 
     function escapeHtml(str) {
@@ -1049,7 +1093,7 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function getConfiguredCourseCertificates(courseCertificates) {
-      return getSelectableCertificates(courseCertificates);
+      return (courseCertificates || []).filter(c => c && c.is_enabled !== false);
     }
 
     function renderCertificateOptionsForCourse(courseCertificates, preserveSelection, isPaidCourseSelected) {
@@ -1246,6 +1290,17 @@ NOTIFY pgrst, 'reload schema';`;
     async function loadCoursesIntoSelect() {
       const courseSelect = document.getElementById('course');
       const note = document.getElementById('regTypeNote');
+      if (!courseSelect) {
+        console.error('loadCoursesIntoSelect: #course select not found');
+        return false;
+      }
+      if (!window.supabaseClient) {
+        console.error('loadCoursesIntoSelect: supabaseClient missing');
+        courseSelect.innerHTML = '<option value="" disabled selected>— تعذّر تحميل الدورات —</option>';
+        if (note) note.textContent = 'تعذّر الاتصال بقاعدة البيانات.';
+        return false;
+      }
+
       try {
         const { data, error } = await supabaseClient
           .from('courses')
@@ -1260,13 +1315,13 @@ NOTIFY pgrst, 'reload schema';`;
           console.error('Courses load error:', error);
           courseSelect.innerHTML = '<option value="" disabled selected>— تعذّر تحميل الدورات —</option>';
           if (note) note.textContent = 'تعذّر تحميل قائمة الدورات. يرجى تحديث الصفحة أو المحاولة لاحقاً.';
-          return;
+          return false;
         }
 
         if (!data?.length) {
           courseSelect.innerHTML = '<option value="" disabled selected>— لا توجد دورات متاحة —</option>';
           if (note) note.textContent = 'لا توجد دورات متاحة للتسجيل حالياً.';
-          return;
+          return true;
         }
 
         const uniqueCourses = window.InexcCourseLoad
@@ -1274,62 +1329,144 @@ NOTIFY pgrst, 'reload schema';`;
           : data;
 
         let certsByCourse = {};
-        const { data: certs, error: certError } = await supabaseClient
-          .from('course_certificates')
-          .select('*');
+        try {
+          const { data: certs, error: certError } = await supabaseClient
+            .from('course_certificates')
+            .select('*');
 
-        const typeCatalog = window.InexcCertificateSystem
-          ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
-          : {};
+          const typeCatalog = window.InexcCertificateSystem
+            ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
+            : {};
 
-        if (!certError && certs) {
-          certs.forEach(c => {
-            const normalized = window.InexcCertificateSystem
-              ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
-              : c;
-            if (!normalized || !normalized.is_enabled) return;
-            const cid = normalized.course_id || c.course_id;
-            if (!cid) return;
-            if (!certsByCourse[cid]) certsByCourse[cid] = [];
-            certsByCourse[cid].push(normalized);
-          });
+          if (!certError && certs) {
+            certs.forEach(c => {
+              const normalized = window.InexcCertificateSystem
+                ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
+                : c;
+              if (!normalized || normalized.is_enabled === false) return;
+              const cid = normalized.course_id || c.course_id;
+              if (!cid) return;
+              if (!certsByCourse[cid]) certsByCourse[cid] = [];
+              certsByCourse[cid].push(normalized);
+            });
+          } else if (certError) {
+            console.warn('course_certificates load warning:', certError);
+          }
+        } catch (certLoadErr) {
+          console.warn('course_certificates load failed (non-fatal):', certLoadErr);
         }
 
         if (note) note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
 
         uniqueCourses.forEach(row => {
-          const paid = row.type === 'paid';
-          const price = paid ? (Number(row.price) || 0) : 0;
-          coursesById[row.id] = {
-            id: row.id,
-            name: row.name,
-            description: row.description || '',
-            price,
-            paid,
-            hours: row.hours || '',
-            level: row.level || '',
-            cert: row.cert || '',
-            objectives: row.objectives || '',
-            outcomes: row.outcomes || '',
-            what_you_learn: row.what_you_learn || row.learn_content || '',
-            course_method: row.course_method || row.delivery_method || '',
-            target_audience: row.target_audience || '',
-            requirements: row.requirements || '',
-            certificates: certsByCourse[row.id] || []
-          };
-
+          const entry = cacheCourseRow(row, certsByCourse);
           const opt = document.createElement('option');
           opt.value = row.id;
-          opt.textContent = row.name;
-          opt.dataset.price = price;
+          opt.textContent = entry.name;
+          opt.dataset.price = entry.price;
           courseSelect.appendChild(opt);
         });
+        return true;
       } catch (e) {
         console.error('Courses load error:', e);
         coursesById = {};
         courseSelect.innerHTML = '<option value="" disabled selected>— تعذّر تحميل الدورات —</option>';
         if (note) note.textContent = 'تعذّر تحميل قائمة الدورات. يرجى تحديث الصفحة أو المحاولة لاحقاً.';
+        return false;
       }
+    }
+
+    async function resolveCourseFromUrl() {
+      const { courseId, courseName } = getUrlCourseParams();
+      if (!courseId && !courseName) return null;
+
+      if (courseId && coursesById[courseId]) return courseId;
+
+      if (courseName) {
+        const byName = Object.values(coursesById).find(c => c.name === courseName);
+        if (byName) return byName.id;
+      }
+
+      if (!window.supabaseClient) {
+        console.error('resolveCourseFromUrl: supabaseClient missing');
+        return null;
+      }
+
+      try {
+        if (courseId) {
+          const { data, error } = await supabaseClient
+            .from('courses')
+            .select('*')
+            .eq('id', courseId)
+            .eq('status', 'active')
+            .maybeSingle();
+
+          if (error) {
+            console.error('resolveCourseFromUrl by id:', error);
+            return null;
+          }
+          if (data) {
+            let courseCerts = coursesById[data.id]?.certificates || [];
+            if (!courseCerts.length) {
+              try {
+                const { data: certs } = await supabaseClient
+                  .from('course_certificates')
+                  .select('*')
+                  .eq('course_id', data.id);
+                const typeCatalog = window.InexcCertificateSystem
+                  ? InexcCertificateSystem.buildTypeCatalog(certificateTypesCache)
+                  : {};
+                courseCerts = (certs || [])
+                  .map(c => window.InexcCertificateSystem
+                    ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
+                    : c)
+                  .filter(c => c && c.is_enabled !== false);
+              } catch (certErr) {
+                console.warn('resolveCourseFromUrl certs:', certErr);
+              }
+            }
+            cacheCourseRow(data, { [data.id]: courseCerts });
+            appendCourseOptionIfMissing(data.id);
+            return data.id;
+          }
+        }
+
+        if (courseName) {
+          const { data, error } = await supabaseClient
+            .from('courses')
+            .select('*')
+            .eq('name', courseName)
+            .eq('status', 'active')
+            .limit(1)
+            .maybeSingle();
+
+          if (error) {
+            console.error('resolveCourseFromUrl by name:', error);
+            return null;
+          }
+          if (data) {
+            cacheCourseRow(data, {});
+            appendCourseOptionIfMissing(data.id);
+            return data.id;
+          }
+        }
+      } catch (e) {
+        console.error('resolveCourseFromUrl:', e);
+      }
+
+      return null;
+    }
+
+    function appendCourseOptionIfMissing(courseId) {
+      const courseSelect = document.getElementById('course');
+      const entry = coursesById[courseId];
+      if (!courseSelect || !entry) return;
+      if (courseSelect.querySelector('option[value="' + courseId + '"]')) return;
+      const opt = document.createElement('option');
+      opt.value = courseId;
+      opt.textContent = entry.name;
+      opt.dataset.price = entry.price;
+      courseSelect.appendChild(opt);
     }
 
     function getSelectedCertificate() {
@@ -1403,9 +1540,11 @@ NOTIFY pgrst, 'reload schema';`;
       const submitButton = document.getElementById('submitBtn');
 
       if (!info.name) {
-        box.classList.remove('visible', 'free');
-        box.textContent = '';
-        note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
+        if (box) {
+          box.classList.remove('visible', 'free');
+          box.textContent = '';
+        }
+        if (note) note.textContent = 'اختر دورة لعرض السعر ونوع التسجيل';
         submitBtnDefaultText = 'إرسال التسجيل';
         document.getElementById('certificateGroup')?.classList.add('hidden');
         if (submitButton) submitButton.textContent = submitBtnDefaultText;
@@ -1415,28 +1554,37 @@ NOTIFY pgrst, 'reload schema';`;
       if (isPaidCourse(info)) {
         renderCertificateOptionsForCourse(info.certificates || [], !!fromCertChange, true);
         const coursePrice = Number(info.price) || 0;
-        box.classList.add('visible');
-        box.classList.remove('free');
-        box.textContent = coursePrice.toLocaleString('ar-SA') + ' د.إ (شامل الدورة والشهادات المفعّلة)';
-        note.textContent = 'دورة مدفوعة — السعر شامل للدورة والشهادات المفعّلة. سيتم تحويلك إلى Stripe.';
+        if (box) {
+          box.classList.add('visible');
+          box.classList.remove('free');
+          box.textContent = coursePrice.toLocaleString('ar-SA') + ' د.إ (شامل الدورة والشهادات المفعّلة)';
+        }
+        if (note) note.textContent = 'دورة مدفوعة — السعر شامل للدورة والشهادات المفعّلة. سيتم تحويلك إلى Stripe.';
         if (paidRadio) paidRadio.checked = true;
         submitBtnDefaultText = 'إرسال التسجيل والدفع';
       } else {
         renderCertificateOptionsForCourse(info.certificates || [], !!fromCertChange, false);
         const certs = getSelectedCertificates();
         const certTotal = getCertificatesTotalPrice(certs);
-        box.classList.add('visible');
-        if (certs.length && certTotal > 0) {
-          box.classList.remove('free');
-          const countNote = certs.length > 1 ? ` (${certs.length} شهادات)` : '';
-          box.textContent = certTotal + ' د.إ (مجموع الشهادات)' + countNote;
-          note.textContent = 'دورة مجانية — سيتم تحويلك إلى Stripe لدفع مجموع الشهادات المختارة';
-          submitBtnDefaultText = 'إرسال التسجيل ودفع الشهادات';
-        } else {
-          box.classList.add('free');
-          box.textContent = 'مجانية';
-          note.textContent = 'دورة مجانية — سيتم تسجيلك مباشرة بدون دفع';
-          submitBtnDefaultText = 'إرسال التسجيل';
+        if (box) {
+          box.classList.add('visible');
+          if (certs.length && certTotal > 0) {
+            box.classList.remove('free');
+            const countNote = certs.length > 1 ? ` (${certs.length} شهادات)` : '';
+            box.textContent = certTotal + ' د.إ (مجموع الشهادات)' + countNote;
+          } else {
+            box.classList.add('free');
+            box.textContent = 'مجانية';
+          }
+        }
+        if (note) {
+          if (certs.length && certTotal > 0) {
+            note.textContent = 'دورة مجانية — سيتم تحويلك إلى Stripe لدفع مجموع الشهادات المختارة';
+            submitBtnDefaultText = 'إرسال التسجيل ودفع الشهادات';
+          } else {
+            note.textContent = 'دورة مجانية — سيتم تسجيلك مباشرة بدون دفع';
+            submitBtnDefaultText = 'إرسال التسجيل';
+          }
         }
         if (freeRadio) freeRadio.checked = true;
       }
@@ -1493,18 +1641,24 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function showFormError(message, showSqlHelp) {
+      if (!formError) {
+        console.error('Form error:', message);
+        return;
+      }
       formError.textContent = message;
       formError.classList.add('visible');
-      sqlHelp.classList.toggle('visible', !!showSqlHelp);
+      if (sqlHelp) sqlHelp.classList.toggle('visible', !!showSqlHelp);
     }
 
     function hideFormError() {
+      if (!formError) return;
       formError.textContent = '';
       formError.classList.remove('visible');
-      sqlHelp.classList.remove('visible');
+      if (sqlHelp) sqlHelp.classList.remove('visible');
     }
 
     function setSubmitting(isSubmitting) {
+      if (!submitBtn) return;
       submitBtn.disabled = isSubmitting;
       submitBtn.textContent = isSubmitting ? 'جاري الإرسال...' : submitBtnDefaultText;
     }
@@ -1803,25 +1957,40 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     (async function initRegisterPage() {
-      try {
-      await loadCertificateTypes();
-      await loadCoursesIntoSelect();
-
-      const params = new URLSearchParams(window.location.search);
-      const courseIdParam = params.get('courseId');
-      const courseParam = params.get('course');
-
-      if (courseIdParam && coursesById[courseIdParam] && courseSelect) {
-        courseSelect.value = courseIdParam;
-      } else if (courseParam && courseSelect) {
-        const match = Object.values(coursesById).find(c => c.name === courseParam);
-        if (match) courseSelect.value = match.id;
+      if (!window.supabaseClient) {
+        console.error('Register init: supabaseClient is not available');
+        showFormError('تعذّر الاتصال بقاعدة البيانات. تحقّق من تحميل supabase-config.js');
+        return;
       }
-      updateCourseSelectionUI();
-      highlightCertificateOption();
-      } catch (initErr) {
-        console.error('Register page init error:', initErr);
-        showFormError('تعذّر تحميل صفحة التسجيل. يرجى تحديث الصفحة أو التحقق من اتصال الإنترنت.');
+
+      try {
+        await loadCertificateTypes();
+      } catch (certTypeErr) {
+        console.warn('Register init: certificate_types failed (non-fatal):', certTypeErr);
+      }
+
+      const coursesOk = await loadCoursesIntoSelect();
+      if (!coursesOk) {
+        showFormError('تعذّر تحميل قائمة الدورات. يرجى تحديث الصفحة أو المحاولة لاحقاً.');
+        return;
+      }
+
+      const { courseId, courseName } = getUrlCourseParams();
+      if (courseId || courseName) {
+        const resolvedId = await resolveCourseFromUrl();
+        if (resolvedId && courseSelect) {
+          courseSelect.value = resolvedId;
+        } else {
+          console.warn('Register init: course from URL not found', { courseId, courseName });
+          showFormError('لم يتم العثور على الدورة في الرابط. يمكنك اختيار دورة من القائمة.');
+        }
+      }
+
+      try {
+        updateCourseSelectionUI();
+        highlightCertificateOption();
+      } catch (uiErr) {
+        console.error('Register init: UI update failed:', uiErr);
       }
     })();
   </script>

@@ -439,6 +439,71 @@ nav a.active{background:var(--gold);color:var(--navy);}
   padding-right:0;
 }
 .info-block-list .info-block-empty-item::before{display:none;}
+.card-info-accordion{margin:0;}
+.course-info-item{
+  border:1px solid rgba(27,42,74,0.1);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:8px;
+  background:#fff;
+}
+.course-info-item:last-child{margin-bottom:0;}
+.course-info-header{
+  width:100%;
+  border:none;
+  background:linear-gradient(135deg, #1B2A4A 0%, #243B5E 100%);
+  color:#fff;
+  cursor:pointer;
+  padding:10px 12px;
+  font-family:'Cairo',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:right;
+}
+.course-info-header:hover{background:linear-gradient(135deg, #243B5E 0%, #1B2A4A 100%);}
+.course-info-header .info-section-icon{
+  width:26px;height:26px;font-size:12px;
+}
+.course-info-header-text{flex:1;}
+.course-info-header-chevron{
+  width:8px;height:8px;
+  border-right:2px solid #C8A96E;
+  border-bottom:2px solid #C8A96E;
+  transform:rotate(45deg);
+  transition:transform 0.2s;
+  flex-shrink:0;
+}
+.course-info-item.open .course-info-header-chevron{
+  transform:rotate(225deg);
+  margin-top:2px;
+}
+.course-info-panel{
+  display:none;
+  padding:10px 12px 12px;
+  background:linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-top:2px solid rgba(200,169,110,0.35);
+}
+.course-info-item.open .course-info-panel{display:block;}
+.card-certs-wrap{
+  padding:0 16px 14px;
+  background:var(--white);
+  border-bottom:1px solid rgba(27,42,74,0.06);
+}
+.card-certs-title{
+  font-size:12px;
+  font-weight:800;
+  color:#1B2A4A;
+  margin:0 0 8px;
+}
+.cert-info-price{
+  font-size:11px;
+  font-weight:700;
+  color:#1B2A4A;
+  margin-top:6px;
+}
 @media(max-width:680px){
   .info-block-meta .info-meta-grid{grid-template-columns:1fr;}
 }
@@ -616,6 +681,8 @@ function parseCourseLines(text) {
   return [String(text).trim()];
 }
 
+const EMPTY_INFO_TEXT = (window.InexcCourseLoad && InexcCourseLoad.EMPTY_INFO_TEXT) || 'لم تتم إضافة معلومات بعد';
+
 const COURSE_DETAIL_SECTIONS = [
   { key: 'objectives', label: 'الأهداف', icon: '◎', list: true },
   { key: 'outcomes', label: 'المخرجات', icon: '◈', list: true },
@@ -625,89 +692,146 @@ const COURSE_DETAIL_SECTIONS = [
   { key: 'requirements', label: 'المتطلبات', icon: '◐', list: true }
 ];
 
-function buildSectionBlock(section, course) {
-  const lines = parseCourseLines(course[section.key]);
-  const head = `<div class="info-block-head">
-    <span class="info-section-icon" aria-hidden="true">${section.icon}</span>
-    <span class="info-block-title">${section.label}</span>
-  </div>`;
-  if (section.list) {
-    const items = lines.length
-      ? lines.map(l => `<li>${escapeHtml(l)}</li>`).join('')
-      : '<li class="info-block-empty-item">—</li>';
-    return `<div class="info-block">${head}<ul class="info-block-list">${items}</ul></div>`;
+function normalizeHomeCourse(row) {
+  if (window.InexcCourseLoad && InexcCourseLoad.normalizeCourseFields) {
+    return InexcCourseLoad.normalizeCourseFields(row);
   }
-  const text = lines.length
-    ? escapeHtml(lines.join('\n'))
-    : '<span class="info-block-empty">—</span>';
-  return `<div class="info-block">${head}<div class="info-block-text">${text}</div></div>`;
+  return {
+    id: row.id,
+    name: row.name || '',
+    description: row.description || '',
+    objectives: row.objectives || row.goals || '',
+    outcomes: row.outcomes || row.outputs || '',
+    what_you_learn: row.what_you_learn || row.learning_points || row.learn_content || '',
+    course_method: row.course_method || row.delivery_method || row.method || '',
+    target_audience: row.target_audience || row.audience || '',
+    requirements: row.requirements || ''
+  };
 }
 
-function buildCourseMetaHtml(course) {
-  const items = [
-    { icon: '⏱', label: 'المدة', val: course.hours || '20 ساعة' },
-    { icon: '◆', label: 'المستوى', val: course.level || 'متوسط' },
-    { icon: '✓', label: 'الشهادة', val: course.cert || 'شهادة INEXC' }
-  ];
-  return `<div class="info-block info-block-meta">
-    <div class="info-block-head">
-      <span class="info-section-icon" aria-hidden="true">ℹ</span>
-      <span class="info-block-title">بيانات الدورة</span>
-    </div>
-    <div class="info-meta-grid">
-      ${items.map(item => `<div class="info-meta-item">
-        <span class="info-meta-icon">${item.icon}</span>
-        <span class="info-meta-label">${item.label}</span>
-        <span class="info-meta-val">${escapeHtml(item.val)}</span>
-      </div>`).join('')}
-    </div>
+function buildSectionContent(section, course) {
+  const lines = parseCourseLines(course[section.key]);
+  if (section.list) {
+    if (!lines.length) {
+      return `<ul class="info-block-list"><li class="info-block-empty-item">${EMPTY_INFO_TEXT}</li></ul>`;
+    }
+    return `<ul class="info-block-list">${lines.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>`;
+  }
+  if (!lines.length) {
+    return `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
+  }
+  return `<div class="info-block-text">${escapeHtml(lines.join('\n'))}</div>`;
+}
+
+function buildAccordionItem(label, icon, contentHtml) {
+  return `<div class="course-info-item">
+    <button type="button" class="course-info-header" aria-expanded="false">
+      <span class="info-section-icon" aria-hidden="true">${icon}</span>
+      <span class="course-info-header-text">${label}</span>
+      <span class="course-info-header-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="course-info-panel">${contentHtml}</div>
   </div>`;
 }
 
 function buildCourseInfoBody(course) {
-  const descBlock = `<div class="info-block">
-    <div class="info-block-head">
-      <span class="info-section-icon" aria-hidden="true">≡</span>
-      <span class="info-block-title">نبذة عن الدورة</span>
-    </div>
-    <div class="info-block-text">${course.desc ? escapeHtml(course.desc) : '<span class="info-block-empty">—</span>'}</div>
+  const descContent = course.desc
+    ? `<div class="info-block-text">${escapeHtml(course.desc)}</div>`
+    : `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
+
+  const sections = [
+    buildAccordionItem('نبذة عن الدورة', '≡', descContent),
+    ...COURSE_DETAIL_SECTIONS.map(s => buildAccordionItem(s.label, s.icon, buildSectionContent(s, course)))
+  ];
+
+  const metaItems = [
+    { icon: '⏱', label: 'المدة', val: course.hours || '20 ساعة' },
+    { icon: '◆', label: 'المستوى', val: course.level || 'متوسط' },
+    { icon: '✓', label: 'الشهادة', val: course.cert || 'شهادة INEXC' }
+  ];
+  const metaContent = `<div class="info-meta-grid">
+    ${metaItems.map(item => `<div class="info-meta-item">
+      <span class="info-meta-icon">${item.icon}</span>
+      <span class="info-meta-label">${item.label}</span>
+      <span class="info-meta-val">${escapeHtml(item.val)}</span>
+    </div>`).join('')}
   </div>`;
-  const detailBlocks = COURSE_DETAIL_SECTIONS.map(s => buildSectionBlock(s, course)).join('');
-  const metaBlock = buildCourseMetaHtml(course);
-  return descBlock + detailBlocks + metaBlock;
+  sections.push(buildAccordionItem('بيانات الدورة', 'ℹ', metaContent));
+
+  return `<div class="card-info-accordion" data-course-accordion>${sections.join('')}</div>`;
+}
+
+function buildCourseCertificatesHtml(course) {
+  const certs = course.certificates || [];
+  if (!certs.length) return '';
+
+  const items = certs.map(cert => {
+    const name = escapeHtml(cert.certificate_name || cert.name || cert.label || 'شهادة');
+    const issuer = cert.issuer_name ? `<div class="info-block-text">الجهة المصدرة: ${escapeHtml(cert.issuer_name)}</div>` : '';
+    const desc = cert.description || cert.subtitle || '';
+    const descHtml = desc ? `<div class="info-block-text">${escapeHtml(desc)}</div>` : '';
+    const price = Number(cert.price ?? cert.certificate_price ?? cert.price_override) || 0;
+    const priceHtml = price > 0 ? `<div class="cert-info-price">${price.toLocaleString('ar-SA')} د.إ</div>` : '';
+    const body = (issuer || descHtml || priceHtml)
+      ? (issuer + descHtml + priceHtml)
+      : `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
+    return buildAccordionItem(name, '🏅', body);
+  }).join('');
+
+  return `<div class="card-certs-wrap">
+    <div class="card-certs-title">الشهادات المتاحة</div>
+    <div class="card-info-accordion" data-course-accordion>${items}</div>
+  </div>`;
 }
 
 function buildCourseInfoHtml(course) {
-  return `<div class="card-info">
-    <details class="card-info-details">
-      <summary>
-        <span class="card-info-summary-icon" aria-hidden="true">i</span>
-        <span class="card-info-summary-text">مزيد من المعلومات — اضغط للتفاصيل</span>
-      </summary>
-      <div class="card-info-body">${buildCourseInfoBody(course)}</div>
-    </details>
-  </div>`;
+  return `<div class="card-info">${buildCourseInfoBody(course)}</div>`;
 }
 
-function mapDbCourseToHome(c, i) {
+function wireCourseAccordions(root) {
+  const scope = root || document;
+  scope.querySelectorAll('[data-course-accordion]').forEach(group => {
+    group.querySelectorAll('.course-info-item').forEach(item => {
+      const header = item.querySelector('.course-info-header');
+      if (!header || header.dataset.wired === '1') return;
+      header.dataset.wired = '1';
+      header.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        group.querySelectorAll('.course-info-item.open').forEach(openItem => {
+          openItem.classList.remove('open');
+          const btn = openItem.querySelector('.course-info-header');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          header.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  });
+}
+
+function mapDbCourseToHome(c, i, certificates) {
+  const n = normalizeHomeCourse(c);
   const paid = c.type === 'paid';
   return {
-    id: c.id,
-    title: c.name || 'دورة تدريبية',
-    desc: c.description || '',
-    hours: c.hours || '20 ساعة',
-    level: c.level || 'متوسط',
-    cert: c.cert || 'شهادة INEXC',
+    id: n.id,
+    title: n.name || 'دورة تدريبية',
+    desc: n.description || '',
+    hours: n.hours || c.hours || '20 ساعة',
+    level: n.level || c.level || 'متوسط',
+    cert: n.cert || c.cert || 'شهادة INEXC',
     paid,
     price: paid ? (Number(c.price) || 0) : 0,
     days: c.days || (10 + i),
     career_paths: c.career_paths || null,
-    objectives: c.objectives || '',
-    outcomes: c.outcomes || '',
-    what_you_learn: c.what_you_learn || c.learn_content || '',
-    course_method: c.course_method || c.delivery_method || '',
-    target_audience: c.target_audience || '',
-    requirements: c.requirements || ''
+    objectives: n.objectives,
+    outcomes: n.outcomes,
+    what_you_learn: n.what_you_learn,
+    course_method: n.course_method,
+    target_audience: n.target_audience,
+    requirements: n.requirements,
+    certificates: certificates || []
   };
 }
 
@@ -746,10 +870,31 @@ async function loadCoursesForHome() {
     .order('created_at', { ascending: true });
 
   if (error) throw error;
+
+  let certsByCourse = {};
+  try {
+    const { data: certs, error: certError } = await supabaseClient
+      .from('course_certificates')
+      .select('*');
+    if (certError) {
+      console.warn('course_certificates load warning:', certError);
+    } else {
+      (certs || []).forEach(c => {
+        if (c.is_enabled === false) return;
+        const cid = c.course_id;
+        if (!cid) return;
+        if (!certsByCourse[cid]) certsByCourse[cid] = [];
+        certsByCourse[cid].push(c);
+      });
+    }
+  } catch (certErr) {
+    console.warn('course_certificates load failed (non-fatal):', certErr);
+  }
+
   const rows = window.InexcCourseLoad
     ? InexcCourseLoad.dedupeCoursesByName(data || [])
     : (data || []);
-  return rows.map(mapDbCourseToHome);
+  return rows.map((c, i) => mapDbCourseToHome(c, i, certsByCourse[c.id] || []));
 }
 
 function showCoursesError(message) {
@@ -771,7 +916,7 @@ function renderCourses(){
       <div class="card-top">
         <span class="card-type ${c.paid?'paid':'free'}">${c.paid?'مدفوعة':'مجانية'}</span>
         <div class="card-title">${c.title}</div>
-        <a href="register.html?courseId=${encodeURIComponent(c.id)}" class="btn-register">
+        <a href="register.html?course_id=${encodeURIComponent(c.id)}" class="btn-register">
           <span>سجّل الآن</span><span class="btn-arrow">←</span>
         </a>
         <div class="cd-wrap">
@@ -788,6 +933,7 @@ function renderCourses(){
         </div>
       </div>
       ${buildCourseInfoHtml(c)}
+      ${buildCourseCertificatesHtml(c)}
       ${buildCourseCareerPathsHtml(c)}
       <div class="course-price ${c.paid ? '' : 'free-price'}">${c.paid ? c.price + ' د.إ' : 'مجانية'}</div>
       <div class="card-bottom">
@@ -797,6 +943,7 @@ function renderCourses(){
       </div>
     </div>
   `).join('');
+  wireCourseAccordions(grid);
 }
 
 function tick(){
