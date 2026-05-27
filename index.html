@@ -712,6 +712,7 @@ footer span{color:var(--gold);}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="js/course-load-utils.js"></script>
+<script src="js/certificate-system.js"></script>
 <script src="js/course-career-map.js"></script>
 <script>
 function escapeHtml(str) {
@@ -781,8 +782,13 @@ function buildAccordionItem(label, icon, contentHtml) {
   </div>`;
 }
 
+function isCertVisibleForStudent(cert) {
+  if (window.InexcCertificateSystem) return InexcCertificateSystem.isVisibleToStudent(cert);
+  return cert && cert.is_enabled !== false && cert.show_to_student !== false;
+}
+
 function buildCourseCertificatesContent(course) {
-  const certs = (course.certificates || []).filter(c => c && c.is_enabled !== false);
+  const certs = (course.certificates || []).filter(c => isCertVisibleForStudent(c));
   if (!certs.length) {
     return `<div class="info-block-text"><span class="info-block-empty">${EMPTY_INFO_TEXT}</span></div>`;
   }
@@ -968,6 +974,16 @@ async function loadCoursesForHome() {
 
   if (error) throw error;
 
+  let typeCatalog = {};
+  try {
+    const { data: types } = await supabaseClient.from('certificate_types').select('*');
+    if (types?.length && window.InexcCertificateSystem) {
+      typeCatalog = InexcCertificateSystem.buildTypeCatalog(types);
+    }
+  } catch (typeErr) {
+    console.warn('certificate_types load warning:', typeErr);
+  }
+
   let certsByCourse = {};
   try {
     const { data: certs, error: certError } = await supabaseClient
@@ -977,11 +993,14 @@ async function loadCoursesForHome() {
       console.warn('course_certificates load warning:', certError);
     } else {
       (certs || []).forEach(c => {
-        if (c.is_enabled === false) return;
-        const cid = c.course_id;
+        const normalized = window.InexcCertificateSystem
+          ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
+          : c;
+        if (!isCertVisibleForStudent(normalized || c)) return;
+        const cid = (normalized || c).course_id || c.course_id;
         if (!cid) return;
         if (!certsByCourse[cid]) certsByCourse[cid] = [];
-        certsByCourse[cid].push(c);
+        certsByCourse[cid].push(normalized || c);
       });
     }
   } catch (certErr) {

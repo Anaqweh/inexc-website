@@ -912,8 +912,6 @@
         <h2 id="successTitle">تم تسجيلك بنجاح!</h2>
         <p id="successText">شكراً لانضمامك إلى منصة التميز الابتكاري. تحقّق من بريدك الإلكتروني للاطلاع على تفاصيل التسجيل.</p>
         <div class="receipt-result-box" id="receiptResultBox"></div>
-        <a href="account.html" class="btn-back hidden" id="accountLinkBtn">الذهاب إلى حسابي</a>
-        <a href="index.html" class="btn-back" style="margin-top:12px;background:transparent;color:var(--navy);border:2px solid var(--border);">العودة للرئيسية</a>
       </div>
     </div>
   </section>
@@ -1100,7 +1098,14 @@ NOTIFY pgrst, 'reload schema';`;
     }
 
     function getConfiguredCourseCertificates(courseCertificates) {
-      return (courseCertificates || []).filter(c => c && c.is_enabled !== false);
+      if (window.InexcCertificateSystem) {
+        return InexcCertificateSystem.getVisibleForStudent(courseCertificates || []);
+      }
+      return (courseCertificates || []).filter(c => c && c.is_enabled !== false && c.show_to_student !== false);
+    }
+
+    function getVisibleCertificates(courseCertificates) {
+      return getConfiguredCourseCertificates(courseCertificates);
     }
 
     function renderCertificateOptionsForCourse(courseCertificates, preserveSelection, isPaidCourseSelected) {
@@ -1112,22 +1117,27 @@ NOTIFY pgrst, 'reload schema';`;
       if (!container || !group) return;
 
       if (isPaidCourseSelected) {
-        const included = getIncludedCertificates(courseCertificates);
-        if (!included.length) {
+        const visible = getVisibleCertificates(courseCertificates);
+        if (!visible.length) {
           container.innerHTML = '';
           group.classList.add('hidden');
           return;
         }
 
-        if (groupTitle) groupTitle.textContent = 'الشهادات المشمولة في الدورة';
+        if (groupTitle) groupTitle.textContent = 'الشهادات المرتبطة بالدورة';
         if (groupHint) {
-          groupHint.textContent = 'هذه الدورة مدفوعة — السعر شامل للدورة والشهادات التالية (للمعرفة فقط).';
+          groupHint.textContent = 'هذه الدورة مدفوعة — الشهادات المشمولة ضمن السعر. الشهادات الاختيارية تظهر للمعرفة فقط ما لم تُحدَّد كمدفوعة إضافية من لوحة التحكم.';
         }
 
-        container.innerHTML = included.map(cert => {
+        container.innerHTML = visible.map(cert => {
           const name = escapeHtml(cert.certificate_name || cert.name);
           const issuer = escapeHtml(cert.issuer_name || '');
           const desc = escapeHtml(cert.description || '');
+          const included = cert.included_in_paid_course !== false;
+          const price = Number(cert.price ?? cert.certificate_price) || 0;
+          const badge = included
+            ? 'مشمولة'
+            : (price > 0 ? price.toLocaleString('ar-SA') + ' د.إ (اختيارية)' : 'للمعرفة');
           return `
             <div class="certificate-option included-cert readonly-cert">
               <div class="certificate-content">
@@ -1135,7 +1145,7 @@ NOTIFY pgrst, 'reload schema';`;
                 ${issuer ? `<div class="certificate-issuer">الجهة المصدرة: ${issuer}</div>` : ''}
                 ${desc ? `<div class="certificate-subtitle">${desc}</div>` : ''}
               </div>
-              <div class="certificate-price included-badge">مشمولة</div>
+              <div class="certificate-price included-badge">${badge}</div>
             </div>`;
         }).join('');
 
@@ -1187,7 +1197,7 @@ NOTIFY pgrst, 'reload schema';`;
               ${issuer ? `<div class="certificate-issuer">الجهة المصدرة: ${issuer}</div>` : ''}
               ${desc ? `<div class="certificate-subtitle">${desc}</div>` : ''}
             </div>
-            <div class="certificate-price">${price.toLocaleString('ar-SA')} د.إ</div>
+            <div class="certificate-price">${price > 0 ? price.toLocaleString('ar-SA') + ' د.إ' : 'مجانية'}</div>
           </label>`;
       }).join('');
 
@@ -1250,7 +1260,6 @@ NOTIFY pgrst, 'reload schema';`;
 
         const match = (info.certificates || []).find(c => (c.key || c.certificate_type) === certKey);
         const price = Number(match?.price ?? match?.certificate_price) || 0;
-        if (price <= 0) return;
 
         selected.push({
           certificate_type: certKey,
@@ -1350,7 +1359,9 @@ NOTIFY pgrst, 'reload schema';`;
               const normalized = window.InexcCertificateSystem
                 ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
                 : c;
-              if (!normalized || normalized.is_enabled === false) return;
+              if (!normalized || !(window.InexcCertificateSystem
+                ? InexcCertificateSystem.isVisibleToStudent(normalized)
+                : (normalized.is_enabled !== false && normalized.show_to_student !== false))) return;
               const cid = normalized.course_id || c.course_id;
               if (!cid) return;
               if (!certsByCourse[cid]) certsByCourse[cid] = [];
@@ -1427,7 +1438,9 @@ NOTIFY pgrst, 'reload schema';`;
                   .map(c => window.InexcCertificateSystem
                     ? InexcCertificateSystem.normalizeCourseCertificate(c, typeCatalog)
                     : c)
-                  .filter(c => c && c.is_enabled !== false);
+                  .filter(c => c && (window.InexcCertificateSystem
+                    ? InexcCertificateSystem.isVisibleToStudent(c)
+                    : (c.is_enabled !== false && c.show_to_student !== false)));
               } catch (certErr) {
                 console.warn('resolveCourseFromUrl certs:', certErr);
               }
@@ -1520,7 +1533,7 @@ NOTIFY pgrst, 'reload schema';`;
       if (window.InexcCertificateSystem) {
         return InexcCertificateSystem.getIncludedForPaidCourse(courseCertificates || []);
       }
-      return (courseCertificates || []).filter(c => c.is_enabled !== false);
+      return getVisibleCertificates(courseCertificates);
     }
 
     function getSelectedCourseInfo() {
@@ -1753,11 +1766,10 @@ NOTIFY pgrst, 'reload schema';`;
       return emailSent ? REGISTRATION_SUCCESS_WITH_EMAIL : REGISTRATION_SUCCESS_NO_EMAIL;
     }
 
-    function showSuccessScreen({ title, text, receiptUrl, waitingReceipt, accountToken } = {}) {
+    function showSuccessScreen({ title, text, receiptUrl, waitingReceipt } = {}) {
       const successTitle = document.getElementById('successTitle');
       const successText = document.getElementById('successText');
       const receiptResultBox = document.getElementById('receiptResultBox');
-      const accountLinkBtn = document.getElementById('accountLinkBtn');
 
       if (successTitle) successTitle.textContent = title || 'تم تسجيلك بنجاح!';
       if (successText) successText.textContent = text || 'شكراً لانضمامك إلى منصة التميز الابتكاري. تحقّق من بريدك الإلكتروني للاطلاع على تفاصيل التسجيل.';
@@ -1772,16 +1784,6 @@ NOTIFY pgrst, 'reload schema';`;
         } else {
           receiptResultBox.innerHTML = '';
           receiptResultBox.classList.remove('visible');
-        }
-      }
-
-      if (accountLinkBtn) {
-        if (accountToken) {
-          accountLinkBtn.href = 'login.html';
-          accountLinkBtn.textContent = 'الذهاب إلى بوابة المتدرب';
-          accountLinkBtn.classList.remove('hidden');
-        } else {
-          accountLinkBtn.classList.add('hidden');
         }
       }
 
@@ -1909,8 +1911,7 @@ NOTIFY pgrst, 'reload schema';`;
         if (!needsPayment) {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: getRegistrationSuccessText(emailSent),
-            accountToken: accessToken
+            text: getRegistrationSuccessText(emailSent)
           });
           return;
         }
@@ -1965,8 +1966,7 @@ NOTIFY pgrst, 'reload schema';`;
         } else {
           showSuccessScreen({
             title: 'تم تسجيلك بنجاح!',
-            text: getRegistrationSuccessText(emailSent),
-            accountToken: accessToken
+            text: getRegistrationSuccessText(emailSent)
           });
         }
       } finally {

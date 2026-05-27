@@ -2048,6 +2048,16 @@
       border-color: rgba(185, 28, 28, 0.25);
     }
 
+    #page-courses .course-action-btn.delete-hard {
+      color: #991b1b;
+      border-color: rgba(153, 27, 27, 0.35);
+      background: rgba(153, 27, 27, 0.06);
+    }
+
+    #page-courses .course-action-btn.delete-hard:hover {
+      background: rgba(153, 27, 27, 0.12);
+    }
+
     #page-courses .course-action-btn .action-icon {
       font-size: 1rem;
       line-height: 1;
@@ -9034,6 +9044,9 @@
                 ${isInactive
                   ? `<button type="button" class="course-action-btn gold" onclick="reactivateCourse('${c.id}')" title="تفعيل"><span class="action-icon">✅</span><span>تفعيل</span></button>`
                   : `<button type="button" class="course-action-btn danger" onclick="deleteCourse('${c.id}')" title="تعطيل"><span class="action-icon">⏸</span><span>تعطيل</span></button>`}
+                <button type="button" class="course-action-btn delete-hard" onclick="permanentlyDeleteCourse('${c.id}')" title="حذف نهائي">
+                  <span class="action-icon">🗑</span><span>حذف</span>
+                </button>
                 <button type="button" class="course-action-btn" onclick="manageCourseCertificates('${c.id}')" title="إدارة الشهادات">
                   <span class="action-icon">🎓</span><span>الشهادات</span>
                 </button>
@@ -9744,6 +9757,74 @@
         await reloadFromSupabase();
       } catch (err) {
         showSupabaseError(err, 'reload after reactivate course');
+      }
+    };
+
+    window.permanentlyDeleteCourse = async function(courseId) {
+      const course = coursesCache.find(c => String(c.id) === String(courseId));
+      if (!course) {
+        showActionError('تعذّر العثور على الدورة.');
+        return;
+      }
+
+      if (!confirm('هل أنت متأكد من حذف هذه الدورة؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+
+      hideActionError();
+
+      const traineeCount = getCourseTraineeCount(course.name);
+      let certLinkCount = 0;
+      try {
+        const { count, error: certCountError } = await supabaseClient
+          .from('course_certificates')
+          .select('id', { count: 'exact', head: true })
+          .eq('course_id', courseId);
+        if (!certCountError) certLinkCount = count || 0;
+      } catch (_) {}
+
+      if (traineeCount > 0 || certLinkCount > 0) {
+        const parts = [];
+        if (traineeCount > 0) parts.push('تسجيلات متدربين (' + traineeCount + ')');
+        if (certLinkCount > 0) parts.push('روابط شهادات (' + certLinkCount + ')');
+        const proceed = confirm(
+          'تحذير: هذه الدورة مرتبطة بـ ' + parts.join(' و') + '.\n\n' +
+          'سيتم حذف الدورة وروابط الشهادات فقط دون حذف تسجيلات المتدربين.\n' +
+          'هل تريد المتابعة؟'
+        );
+        if (!proceed) return;
+      }
+
+      try {
+        const { error: certDeleteError } = await supabaseClient
+          .from('course_certificates')
+          .delete()
+          .eq('course_id', courseId);
+        if (certDeleteError) {
+          console.warn('course_certificates delete warning:', certDeleteError);
+        }
+
+        try {
+          await supabaseClient.from('training_sessions').delete().eq('course_id', courseId);
+        } catch (_) {}
+
+        const { error } = await supabaseClient
+          .from('courses')
+          .delete()
+          .eq('id', courseId);
+
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('foreign key') || msg.includes('violates') || msg.includes('constraint')) {
+            showActionError('تعذّر حذف الدورة لوجود سجلات مرتبطة بها في قاعدة البيانات (مثل تسجيلات المتدربين). يمكنك تعطيل الدورة بدلاً من الحذف.');
+          } else {
+            showSupabaseError(error, 'delete course permanently');
+          }
+          return;
+        }
+
+        await reloadFromSupabase();
+        showActionSuccess('تم حذف الدورة «' + course.name + '» بنجاح.');
+      } catch (err) {
+        showSupabaseError(err, 'delete course permanently');
       }
     };
 
