@@ -861,14 +861,11 @@
             <input type="text" id="specialty" name="specialty" required placeholder="مثال: معلم لغة عربية / مدرب / إداري">
           </div>
 
-          <!-- قائمة الدورة -->
-          <div class="form-group">
-            <label for="course">الدورة التدريبية <span class="required">*</span></label>
-            <select id="course" name="course" required>
-              <option value="" disabled selected>— جاري تحميل الدورات —</option>
-            </select>
-            <div id="coursePriceBox" class="course-price-box"></div>
-          </div>
+          <!-- قائمة الدورة مخفية — تُحدَّد تلقائياً من الرابط -->
+          <select id="course" name="course" required style="display:none;">
+            <option value="" disabled selected>— جاري تحميل الدورات —</option>
+          </select>
+          <div id="coursePriceBox" style="display:none;"></div>
           <div id="regTypeGroup" style="display:none;"></div>
           <div style="display:none;"><div id="regTypeNote"></div></div>
 
@@ -1434,8 +1431,8 @@ NOTIFY pgrst, 'reload schema';`;
         const { data, error } = await supabaseClient
           .from('courses')
           .select('*')
-          
-          .order.order('created_at', { ascending: true });
+          .eq('status', 'active')
+          .order('created_at', { ascending: true });
 
         courseSelect.innerHTML = '<option value="" disabled selected>— اختر الدورة —</option>';
         coursesById = {};
@@ -1512,8 +1509,8 @@ NOTIFY pgrst, 'reload schema';`;
             .from('courses')
             .select('*')
             .eq('id', courseId)
-            
-            .maybeSingle.maybeSingle();
+            .eq('status', 'active')
+            .maybeSingle();
 
           if (error) {
             console.error('resolveCourseFromUrl by id:', error);
@@ -1542,8 +1539,8 @@ NOTIFY pgrst, 'reload schema';`;
             .from('courses')
             .select('*')
             .eq('name', courseName)
-            
-            .limit.limit(1)
+            .eq('status', 'active')
+            .limit(1)
             .maybeSingle();
 
           if (error) {
@@ -2114,6 +2111,6 @@ NOTIFY pgrst, 'reload schema';`;
     })();
   </script>
 
-
+<script src="whatsapp-float.js"></script>
 </body>
 </html>
